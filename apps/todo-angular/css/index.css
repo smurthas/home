@@ -1,0 +1,57 @@
+h1 {
+	top: 20px;
+	width: 100%;
+	font-size: 70px;
+	font-weight: bold;
+	text-align: center;
+	color: #b3b3b3;
+	color: rgba(255, 255, 255, 0.3);
+	text-shadow: -1px -1px rgba(0, 0, 0, 0.2);
+	-webkit-text-rendering: optimizeLegibility;
+	-moz-text-rendering: optimizeLegibility;
+	-ms-text-rendering: optimizeLegibility;
+	-o-text-rendering: optimizeLegibility;
+	text-rendering: optimizeLegibility;
+}
+
+.log-in-out-button {
+  margin: 0 auto;
+  /*background: rgba(0, 0, 0, 0.15);*/
+  border: 1px solid;
+}
+.log-in-out-button:hover {
+  cursor: pointer;
+}
+
+#login {
+  font-size: 46px;
+  padding: 10px 20px;
+  border-radius: 36px;
+  margin-top: 10px;
+  display: block;
+}
+
+
+#login-right, #logout {
+  float: right;
+  font-size: 24px;
+  padding: 10px;
+  border-radius: 20px;
+  margin-top: -10px;
+  width: 140px;
+}
+
+#todoapp {
+  margin-top: 40px;
+}
+
+#todo-done-count {
+  margin-left: 10px;
+  float: left;
+  text-align: left;
+}
+
+#filters {
+  margin-left: 40px;
+}
+
