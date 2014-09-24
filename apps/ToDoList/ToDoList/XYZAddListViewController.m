@@ -8,7 +8,11 @@
 
 #import "XYZAddListViewController.h"
 
+#import "HMAccount.h"
+
 @interface XYZAddListViewController ()
+@property (weak, nonatomic) IBOutlet UITextField *textField;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
 
 @end
 
@@ -35,7 +39,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -43,7 +47,18 @@
 {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    
+    if (sender != self.doneButton) return;
+    
+    if (self.textField.text.length > 0) {
+        self.listItem = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"name": self.textField.text
+        }];
+    }
+    
+    NSLog(@"listItem: %@", self.listItem);
+    [[HMAccount currentAccount] saveInBackground:self.listItem toCollection:@"lists"];
 }
-*/
+
 
 @end

@@ -16,8 +16,6 @@
 
 @interface XYZToDoListTableViewController ()
 
-@property NSMutableArray *toDoItems;
-
 @end
 
 @implementation XYZToDoListTableViewController
@@ -25,12 +23,16 @@
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
     HMQuery *query = [HMQuery queryWithClassName:@"todos"];
     [query whereKey:@"logged" equalTo:@NO];
+    [query whereKey:@"list" equalTo:self.listItem[@"name"]];
+    
+    NSLog(@"my list name: %@", self.listItem[@"name"]);
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+        NSLog(@"objects count: %@", @([objects count]));
         if (error == nil) {
-            [self.toDoItems removeAllObjects];
-            [self.toDoItems addObjectsFromArray:objects];
+            self.toDoItems = [NSMutableArray arrayWithArray:objects];
             [self.tableView reloadData];
         }
+        NSLog(@"self.toDoItems count: %@", @([self.toDoItems count]));
         callbackBlock(error);
     }];
 }
@@ -38,15 +40,14 @@
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue
 {
     XYZAddToDoItemViewController *source = [segue sourceViewController];
+    
     NSLog(@"todoItem: %@", source.toDoItem);
     if (source.toDoItem != nil) {
+        source.toDoItem[@"list"] = self.listItem[@"name"];
+        [[HMAccount currentAccount] saveInBackground:source.toDoItem toCollection:@"todos"];
         [self.toDoItems addObject:source.toDoItem];
         [self.tableView reloadData];
     }
-}
-- (IBAction)login:(id)sender {
-    NSString *publicKey = @"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoDKn2wdotXbLheSn09g/\nsjAc0rhYb8+KdQDB+zKp9Cq63qJDfR+r8sBn5QLz98LLEWKi7Q3v61Ih9ySUFlqy\nF/dCbugu+Xc8zIxK/8kWk+U1/umc7M6jKD7kw7qhomj/pieEw4UQ9cH0CdxM3U6w\noRSIU/pBix4K1nu8bgpgYzam1e9QTRu+yPw0a0DIsB8Ma7QDFbtcRBm1yi21yQkA\ne1orm2Az7ETZ1pZrGXrcBqcJ/IM3kWSh+mY1earsE1ihgeWueJqBd77zRYI5+0Uf\nN/DxtZUGOIPpKmY20zBgZM4aQO/Il+ZVIRVMJuB0fpimPawFLx8rPyuLbKjjfxyy\n9QIDAQAB\n-----END PUBLIC KEY-----";
-    [HMAccount loginWithPublicKey:publicKey callbackURI:@"todos://com.sms.todos/auth_complete"];
 }
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -62,13 +63,53 @@
 {
     [super viewDidLoad];
     
-    self.toDoItems = [[NSMutableArray alloc] init];
+    [self loadInitialData:^(NSError *error) {
+        NSLog(@"reloaded data");
+    }];
+    
+    [self.navigationController setToolbarHidden:NO animated:NO];
+    
+//    self.toDoItems = [[NSMutableArray alloc] init];
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+}
+
+- (IBAction)shareList:(id)sender {
+    NSLog(@"sharing list %@", self.listItem[@"name"]);
+    // pick or enter user info
+    HMAccount *toAccount = [HMAccount accountWithBaseUrl:@"http://localhost:2751" publicKey:@"blargh"];
+    HMAccount *account = [HMAccount currentAccount];
+    [account createGrantWithAccount:toAccount forResource:self.listItem block:^(NSDictionary *grant, NSError *error) {
+        NSMutableArray *collaborators = self.listItem[@"collaborators"];
+        if (!collaborators || !collaborators.count) {
+            collaborators = [[NSMutableArray alloc] init];
+            self.listItem[@"collaborators"] = collaborators;
+        }
+        
+        [collaborators addObject:@{@"pubkey":[toAccount getPublicKey]}];
+        
+        [account saveInBackground:self.listItem toCollection:@"lists"];
+        for (NSMutableDictionary *todo in self.toDoItems) {
+            todo[@"acl"] = grant;
+            [account saveInBackground:todo toCollection:@"todos"];
+        }
+        NSDictionary *resource = @{
+            @"baseUrl": [account getBaseUrl],
+            @"resource": @"/apps/todos"
+        };
+        
+        [account sendGrant:grant toAccount:toAccount forResource:resource];
+    }];
+    
+    
+//    [[HMAccount currentAccount] saveInBackground:list toCollection:@"lists"];
+    // TODO: grant permission
+//    NSMutableArray *ids =
+//    [[HMAccount currentAccount] addAuthorization:objectIDs forPublicKey:toAccountPublicKey];
 }
 
 - (void)refresh:(id)sender

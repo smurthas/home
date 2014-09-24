@@ -10,4 +10,6 @@
 
 @interface XYZAddListViewController : UIViewController
 
+@property NSMutableDictionary *listItem;
+
 @end

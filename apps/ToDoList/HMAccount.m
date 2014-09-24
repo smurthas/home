@@ -17,12 +17,23 @@ static HMAccount *currentAccount;
 @interface HMAccount ()
 
 @property NSString* token;
+@property NSString* accountID;
+@property NSString* appID;
 @property NSString* baseUrl;
+@property NSString* publicKey;
 
 @end
 
 
 @implementation HMAccount
+
++ (HMAccount*) accountWithBaseUrl:(NSString*)baseUrl publicKey:(NSString*)publicKey {
+    HMAccount* account = [[HMAccount alloc] init];
+    account.baseUrl = baseUrl;
+    account.publicKey = publicKey;
+    
+    return account;
+}
 
 + (void) loginWithPublicKey:(NSString*)pubkey callbackURI:(NSString*)redirectURI {
 
@@ -38,9 +49,11 @@ static HMAccount *currentAccount;
     return currentAccount;
 }
 
-+ (void) becomeWithToken:(NSString*)token baseURL:(NSString*)baseURL block:(void (^)(BOOL succeeded, NSError* error))callbackBlock {
++ (void) becomeWithToken:(NSString*)token accountID:(NSString*)accountID appID:(NSString*)appID baseURL:(NSString*)baseURL block:(void (^)(BOOL succeeded, NSError* error))callbackBlock {
     currentAccount = [[HMAccount alloc] init];
     currentAccount.token = token;
+    currentAccount.accountID = accountID;
+    currentAccount.appID = appID;
     currentAccount.baseUrl = baseURL;
     callbackBlock(YES, nil);
 }
@@ -53,11 +66,23 @@ static HMAccount *currentAccount;
     return self.baseUrl;
 }
 
+- (NSString *) getPublicKey {
+    return self.publicKey;
+}
+
+- (NSString*) URLStringForCollection:(NSString*)collection {
+    return [[[[[[[self.baseUrl
+                  stringByAppendingString:@"/apps/"]
+                 stringByAppendingString:self.appID]
+                stringByAppendingString:@"/"]
+               stringByAppendingString:self.accountID]
+              stringByAppendingString:@"/"]
+             stringByAppendingString: collection]
+            stringByAppendingString:@"/"];
+}
+
 - (void) updateInBackground:(NSMutableDictionary*)object toCollection:(NSString*)collection {
-    NSString *url = [[[[[[self.baseUrl
-        stringByAppendingString:@"/apps/"]
-        stringByAppendingString: collection]
-        stringByAppendingString:@"/"]
+    NSString *url = [[[[self URLStringForCollection:collection]
         stringByAppendingString: object[@"_id"]]
         stringByAppendingString:@"?token="]
         stringByAppendingString:self.token];
@@ -82,9 +107,7 @@ static HMAccount *currentAccount;
         return;
     }
     
-    NSString *url = [[[[self.baseUrl
-                        stringByAppendingString:@"/apps/"]
-                       stringByAppendingString: collection]
+    NSString *url = [[[self URLStringForCollection:collection]
                       stringByAppendingString:@"?token="]
                      stringByAppendingString:self.token];
     
@@ -124,6 +147,15 @@ static HMAccount *currentAccount;
         NSLog(@"Error: %@", error);
         //callbackBlock(nil, error);
     }];
+}
+
+- (void) createGrantWithAccount:(HMAccount *)toAccount forResource:(NSDictionary*)resource block:(void (^)(NSDictionary *, NSError *))callbackBlock {
+    
+    callbackBlock(nil, nil);
+}
+
+- (void)sendGrant:(NSDictionary*)grant toAccount:(HMAccount*)toAccount forResource:(NSDictionary*)resource {
+    
 }
 
 @end

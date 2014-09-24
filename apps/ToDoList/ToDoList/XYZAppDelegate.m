@@ -26,6 +26,7 @@
     
     NSMutableDictionary *queryDict = [[NSMutableDictionary alloc] init];
     NSArray *urlComponents = [queryString componentsSeparatedByString:@"&"];
+    NSLog(@"compoentns %@", urlComponents);
     
     for (NSString *keyValuePair in urlComponents)
     {
@@ -50,12 +51,18 @@
             NSLog(@"query %@", url.query);
             
             NSDictionary *query = [self queryDictFromString:url.query];
+            NSLog(@"parsed query %@", query);
             NSString *token = query[@"token"];
+            NSString *accountID = query[@"account_id"];
             NSString *baseURL = query[@"base_url"];
             
-            NSLog(@"token: %@", token);
+            // TODO: make this more real
+            NSString *appID = @"myTodos";
             
-            [HMAccount becomeWithToken:token baseURL:baseURL block:^(BOOL succeeded, NSError *error) {
+            NSLog(@"token: %@", token);
+            NSLog(@"accountID: %@", accountID);
+            NSLog(@"baseURL: %@", baseURL);
+            [HMAccount becomeWithToken:token accountID:accountID appID:appID baseURL:baseURL block:^(BOOL succeeded, NSError *error) {
                 if (error != nil) {
                     NSLog(@"error becoming in bg %@", error);
                     return;

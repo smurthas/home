@@ -8,9 +8,9 @@
 
 #import "XYZAddToDoItemViewController.h"
 
-#import "HMAccount.h"
+//#import "HMAccount.h"
 
-#import <AFNetworking.h>
+//#import <AFNetworking.h>
 
 @interface XYZAddToDoItemViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *textField;
@@ -56,7 +56,6 @@
         [self.toDoItem setValue: @NO forKey:@"logged"];
     }
     
-    [[HMAccount currentAccount] saveInBackground:self.toDoItem toCollection:@"todos"];
 }
 
 

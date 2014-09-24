@@ -10,6 +10,9 @@
 
 @interface XYZToDoListTableViewController : UITableViewController
 
+@property NSMutableArray *toDoItems;
+@property NSMutableDictionary *listItem;
+
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue;
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock;
 

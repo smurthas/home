@@ -17,7 +17,7 @@
 @interface HMQuery ()
 
 @property NSString *className;
-@property NSMutableArray *filters;
+@property NSMutableDictionary *filters;
 
 @end
 
@@ -27,7 +27,7 @@
     HMQuery *query = [[HMQuery alloc] init];
     query.className = className;
     
-    query.filters = [[NSMutableArray alloc] init];
+    query.filters = [[NSMutableDictionary alloc] init];
     
     return query;
 }
@@ -39,33 +39,37 @@
 - (void) whereKey:(NSString*)whereKey equalTo:(id)equalTo {
     NSLog(@"whereKey %@", whereKey);
     NSLog(@"equalTo %@", equalTo);
-    NSDictionary *filter = @{whereKey: equalTo};
-    [self.filters addObject:filter];
+    self.filters[whereKey] = equalTo;
+//    NSDictionary *filter = @{whereKey: equalTo};
+//    [self.filters addObject:filter];
 }
 
 - (NSString*) filterString {
-    NSDictionary *filter = self.filters[0];
+    if (!self.filters || self.filters.count < 1) return nil;
     
     SBJson4Writer *writer = [[SBJson4Writer alloc] init];
-    NSString* string = [writer stringWithObject:filter];
+    NSString* string = [writer stringWithObject:self.filters];
     
     return [string stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
 - (void) findObjectsInBackgroundWithBlock:(void (^)(NSArray *object, NSError* error))callbackBlock {
     NSString *token = [[HMAccount currentAccount] getToken];
-    NSString *baseUrl = [[HMAccount currentAccount] getBaseUrl];
+    NSString *url = [[[[HMAccount currentAccount] URLStringForCollection:self.className ]
+                      stringByAppendingString:@"?token="]
+                     stringByAppendingString:token];
+    
     NSString *filterString = [self filterString];
     
-    NSString *url = [[[[[[baseUrl
-        stringByAppendingString:@"/apps/"]
-        stringByAppendingString:self.className]
-        stringByAppendingString:@"?filter="]
-        stringByAppendingString:filterString]
-        stringByAppendingString:@"&token="]
-        stringByAppendingString:token];
+    NSLog(@"url1 %@", url);
     
-    NSLog(@"url %@", url);
+    if (filterString) {
+        url = [[url stringByAppendingString:@"&filter="]
+            stringByAppendingString:filterString];
+    }
+    
+    
+    NSLog(@"url2 %@", url);
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.responseSerializer = [AFJSONResponseSerializer serializerWithReadingOptions: NSJSONReadingMutableContainers];

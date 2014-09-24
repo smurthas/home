@@ -25,8 +25,9 @@
 		F4177B0319C7C42A0009667A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4177B0219C7C42A0009667A /* Main.storyboard */; };
 		F4177B0619C7D2F50009667A /* XYZAddToDoItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4177B0519C7D2F50009667A /* XYZAddToDoItemViewController.m */; };
 		F4177B0C19C7D3E90009667A /* XYZToDoListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4177B0B19C7D3E90009667A /* XYZToDoListTableViewController.m */; };
-		F4177B1519C934E60009667A /* libKeenClient-Aggregate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177B1419C934E60009667A /* libKeenClient-Aggregate.a */; };
 		F4177B1719C935070009667A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177B1619C935070009667A /* CoreLocation.framework */; };
+		F44F408C19CDF85A0061E4AB /* XYZListsListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */; };
+		F44F408F19CE5BB90061E4AB /* XYZAddListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,10 @@
 		F4177B1319C934E60009667A /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
 		F4177B1419C934E60009667A /* libKeenClient-Aggregate.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libKeenClient-Aggregate.a"; sourceTree = "<group>"; };
 		F4177B1619C935070009667A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		F44F408A19CDF85A0061E4AB /* XYZListsListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XYZListsListTableViewController.h; sourceTree = "<group>"; };
+		F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XYZListsListTableViewController.m; sourceTree = "<group>"; };
+		F44F408D19CE5BB90061E4AB /* XYZAddListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XYZAddListViewController.h; path = ToDoList/XYZAddListViewController.h; sourceTree = "<group>"; };
+		F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XYZAddListViewController.m; path = ToDoList/XYZAddListViewController.m; sourceTree = "<group>"; };
 		F68ED5621BD34740BE91411B /* libPods-ToDoList.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ToDoList.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -81,7 +86,6 @@
 			files = (
 				F4177B1719C935070009667A /* CoreLocation.framework in Frameworks */,
 				F4177AD619C7C1CB0009667A /* CoreGraphics.framework in Frameworks */,
-				F4177B1519C934E60009667A /* libKeenClient-Aggregate.a in Frameworks */,
 				F4177AD819C7C1CB0009667A /* UIKit.framework in Frameworks */,
 				F4177AD419C7C1CB0009667A /* Foundation.framework in Frameworks */,
 				45FBC0B9F8A6451BAFD8C6A2 /* libPods-ToDoList.a in Frameworks */,
@@ -111,8 +115,12 @@
 				F4177B1019C934E60009667A /* KeenClient */,
 				F4177B0A19C7D3E90009667A /* XYZToDoListTableViewController.h */,
 				F4177B0B19C7D3E90009667A /* XYZToDoListTableViewController.m */,
+				F44F408A19CDF85A0061E4AB /* XYZListsListTableViewController.h */,
+				F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */,
 				F4177B0419C7D2F50009667A /* XYZAddToDoItemViewController.h */,
 				F4177B0519C7D2F50009667A /* XYZAddToDoItemViewController.m */,
+				F44F408D19CE5BB90061E4AB /* XYZAddListViewController.h */,
+				F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */,
 				F4177AD919C7C1CB0009667A /* ToDoList */,
 				F4177AF219C7C1CB0009667A /* ToDoListTests */,
 				F4177AD219C7C1CB0009667A /* Frameworks */,
@@ -329,7 +337,9 @@
 			files = (
 				F407B4A919CA68830075C3DC /* HMAccount.m in Sources */,
 				F4177AE419C7C1CB0009667A /* XYZAppDelegate.m in Sources */,
+				F44F408C19CDF85A0061E4AB /* XYZListsListTableViewController.m in Sources */,
 				F407B4A319CA63FB0075C3DC /* HMQuery.m in Sources */,
+				F44F408F19CE5BB90061E4AB /* XYZAddListViewController.m in Sources */,
 				F4177AE019C7C1CB0009667A /* main.m in Sources */,
 				F4177B0C19C7D3E90009667A /* XYZToDoListTableViewController.m in Sources */,
 				F4177B0619C7D2F50009667A /* XYZAddToDoItemViewController.m in Sources */,
