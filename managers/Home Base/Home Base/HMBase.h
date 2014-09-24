@@ -10,6 +10,12 @@
 
 @interface HMBase : NSObject
 
-- (void)generateAccessToken:managerToken withPublicKey:(NSString*)publicKey block:(void (^)(NSString* token, NSError* error))callbackBlock;
+@property NSString *managerToken;
+@property NSString *baseURL;
 
++ (HMBase*)baseWithBaseURL:(NSString*)baseUrl andManagerToken:(NSString*)managerToken;
+
+- (void)getAccountsForApp:(NSString*)appID block:(void (^)(NSArray* accounts, NSError* error))callbackBlock;
+- (void)createAccountAndGrantForApp:(NSString*)appID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
+- (void)createGrantForApp:(NSString*)appID accountID:(NSString*)accountID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
 @end
