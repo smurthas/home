@@ -138,8 +138,8 @@ angular.module('todomvc')
 					$scope.newTodo = '';
 					todoStorage.add(todo, function(err, _id) {
 						todo._id = _id;
-						console.error('pushing todo', todo);
-						todos.push(todo);
+						console.error('unshifting todo', todo);
+						todos.unshift(todo);
 					});
 				}
 			});
