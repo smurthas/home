@@ -2,6 +2,7 @@ var qs = require('querystring');
 var url = require('url');
 
 var express = require('express');
+var uuid = require('uuid');
 
 var backend = require('./lib/be-single-fs.js');
 var tokens = require('./lib/tokens.js');
@@ -28,7 +29,6 @@ app.use('/', function(req, res, next) {
 
 function verifyAuth(req, res, next) {
   var token = req.query.token;
-  console.error('token', token);
   if (!token && req.headers.Authorization) {
     try {
       token = req.headers.Authorization.trim().substring(5).trim().split('=')[1];
@@ -42,10 +42,9 @@ function verifyAuth(req, res, next) {
   }
 
   token = tokens.verifyToken(token);
-  console.error('token unwrapped', token);
-  if (!token || !token.key)  return res.send(401);
+  if (!token || !token._id)  return res.send(401);
 
-  req.appKey = token.key;
+  req.grantID = token._id;
 
   next();
 }
@@ -62,13 +61,12 @@ app.post('/auth/managers', function(req, res) {
   var secondFactorToken = req.body.second_factor_token;
   var requestToken = tokens.verifyToken(req.body.request_token);
 
-  if (!requestToken || !requestToken.key || requestToken.key !== secondFactorToken) {
+  if (!requestToken || !requestToken._id || requestToken._id !== secondFactorToken) {
     return res.status(401).end();
   }
 
   var password = req.body.password;
   tokens.verifyPassword(password, function(err, success) {
-    console.error('err', err);
     if (err) return res.status(400).json({
       error: err
     });
@@ -81,11 +79,10 @@ app.post('/auth/managers', function(req, res) {
   });
 });
 
+// this is a manager creating account tokens
 app.post('/auth/tokens', function(req, res) {
   var managerToken = req.body.manager_token;
   var pubKey = req.body.pub_key;
-
-  console.error('creating token for pubKey', pubKey);
 
   if (!managerToken || !pubKey) {
     return res.status(400).end();
@@ -103,6 +100,7 @@ app.post('/auth/tokens', function(req, res) {
     token: token
   });
 });
+
 
 app.get('/authstart', function(req, res) {
   var redirectURI = req.query.redirect_uri;
@@ -156,18 +154,73 @@ app.get('/authcomplete', function(req, res) {
   res.redirect(verification.redirectURI);
 });
 
+// Create a new account for an app
+app.post('/apps/:appID', function(req, res) {
+  var managerToken = tokens.verifyManagerToken(req.query.manager_token || req.body.manager_token);
+  if (!managerToken) return res.status(401).end();
+
+  var grantID = uuid.v4();
+  var token = tokens.generateToken(grantID);
+
+  backend.createAccount({
+    appID: req.params.appID,
+    accountName: req.body.accountName,
+    grantID: grantID
+  }, function(err, account) {
+    if (err) return res.status(500).end();
+
+    res.status(201).json({
+      account: account._id,
+      token: token
+    });
+  });
+});
+
+// Create a new grant for an account
+app.post('/apps/:appID/:accountID/__grants', function(req, res) {
+  var managerToken = tokens.verifyManagerToken(req.query.manager_token || req.body.manager_token);
+  if (!managerToken) return res.status(401).end();
+
+  var grantID = uuid.v4();
+  var token = tokens.generateToken(grantID);
+
+  backend.createGrantForAccount({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    grantID: grantID
+  }, function(err) {
+    if (err) return res.status(500).json({msg:err});
+
+    res.status(201).json({
+      token: token
+    });
+  });
+});
+
+// Get list of accounts for an app
+app.get('/apps/:appID', function(req, res) {
+  var managerToken = tokens.verifyManagerToken(req.query.manager_token || req.body.manager_token);
+  if (!managerToken) return res.status(401).end();
+
+  backend.getAccounts({
+    appID: req.params.appID
+  }, function(err, accounts) {
+    if (err) return res.status(500).end();
+    res.status(200).json(accounts);
+  });
+});
 
 app.use('/apps', verifyAuth);
-
 
 // CRUDy endpoints
 
 // read many
-app.get('/apps/:collection', function(req, res) {
+app.get('/apps/:appID/:accountID/:collectionID', function(req, res) {
   console.error('Read Many:', req.query.filter);
   backend.get({
-    appID: req.appKey,
-    collection: req.params.collection,
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
     filter: req.query.filter && JSON.parse(req.query.filter)
   }, function(err, data) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
@@ -178,11 +231,27 @@ app.get('/apps/:collection', function(req, res) {
 
 
 // create one
-app.post('/apps/:collection', function(req, res) {
+app.post('/apps/:appID/:accountID/:collectionID', function(req, res) {
   console.error('Create One:', req.body);
   backend.insert({
-    appID: req.appKey,
-    collection: req.params.collection,
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
+    object: req.body
+  }, function(err, response) {
+    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    res.status(201).json(response);
+  });
+});
+
+
+// update the collection's meta data (ACL, etc?)
+app.put('/apps/:appID/:accountID/:collectionIDJ', function(req, res) {
+  console.error('Create One:', req.body);
+  backend.insert({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
     object: req.body
   }, function(err, response) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
@@ -192,12 +261,13 @@ app.post('/apps/:collection', function(req, res) {
 
 
 // update one
-app.put('/apps/:collection/:_id', function(req, res) {
+app.put('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
   console.error('Update One:', req.body);
   backend.update({
-    appID: req.appKey,
-    collection: req.params.collection,
-    _id: req.params._id,
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
+    _id: req.params.objectID,
     object: req.body
   }, function(err, response) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
@@ -206,11 +276,12 @@ app.put('/apps/:collection/:_id', function(req, res) {
 });
 
 // update many
-app.put('/apps/:collection/__batch', function(req, res) {
+app.put('/apps/:appID/:accountID/:collectionID/__batch', function(req, res) {
   console.error('Update Many:', req.body);
   backend.updateMulti({
-    appID: req.appKey,
-    collection: req.params.collection,
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
     objects: req.body
   }, function(err, response) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
@@ -220,12 +291,13 @@ app.put('/apps/:collection/__batch', function(req, res) {
 
 
 // delete one
-app.delete('/apps/:collection/:_id', function(req, res) {
+app.delete('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
   console.error('Delete One:', req.params._id);
   backend.delete({
-    appID: req.appKey,
-    collection: req.params.collection,
-    _id: req.params._id,
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
+    _id: req.params.objectID,
   }, function(err) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
     res.status(204).end();
