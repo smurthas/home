@@ -130,15 +130,20 @@
     } else if (popup.tag == 1) {
         // create account button is first
         if (buttonIndex == 0) {
-            [self.base createAccountAndGrantForApp:self.pubkey block:^(NSDictionary *info, NSError *error) {
+            [self.base createAccountAndApp:self.pubkey block:^(NSDictionary *info, NSError *error) {
+                NSLog(@"info: %@", info);
                 NSLog(@"token: %@", info[@"token"]);
-                [self redirectWithToken:info[@"token"] accountID:info[@"account"]];
+                [self redirectWithToken:info[@"token"] accountID:info[@"account_id"]];
             }];
         } else if (buttonIndex == popup.cancelButtonIndex) {
             return;
         } else {
             NSString *accountID = [popup buttonTitleAtIndex:buttonIndex];
-            [self.base createGrantForApp:self.pubkey accountID:accountID block:^(NSDictionary *info, NSError *error) {
+            NSDictionary *permissions = @{
+                @"createCollections": @YES,
+                @"createGrants": @YES
+            };
+            [self.base createGrantForApp:self.pubkey accountID:accountID permissions:permissions block:^(NSDictionary *info, NSError *error) {
                 NSLog(@"token: %@", info[@"token"]);
                 [self redirectWithToken:info[@"token"] accountID:accountID];
             }];
@@ -188,9 +193,9 @@
 {
     NSLog(@"index %ld", (long)buttonIndex);
     NSLog(@"pubkey %@, would open %@", self.pubkey, self.redirectURI);
-    [self.base createAccountAndGrantForApp:self.pubkey block:^(NSDictionary *info, NSError *error) {
-        NSLog(@"token: %@", info[@"token"]);
-        [self redirectWithToken:info[@"token"] accountID:info[@"account"]];
+    [self.base createAccountAndApp:self.pubkey block:^(NSDictionary *info, NSError *error) {
+        NSLog(@"info: %@", info);
+        [self redirectWithToken:info[@"token"] accountID:info[@"account_id"]];
     }];
 }
 

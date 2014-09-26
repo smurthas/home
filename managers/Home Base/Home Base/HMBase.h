@@ -16,6 +16,6 @@
 + (HMBase*)baseWithBaseURL:(NSString*)baseUrl andManagerToken:(NSString*)managerToken;
 
 - (void)getAccountsForApp:(NSString*)appID block:(void (^)(NSArray* accounts, NSError* error))callbackBlock;
-- (void)createAccountAndGrantForApp:(NSString*)appID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
-- (void)createGrantForApp:(NSString*)appID accountID:(NSString*)accountID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
+- (void)createAccountAndApp:(NSString*)appID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
+- (void)createGrantForApp:(NSString*)appID accountID:(NSString*)accountID permissions:(NSDictionary*)dictionary block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
 @end

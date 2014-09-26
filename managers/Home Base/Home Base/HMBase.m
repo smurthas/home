@@ -35,7 +35,7 @@
     }];
 }
 
-- (void)createAccountAndGrantForApp:(NSString*)appID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock {
+- (void)createAccountAndApp:(NSString*)appID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock {
     NSString *url = [[self.baseURL stringByAppendingString: @"/apps/"] stringByAppendingString:appID];
     NSDictionary *parameters = @{@"manager_token": self.managerToken};
     
@@ -49,13 +49,17 @@
     }];
 }
 
-- (void)createGrantForApp:(NSString*)appID accountID:(NSString*)accountID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock {
+- (void)createGrantForApp:(NSString*)appID accountID:(NSString*)accountID permissions:(NSDictionary*)permissions block:(void (^)(NSDictionary* info, NSError* error))callbackBlock {
     
     NSString *url = [[[[[self.baseURL
         stringByAppendingString: @"/apps/"] stringByAppendingString:appID]
         stringByAppendingString: @"/"] stringByAppendingString:accountID]
         stringByAppendingString: @"/__grants"];
-    NSDictionary *parameters = @{@"manager_token": self.managerToken};
+    NSDictionary *parameters = @{
+        @"manager_token": self.managerToken,
+        @"permissions": permissions,
+        @"to_account_id": accountID
+    };
     
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
