@@ -17,12 +17,18 @@
 
 
 - (NSString *) getToken;
+- (NSString *) getAccountID;
 - (NSString *) getBaseUrl;
 - (NSString *) getPublicKey;
+
 - (void) saveInBackground:(NSDictionary*)object toCollection:(NSString*)collection;
 - (void) deleteInBackground:(NSDictionary*)object fromCollection:(NSString*)collection;
 - (void) createGrantWithAccount:(HMAccount*)toAccount forResource:(NSDictionary *)resource block:(void (^)(NSDictionary* grant, NSError* error))callbackBlock;
 - (void)sendGrant:(NSDictionary*)grant toAccount:(HMAccount*)toAccount forResource:(NSDictionary*)resource;
+
+- (void) createCollectionWithAttributes:(NSDictionary*)attributes block:(void (^)(NSDictionary* collection, NSError* error))callbackBlock;
+
+- (NSString*) URLStringForAccount;
 - (NSString*) URLStringForCollection:(NSString*)collection;
 
 @end

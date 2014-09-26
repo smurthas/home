@@ -21,12 +21,12 @@
 @implementation XYZToDoListTableViewController
 
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
-    HMQuery *query = [HMQuery queryWithClassName:@"todos"];
+    HMQuery *query = [HMQuery objectQueryWithClassName:@"todos"];
     [query whereKey:@"logged" equalTo:@NO];
     [query whereKey:@"list" equalTo:self.listItem[@"name"]];
     
     NSLog(@"my list name: %@", self.listItem[@"name"]);
-    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+    [query findInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
         NSLog(@"objects count: %@", @([objects count]));
         if (error == nil) {
             self.toDoItems = [NSMutableArray arrayWithArray:objects];

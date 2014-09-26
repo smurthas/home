@@ -52,12 +52,20 @@
     
     if (self.textField.text.length > 0) {
         self.listItem = [NSMutableDictionary dictionaryWithDictionary:@{
-            @"name": self.textField.text
+            @"name": self.textField.text,
+            @"type": @"list",
+            @"_grants": [NSMutableDictionary dictionaryWithDictionary:@{
+                [[HMAccount currentAccount] getAccountID]: @{
+                    @"createObjects": @YES
+                }
+            }]
         }];
     }
     
     NSLog(@"listItem: %@", self.listItem);
-    [[HMAccount currentAccount] saveInBackground:self.listItem toCollection:@"lists"];
+    [[HMAccount currentAccount] createCollectionWithAttributes:self.listItem block:^(NSDictionary *collection, NSError *error) {
+        NSLog(@"collection: %@", collection);
+    }];
 }
 
 

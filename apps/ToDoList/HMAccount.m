@@ -62,6 +62,10 @@ static HMAccount *currentAccount;
     return self.token;
 }
 
+- (NSString *) getAccountID {
+    return self.accountID;
+}
+
 - (NSString *) getBaseUrl {
     return self.baseUrl;
 }
@@ -70,15 +74,25 @@ static HMAccount *currentAccount;
     return self.publicKey;
 }
 
+
+- (NSString*) URLStringForAccount {
+    return [[[[[self.baseUrl
+        stringByAppendingString:@"/apps/"]
+        stringByAppendingString:self.appID]
+        stringByAppendingString:@"/"]
+        stringByAppendingString:self.accountID]
+        stringByAppendingString:@"/"];
+}
+
 - (NSString*) URLStringForCollection:(NSString*)collection {
     return [[[[[[[self.baseUrl
-                  stringByAppendingString:@"/apps/"]
-                 stringByAppendingString:self.appID]
-                stringByAppendingString:@"/"]
-               stringByAppendingString:self.accountID]
-              stringByAppendingString:@"/"]
-             stringByAppendingString: collection]
-            stringByAppendingString:@"/"];
+        stringByAppendingString:@"/apps/"]
+        stringByAppendingString:self.appID]
+        stringByAppendingString:@"/"]
+        stringByAppendingString:self.accountID]
+        stringByAppendingString:@"/"]
+        stringByAppendingString: collection]
+        stringByAppendingString:@"/"];
 }
 
 - (void) updateInBackground:(NSMutableDictionary*)object toCollection:(NSString*)collection {
@@ -157,5 +171,29 @@ static HMAccount *currentAccount;
 - (void)sendGrant:(NSDictionary*)grant toAccount:(HMAccount*)toAccount forResource:(NSDictionary*)resource {
     
 }
+
+
+- (void) createCollectionWithAttributes:(NSMutableDictionary*)attributes block:(void (^)(NSDictionary* collection, NSError* error))callbackBlock {
+    
+    NSString *url = [[[self URLStringForAccount]
+                      stringByAppendingString:@"?token="]
+                     stringByAppendingString:self.token];
+    
+    NSLog(@"create collection url %@", url);
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    [manager POST:url parameters:@{@"attributes": attributes} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"JSON: %@", responseObject);
+        attributes[@"_id"] = responseObject[@"_id"];
+        attributes[@"_createdAt"] = responseObject[@"_createdAt"];
+        attributes[@"_updatedAt"] = responseObject[@"_updatedAt"];
+        callbackBlock(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        callbackBlock(nil, error);
+    }];
+}
+
 
 @end

@@ -17,15 +17,27 @@
 @interface HMQuery ()
 
 @property NSString *className;
+@property BOOL collections;
 @property NSMutableDictionary *filters;
 
 @end
 
 @implementation HMQuery
 
-+ (HMQuery*) queryWithClassName:(NSString*)className {
++ (HMQuery*) objectQueryWithClassName:(NSString*)className {
     HMQuery *query = [[HMQuery alloc] init];
     query.className = className;
+    query.collections = NO;
+    
+    query.filters = [[NSMutableDictionary alloc] init];
+    
+    return query;
+}
+
+
++ (HMQuery*) collectionQuery {
+    HMQuery *query = [[HMQuery alloc] init];
+    query.collections = YES;
     
     query.filters = [[NSMutableDictionary alloc] init];
     
@@ -53,11 +65,19 @@
     return [string stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
-- (void) findObjectsInBackgroundWithBlock:(void (^)(NSArray *object, NSError* error))callbackBlock {
+- (void) findInBackgroundWithBlock:(void (^)(NSArray *object, NSError* error))callbackBlock {
     NSString *token = [[HMAccount currentAccount] getToken];
-    NSString *url = [[[[HMAccount currentAccount] URLStringForCollection:self.className ]
-                      stringByAppendingString:@"?token="]
-                     stringByAppendingString:token];
+    NSString *url;
+    if (!self.collections) {
+        url = [[[[HMAccount currentAccount] URLStringForCollection:self.className]
+            stringByAppendingString:@"?token="]
+            stringByAppendingString:token];
+    } else {
+        url = [[[[HMAccount currentAccount] URLStringForAccount]
+                stringByAppendingString:@"?token="]
+               stringByAppendingString:token];
+        
+    }
     
     NSString *filterString = [self filterString];
     

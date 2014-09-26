@@ -10,10 +10,11 @@
 
 @interface HMQuery : NSObject
 
-+ (HMQuery*) queryWithClassName:(NSString*)className;
++ (HMQuery*) objectQueryWithClassName:(NSString*)className;
++ (HMQuery*) collectionQuery;
 
 - (void) getObjectInBackgroundWithId:(NSString*)_id;
 - (void) whereKey:(NSString*)whereKey equalTo:(id)equalTo;
-- (void) findObjectsInBackgroundWithBlock:(void (^)(NSArray *object, NSError* error))callbackBlock;
+- (void) findInBackgroundWithBlock:(void (^)(NSArray *object, NSError* error))callbackBlock;
 
 @end
