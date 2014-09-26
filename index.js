@@ -2,7 +2,6 @@ var qs = require('querystring');
 var url = require('url');
 
 var express = require('express');
-var uuid = require('uuid');
 
 var backend = require('./lib/be-single-fs.js');
 var tokens = require('./lib/tokens.js');
@@ -14,40 +13,11 @@ app.use(require('body-parser').json());
 
 var MY_URL = 'http://localhost:2570';
 
-app.use('/', function(req, res, next) {
-  res.jsonError = function(status, message, details) {
-    res.json(status, {
-      message: message,
-      details: details
-    });
-  };
-
+app.use(function(req, res, next) {
+  console.log(req.method, req.path);
   next();
 });
 
-
-
-function verifyAuth(req, res, next) {
-  var token = req.query.token;
-  if (!token && req.headers.Authorization) {
-    try {
-      token = req.headers.Authorization.trim().substring(5).trim().split('=')[1];
-    } catch(e) {
-      return res.status(400).end();
-    }
-  }
-
-  if (!token && token.length) {
-    return res.status(400).end();
-  }
-
-  token = tokens.verifyToken(token);
-  if (!token || !token._id)  return res.send(401);
-
-  req.grantID = token._id;
-
-  next();
-}
 
 app.post('/auth/manager_requests', function(req, res) {
   var secondFactorToken = 12345;
@@ -154,42 +124,77 @@ app.get('/authcomplete', function(req, res) {
   res.redirect(verification.redirectURI);
 });
 
+//
+// Auth verification functions
+//
+function validManager(req) {
+  var tokenString = req.query.manager_token || req.body.manager_token;
+  return tokens.verifyManagerToken(tokenString);
+}
+
+function verifyManagerAuth(req, res, next) {
+  if (!validManager(req)) return res.status(400).end();
+  next();
+}
+
+function verifyAuth(req, res, next) {
+  if (validManager(req)) {
+    req.isManager = true;
+    return next();
+  }
+
+  var token = req.query.token;
+  if (!token && req.headers.Authorization) {
+    try {
+      token = req.headers.Authorization.trim().substring(5).trim().split('=')[1];
+    } catch(e) {
+      return res.status(400).end();
+    }
+  }
+
+  if (!token || !token.length) {
+    return res.status(400).end();
+  }
+
+  token = tokens.verifyToken(token);
+  if (!token || !token._id)  return res.send(400);
+
+  req.grantID = token._id;
+
+  next();
+}
+
+
 // Create a new account for an app
-app.post('/apps/:appID', function(req, res) {
-  var managerToken = tokens.verifyManagerToken(req.query.manager_token || req.body.manager_token);
-  if (!managerToken) return res.status(401).end();
-
-  var grantID = uuid.v4();
-  var token = tokens.generateToken(grantID);
-
+app.post('/apps/:appID', verifyManagerAuth, function(req, res) {
   backend.createAccount({
     appID: req.params.appID,
     accountName: req.body.accountName,
-    grantID: grantID
   }, function(err, account) {
     if (err) return res.status(500).end();
 
+    var token = tokens.generateToken(account._id);
+
     res.status(201).json({
-      account: account._id,
+      account_id: account._id,
       token: token
     });
   });
 });
 
 // Create a new grant for an account
-app.post('/apps/:appID/:accountID/__grants', function(req, res) {
-  var managerToken = tokens.verifyManagerToken(req.query.manager_token || req.body.manager_token);
-  if (!managerToken) return res.status(401).end();
-
-  var grantID = uuid.v4();
-  var token = tokens.generateToken(grantID);
-
+app.post('/apps/:appID/:accountID/__grants', verifyAuth, function(req, res) {
   backend.createGrantForAccount({
     appID: req.params.appID,
-    accountID: req.params.accountID,
-    grantID: grantID
+    isManager: req.isManager,
+    asAccountID: req.grantID,
+    forAccountID: req.params.accountID,
+    toAccountID: req.body.to_account_id,
+    permissions: req.body.permissions || {}
   }, function(err) {
     if (err) return res.status(500).json({msg:err});
+
+    var token = tokens.generateToken(req.body.to_account_id);
 
     res.status(201).json({
       token: token
@@ -198,10 +203,7 @@ app.post('/apps/:appID/:accountID/__grants', function(req, res) {
 });
 
 // Get list of accounts for an app
-app.get('/apps/:appID', function(req, res) {
-  var managerToken = tokens.verifyManagerToken(req.query.manager_token || req.body.manager_token);
-  if (!managerToken) return res.status(401).end();
-
+app.get('/apps/:appID', verifyManagerAuth, function(req, res) {
   backend.getAccounts({
     appID: req.params.appID
   }, function(err, accounts) {
@@ -212,7 +214,85 @@ app.get('/apps/:appID', function(req, res) {
 
 app.use('/apps', verifyAuth);
 
-// CRUDy endpoints
+
+// Collection management endpoints
+
+// get collections' attributes
+app.get('/apps/:appID/:accountID', function(req, res) {
+  console.error('Get Collections:', req.body);
+  backend.getCollections({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    grantID: req.grantID,
+    filter: req.query.filter && JSON.parse(req.query.filter)
+  }, function(err, collections) {
+    if (err) {
+      if (err.notFound) {
+        return res.status(404).json({
+          message: 'account or app not found'
+        });
+      } else if (err.unauthorized) {
+        return res.status(401).json({
+          message: 'not authorized to access that account or app.'
+        });
+      } else {
+        return res.status(500);
+      }
+    }
+    res.status(200).json(collections);
+  });
+});
+
+// create a collection with an auto-generated ID.
+// this is optional, as an object can just be inserted by a app-root account and
+// it will lazily be created with 'createObject' permissions for that account
+app.post('/apps/:appID/:accountID', function(req, res) {
+  console.error('Create Collection:', req.body);
+  backend.createCollection({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    grantID: req.grantID,
+    attributes: req.body.attributes
+  }, function(err, collectionAttributes) {
+    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    res.status(201).json(collectionAttributes);
+  });
+});
+
+// create or update a collection with a specified ID.
+// this is optional, as an object can just be inserted by a app-root account and
+// it will lazily be created with 'createObject' permissions for that account
+app.put('/apps/:appID/:accountID/:collectionID', function(req, res) {
+  console.error('Upsert Collection:', req.body);
+  backend.upsertCollection({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
+    grantID: req.grantID,
+    attributes: req.body.attributes
+  }, function(err, response) {
+    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    res.status(201).json(response);
+  });
+});
+
+// update the collection's meta data (ACL, etc?)
+/*app.put('/apps/:appID/:accountID/:collectionID', function(req, res) {
+  console.error('Create One:', req.body);
+  backend.insert({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
+    object: req.body
+  }, function(err, response) {
+    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    res.status(201).json(response);
+  });
+});*/
+
+
+
+// Object management endpoints
 
 // read many
 app.get('/apps/:appID/:accountID/:collectionID', function(req, res) {
@@ -221,10 +301,12 @@ app.get('/apps/:appID/:accountID/:collectionID', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
+    grantID: req.grantID,
     filter: req.query.filter && JSON.parse(req.query.filter)
   }, function(err, data) {
-    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    if (err) return res.status(500).json({message: 'didnt work, not sure why'});
     console.error('Read Many resp:', data);
+    if (!data) return res.status(200).json([]);
     res.json(data);
   });
 });
@@ -237,21 +319,7 @@ app.post('/apps/:appID/:accountID/:collectionID', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    object: req.body
-  }, function(err, response) {
-    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
-    res.status(201).json(response);
-  });
-});
-
-
-// update the collection's meta data (ACL, etc?)
-app.put('/apps/:appID/:accountID/:collectionIDJ', function(req, res) {
-  console.error('Create One:', req.body);
-  backend.insert({
-    appID: req.params.appID,
-    accountID: req.params.accountID,
-    collectionID: req.params.collectionID,
+    grantID: req.grantID,
     object: req.body
   }, function(err, response) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
@@ -267,6 +335,7 @@ app.put('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
+    grantID: req.params.grantID,
     _id: req.params.objectID,
     object: req.body
   }, function(err, response) {
@@ -282,6 +351,7 @@ app.put('/apps/:appID/:accountID/:collectionID/__batch', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
+    grantID: req.params.grantID,
     objects: req.body
   }, function(err, response) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
@@ -297,6 +367,7 @@ app.delete('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res)
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
+    grantID: req.params.grantID,
     _id: req.params.objectID,
   }, function(err) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
