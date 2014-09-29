@@ -16,7 +16,7 @@
 
 @interface HMQuery ()
 
-@property NSString *className;
+@property NSString *collectionName;
 @property BOOL collections;
 @property NSMutableDictionary *filters;
 
@@ -24,9 +24,9 @@
 
 @implementation HMQuery
 
-+ (HMQuery*) objectQueryWithClassName:(NSString*)className {
++ (HMQuery*) objectQueryWithCollectionName:(NSString*)collectionName {
     HMQuery *query = [[HMQuery alloc] init];
-    query.className = className;
+    query.collectionName = collectionName;
     query.collections = NO;
     
     query.filters = [[NSMutableDictionary alloc] init];
@@ -69,7 +69,7 @@
     NSString *token = [[HMAccount currentAccount] getToken];
     NSString *url;
     if (!self.collections) {
-        url = [[[[HMAccount currentAccount] URLStringForCollection:self.className]
+        url = [[[[HMAccount currentAccount] URLStringForCollection:self.collectionName]
             stringByAppendingString:@"?token="]
             stringByAppendingString:token];
     } else {

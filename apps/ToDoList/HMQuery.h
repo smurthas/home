@@ -10,7 +10,7 @@
 
 @interface HMQuery : NSObject
 
-+ (HMQuery*) objectQueryWithClassName:(NSString*)className;
++ (HMQuery*) objectQueryWithCollectionName:(NSString*)collectionName;
 + (HMQuery*) collectionQuery;
 
 - (void) getObjectInBackgroundWithId:(NSString*)_id;

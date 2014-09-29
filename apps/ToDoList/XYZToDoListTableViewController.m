@@ -21,9 +21,9 @@
 @implementation XYZToDoListTableViewController
 
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
-    HMQuery *query = [HMQuery objectQueryWithClassName:@"todos"];
+    HMQuery *query = [HMQuery objectQueryWithCollectionName:self.listItem[@"_id"]];
     [query whereKey:@"logged" equalTo:@NO];
-    [query whereKey:@"list" equalTo:self.listItem[@"name"]];
+//    [query whereKey:@"list" equalTo:self.listItem[@"name"]];
     
     NSLog(@"my list name: %@", self.listItem[@"name"]);
     [query findInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
@@ -43,8 +43,10 @@
     
     NSLog(@"todoItem: %@", source.toDoItem);
     if (source.toDoItem != nil) {
-        source.toDoItem[@"list"] = self.listItem[@"name"];
-        [[HMAccount currentAccount] saveInBackground:source.toDoItem toCollection:@"todos"];
+//        source.toDoItem[@"list"] = self.listItem[@"name"];
+        source.toDoItem[@"_grants"] = [[NSMutableDictionary alloc] init];
+        source.toDoItem[@"_grants"][[[HMAccount currentAccount] getAccountID]] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+        [[HMAccount currentAccount] saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
         [self.toDoItems addObject:source.toDoItem];
         [self.tableView reloadData];
     }
