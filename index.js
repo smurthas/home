@@ -217,6 +217,34 @@ app.use('/apps', verifyAuth);
 
 // Collection management endpoints
 
+// get one collection's attributes
+app.get('/apps/:appID/:accountID/:collectionID/__attributes', function(req, res) {
+  console.error('Get Collection:', req.params);
+  backend.getCollection({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
+    grantID: req.grantID
+  }, function(err, collection) {
+    if (err) {
+      if (err.notFound) {
+        return res.status(404).json({
+          message: 'account or app not found'
+        });
+      } else if (err.unauthorized) {
+        return res.status(401).json({
+          message: 'not authorized to access that account or app.'
+        });
+      } else {
+        return res.status(500);
+      }
+    }
+
+    res.status(200).json(collection);
+  });
+});
+
+
 // get collections' attributes
 app.get('/apps/:appID/:accountID', function(req, res) {
   console.error('Get Collections:', req.body);
@@ -239,6 +267,7 @@ app.get('/apps/:appID/:accountID', function(req, res) {
         return res.status(500);
       }
     }
+
     res.status(200).json(collections);
   });
 });
@@ -269,9 +298,12 @@ app.put('/apps/:appID/:accountID/:collectionID', function(req, res) {
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
     grantID: req.grantID,
-    attributes: req.body.attributes
+    attributes: req.body
   }, function(err, response) {
-    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    if (err) {
+      console.error('upsert coll err', err);
+    }
+    if (err) return res.status(500).json({err: err});
     res.status(201).json(response);
   });
 });
@@ -328,22 +360,6 @@ app.post('/apps/:appID/:accountID/:collectionID', function(req, res) {
 });
 
 
-// update one
-app.put('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
-  console.error('Update One:', req.body);
-  backend.update({
-    appID: req.params.appID,
-    accountID: req.params.accountID,
-    collectionID: req.params.collectionID,
-    grantID: req.params.grantID,
-    _id: req.params.objectID,
-    object: req.body
-  }, function(err, response) {
-    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
-    res.json(response);
-  });
-});
-
 // update many
 app.put('/apps/:appID/:accountID/:collectionID/__batch', function(req, res) {
   console.error('Update Many:', req.body);
@@ -351,10 +367,37 @@ app.put('/apps/:appID/:accountID/:collectionID/__batch', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.params.grantID,
+    grantID: req.grantID,
     objects: req.body
   }, function(err, response) {
-    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    if (err) {
+      console.error('err', err);
+    }
+    if (err) return res.status(500).json({
+      err: err
+    });
+    res.json(response);
+  });
+});
+
+
+// update one
+app.put('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
+  console.error('Update One:', req.body);
+  backend.update({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
+    grantID: req.grantID,
+    _id: req.params.objectID,
+    object: req.body
+  }, function(err, response) {
+    if (err) {
+      if (err.notFound) return res.status(404).end();
+      if (err.unauthorized) return res.status(401).end();
+      return res.status(500).json({err:err});
+    }
+
     res.json(response);
   });
 });
@@ -367,10 +410,13 @@ app.delete('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res)
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.params.grantID,
+    grantID: req.grantID,
     _id: req.params.objectID,
   }, function(err) {
-    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    if (err) {
+      console.error('err', err);
+      return res.status(500).json({err:err});
+    }
     res.status(204).end();
   });
 });
