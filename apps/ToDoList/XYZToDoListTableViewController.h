@@ -8,10 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+#import "HMAccount.h"
+
 @interface XYZToDoListTableViewController : UITableViewController
 
 @property NSMutableArray *toDoItems;
 @property NSMutableDictionary *listItem;
+@property HMAccount *account;
 
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue;
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock;

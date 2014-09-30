@@ -25,7 +25,7 @@
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
     HMQuery *query = [HMQuery collectionQuery];
     [query whereKey:@"type" equalTo:@"list"];
-    [query findInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+    [[HMAccount currentAccount] findInBackground:query block:^(NSArray *objects, NSError *error) {
         NSLog(@"objects %@", objects);
         NSLog(@"error %@", error);
         if (error == nil) {
@@ -175,7 +175,14 @@
         XYZToDoListTableViewController *tvc = (XYZToDoListTableViewController*)[segue destinationViewController];
         NSIndexPath *path = [self.tableView indexPathForSelectedRow];
         
-        tvc.listItem = [self.lists objectAtIndex:path.row];
+        NSMutableDictionary *listItem = [self.lists objectAtIndex:path.row];
+        tvc.listItem = listItem;
+        
+        if (listItem[@"_token"]) {
+            tvc.account = [HMAccount accountWithBaseUrl:listItem[@"_host"] appID:@"myTodos" accountID:listItem[@"_accountID"] token:listItem[@"_token"]];
+        } else {
+            tvc.account = [HMAccount currentAccount];
+        }
     }
     
 }

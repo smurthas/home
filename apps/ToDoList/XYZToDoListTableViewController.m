@@ -26,7 +26,7 @@
 //    [query whereKey:@"list" equalTo:self.listItem[@"name"]];
     
     NSLog(@"my list name: %@", self.listItem[@"name"]);
-    [query findInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+    [self.account findInBackground:query block:^(NSArray *objects, NSError *error) {
         NSLog(@"objects count: %@", @([objects count]));
         if (error == nil) {
             self.toDoItems = [NSMutableArray arrayWithArray:objects];
@@ -45,8 +45,8 @@
     if (source.toDoItem != nil) {
 //        source.toDoItem[@"list"] = self.listItem[@"name"];
         source.toDoItem[@"_grants"] = [[NSMutableDictionary alloc] init];
-        source.toDoItem[@"_grants"][[[HMAccount currentAccount] getAccountID]] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
-        [[HMAccount currentAccount] saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
+        source.toDoItem[@"_grants"][[self.account getAccountID]] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+        [self.account saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
         [self.toDoItems addObject:source.toDoItem];
         [self.tableView reloadData];
     }
@@ -64,6 +64,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+
+    
     
     [self loadInitialData:^(NSError *error) {
         NSLog(@"reloaded data");
@@ -83,35 +86,57 @@
 - (IBAction)shareList:(id)sender {
     NSLog(@"sharing list %@", self.listItem[@"name"]);
     // pick or enter user info
-    HMAccount *toAccount = [HMAccount accountWithBaseUrl:@"http://localhost:2751" publicKey:@"blargh"];
-    HMAccount *account = [HMAccount currentAccount];
-    [account createGrantWithAccount:toAccount forResource:self.listItem block:^(NSDictionary *grant, NSError *error) {
-        NSMutableArray *collaborators = self.listItem[@"collaborators"];
-        if (!collaborators || !collaborators.count) {
-            collaborators = [[NSMutableArray alloc] init];
-            self.listItem[@"collaborators"] = collaborators;
+    NSString *toAccountID = @"ea975416-d59f-4f70-aec8-2a78c67ebc24";
+    
+    
+    // enable the toAccountID to create objects in this collection
+    self.listItem[@"_grants"][toAccountID] = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"createObjects": @YES,
+            @"modifyCollection": @YES
+        }];
+    [self.account saveCollection:self.listItem block:^(NSDictionary *updateCollection, NSError *error) {
+        
+        
+        // grant permission for all items in the list
+        
+        for (NSMutableDictionary* todo in self.toDoItems) {
+            ((NSMutableDictionary*)todo[@"_grants"])[toAccountID] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
         }
         
-        [collaborators addObject:@{@"pubkey":[toAccount getPublicKey]}];
+        NSString *batchURL = [[[[self.account URLStringForCollection:self.listItem[@"_id"]] stringByAppendingString:@"__batch"] stringByAppendingString:@"?token="] stringByAppendingString:[self.account getToken]];
         
-        [account saveInBackground:self.listItem toCollection:@"lists"];
-        for (NSMutableDictionary *todo in self.toDoItems) {
-            todo[@"acl"] = grant;
-            [account saveInBackground:todo toCollection:@"todos"];
-        }
-        NSDictionary *resource = @{
-            @"baseUrl": [account getBaseUrl],
-            @"resource": @"/apps/todos"
-        };
         
-        [account sendGrant:grant toAccount:toAccount forResource:resource];
+        
+        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+        manager.requestSerializer = [AFJSONRequestSerializer serializer];
+        [manager PUT:batchURL parameters:self.toDoItems success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            NSLog(@"JSON: %@", responseObject);
+            
+            // TODO: update the _updatedAt timestamps
+            
+            
+            // send the other account a notification with my AccountID, List Name, CollectionID
+            // TODO: send it
+            
+            [self.account createGrantWithAccountID:toAccountID block:^(NSDictionary *grant, NSError *error) {
+                NSString *resourceURL = [[[self.account URLStringForCollection:self.listItem[@"_id"]] stringByAppendingString:@"?token="] stringByAppendingString:grant[@"token"]];
+                NSLog(@"sharing resourceURL: %@", resourceURL);
+                
+/*                NSDictionary *invitation = @{
+                    @"token": grant[@"token"],
+                    @"uri": resourceURL
+                };
+                
+                NSLog(@"sharing: %@", invitation);*/
+            }];
+            
+            //callbackBlock(responseObject, nil);
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"Error: %@", error);
+            //callbackBlock(nil, error);
+        }];
+        
     }];
-    
-    
-//    [[HMAccount currentAccount] saveInBackground:list toCollection:@"lists"];
-    // TODO: grant permission
-//    NSMutableArray *ids =
-//    [[HMAccount currentAccount] addAuthorization:objectIDs forPublicKey:toAccountPublicKey];
 }
 
 - (void)refresh:(id)sender
@@ -223,7 +248,10 @@
     NSMutableDictionary *toDoItem = [self.toDoItems objectAtIndex:indexPath.row];
     [self.toDoItems removeObjectAtIndex:indexPath.row];
     [self.tableView reloadData];
-    [[HMAccount currentAccount] deleteInBackground:toDoItem fromCollection:@"todos"];
+    
+    NSString *collectionID = self.listItem[@"_id"];
+    
+    [self.account deleteInBackground:toDoItem fromCollection:collectionID];
     
     NSLog(@"Deleted row.");
 }
@@ -238,7 +266,8 @@
     NSMutableDictionary *tappedItem = [self.toDoItems objectAtIndex:indexPath.row];
     tappedItem[@"completed"] = @(![tappedItem[@"completed"] boolValue]);
     
-    [[HMAccount currentAccount] saveInBackground:tappedItem toCollection:@"todos"];
+    NSString *collectionID = self.listItem[@"_id"];
+    [self.account saveInBackground:tappedItem toCollection:collectionID];
     
     [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
 }

@@ -10,11 +10,15 @@
 
 @interface HMQuery : NSObject
 
+@property NSString *collectionName;
+@property BOOL collections;
+@property NSMutableDictionary *filters;
+
 + (HMQuery*) objectQueryWithCollectionName:(NSString*)collectionName;
 + (HMQuery*) collectionQuery;
 
 - (void) getObjectInBackgroundWithId:(NSString*)_id;
 - (void) whereKey:(NSString*)whereKey equalTo:(id)equalTo;
-- (void) findInBackgroundWithBlock:(void (^)(NSArray *object, NSError* error))callbackBlock;
+- (NSString*) filterString;
 
 @end

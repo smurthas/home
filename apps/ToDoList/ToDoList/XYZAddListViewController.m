@@ -56,7 +56,8 @@
             @"type": @"list",
             @"_grants": [NSMutableDictionary dictionaryWithDictionary:@{
                 [[HMAccount currentAccount] getAccountID]: @{
-                    @"createObjects": @YES
+                    @"createObjects": @YES,
+                    @"modifyCollection": @YES
                 }
             }]
         }];

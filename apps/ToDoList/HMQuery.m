@@ -16,9 +16,6 @@
 
 @interface HMQuery ()
 
-@property NSString *collectionName;
-@property BOOL collections;
-@property NSMutableDictionary *filters;
 
 @end
 
@@ -65,42 +62,6 @@
     return [string stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
 }
 
-- (void) findInBackgroundWithBlock:(void (^)(NSArray *object, NSError* error))callbackBlock {
-    NSString *token = [[HMAccount currentAccount] getToken];
-    NSString *url;
-    if (!self.collections) {
-        url = [[[[HMAccount currentAccount] URLStringForCollection:self.collectionName]
-            stringByAppendingString:@"?token="]
-            stringByAppendingString:token];
-    } else {
-        url = [[[[HMAccount currentAccount] URLStringForAccount]
-                stringByAppendingString:@"?token="]
-               stringByAppendingString:token];
-        
-    }
-    
-    NSString *filterString = [self filterString];
-    
-    NSLog(@"url1 %@", url);
-    
-    if (filterString) {
-        url = [[url stringByAppendingString:@"&filter="]
-            stringByAppendingString:filterString];
-    }
-    
-    
-    NSLog(@"url2 %@", url);
-    
-    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-    manager.responseSerializer = [AFJSONResponseSerializer serializerWithReadingOptions: NSJSONReadingMutableContainers];
-    [manager GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSLog(@"JSON: %@", responseObject);
-        callbackBlock(responseObject, nil);
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"Error: %@", error);
-        callbackBlock(nil, error);
-    }];
-}
 
 
 @end

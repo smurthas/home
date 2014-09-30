@@ -8,6 +8,8 @@
 
 #import "HMAccount.h"
 
+#import "HMQuery.h"
+
 #import <AFNetworking.h>
 
 
@@ -27,10 +29,12 @@ static HMAccount *currentAccount;
 
 @implementation HMAccount
 
-+ (HMAccount*) accountWithBaseUrl:(NSString*)baseUrl publicKey:(NSString*)publicKey {
++ (HMAccount*) accountWithBaseUrl:(NSString*)baseUrl appID:(NSString*)appID accountID:(NSString*)accountID token:(NSString*)token {
     HMAccount* account = [[HMAccount alloc] init];
     account.baseUrl = baseUrl;
-    account.publicKey = publicKey;
+    account.accountID = accountID;
+    account.token = token;
+    account.appID = appID;
     
     return account;
 }
@@ -163,9 +167,49 @@ static HMAccount *currentAccount;
     }];
 }
 
-- (void) createGrantWithAccount:(HMAccount *)toAccount forResource:(NSDictionary*)resource block:(void (^)(NSDictionary *, NSError *))callbackBlock {
+- (void) saveCollection:(NSMutableDictionary*)collection block:(void (^)(NSDictionary *, NSError *))callbackBlock {
     
-    callbackBlock(nil, nil);
+    NSString *url = [[[self URLStringForCollection:collection[@"_id"]]
+                      stringByAppendingString:@"?token="]
+                     stringByAppendingString:self.token];
+    
+    NSLog(@"update collection url %@", url);
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    [manager PUT:url parameters:collection success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"JSON: %@", responseObject);
+        //collection[@"_updatedAt"] = responseObject[@"_updatedAt"];
+        callbackBlock(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        callbackBlock(nil, error);
+    }];
+}
+
+
+- (void) createGrantWithAccountID:(NSString *)toAccountID block:(void (^)(NSDictionary *, NSError *))callbackBlock {
+    
+    NSString *url = [[[self URLStringForAccount]
+        stringByAppendingString:@"__grants/?token="]
+        stringByAppendingString:self.token];
+    
+    NSLog(@"create grant url %@", url);
+    
+    NSDictionary *body = @{
+        @"to_account_id": toAccountID
+    };
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.requestSerializer = [AFJSONRequestSerializer serializer];
+    [manager POST:url parameters:body success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"JSON: %@", responseObject);
+        //collection[@"_updatedAt"] = responseObject[@"_updatedAt"];
+        callbackBlock(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        callbackBlock(nil, error);
+    }];
 }
 
 - (void)sendGrant:(NSDictionary*)grant toAccount:(HMAccount*)toAccount forResource:(NSDictionary*)resource {
@@ -188,6 +232,44 @@ static HMAccount *currentAccount;
         attributes[@"_id"] = responseObject[@"_id"];
         attributes[@"_createdAt"] = responseObject[@"_createdAt"];
         attributes[@"_updatedAt"] = responseObject[@"_updatedAt"];
+        callbackBlock(responseObject, nil);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+        callbackBlock(nil, error);
+    }];
+}
+
+
+- (void) findInBackground:(HMQuery*)query block:(void (^)(NSArray *objects, NSError* error))callbackBlock {
+    NSString *url;
+    
+    if (!query.collections) {
+        url = [[[self URLStringForCollection:query.collectionName]
+                stringByAppendingString:@"?token="]
+               stringByAppendingString:self.token];
+    } else {
+        url = [[[[HMAccount currentAccount] URLStringForAccount]
+                stringByAppendingString:@"?token="]
+               stringByAppendingString:self.token];
+        
+    }
+    
+    NSString *filterString = [query filterString];
+    
+    NSLog(@"url1 %@", url);
+    
+    if (filterString) {
+        url = [[url stringByAppendingString:@"&filter="]
+               stringByAppendingString:filterString];
+    }
+    
+    
+    NSLog(@"url2 %@", url);
+    
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    manager.responseSerializer = [AFJSONResponseSerializer serializerWithReadingOptions: NSJSONReadingMutableContainers];
+    [manager GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"JSON: %@", responseObject);
         callbackBlock(responseObject, nil);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Error: %@", error);
