@@ -1,6 +1,3 @@
-var qs = require('querystring');
-var url = require('url');
-
 var express = require('express');
 
 var backend = require('./lib/be-single-fs.js');
@@ -10,8 +7,6 @@ var app = express();
 
 app.use(require('cors')());
 app.use(require('body-parser').json());
-
-var MY_URL = 'http://localhost:2570';
 
 app.use(function(req, res, next) {
   console.log(req.method, req.path);
@@ -72,57 +67,6 @@ app.post('/auth/tokens', function(req, res) {
 });
 
 
-app.get('/authstart', function(req, res) {
-  var redirectURI = req.query.redirect_uri;
-  var proveURI = req.query.prove_uri;
-
-  var rdURI = url.parse(redirectURI);
-  var pURI = url.parse(proveURI, true);
-
-  if (rdURI.host !== pURI.host) {
-    return res.jsonErr(500, 'non-matching redirect URI and prove URI hosts', 'blargh');
-  }
-
-  var nonce = tokens.generateToken(redirectURI);
-
-  pURI.query.nonce = nonce;
-  pURI.query.redirect_uri = MY_URL + '/authproved';
-  res.redirect(url.format(pURI));
-});
-
-app.get('/authproved', function(req, res) {
-  var nonce = req.query.nonce;
-  var sig = req.query.signature;
-  var pubkey = req.query.public_key;
-
-  var redirectURI = tokens.verifySignature(nonce, sig, pubkey);
-  if (!redirectURI) {
-    return res.jsonErr(500, 'bad sig', {
-      nonce: nonce,
-      signature: sig,
-      public_key: pubkey,
-      redirect_uri: redirectURI
-    });
-  }
-
-  var temporaryToken = tokens.generateTemporaryToken(redirectURI, pubkey);
-
-  var confirmURL = MY_URL + '/authcomplete?temp_token=' + temporaryToken;
-  return res.send('<html><body><a href="' + confirmURL + '">Authorize ' + pubkey + '</a></body></html>');
-
-});
-
-app.get('/authcomplete', function(req, res) {
-  var verification = tokens.verifyTemporaryToken(req.query.temp_token);
-  if (!verification || !verification.pubkey || !verification.redirectURI) {
-    res.jsonErr(500, 'bad temp token', verification);
-  }
-
-  var token = tokens.generateToken(verification.pubkey);
-
-  verification.redirectURI += '?' + qs.stringify({token:token});
-  res.redirect(verification.redirectURI);
-});
 
 //
 // Auth verification functions
