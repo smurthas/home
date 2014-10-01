@@ -217,6 +217,20 @@
     
     [self.bases addObject: [HMBase baseWithBaseURL:@"http://localhost:2571" andManagerToken:@"4TnuvjZtk5nVR3xVKs9ANywHhYfxBBhxUYP52BVhEUq3a9rCndRCqb99wFUtczuh3kgXc3HziKfYvoESPnTu2SVZ"]];
     
+    NSDictionary *keyPair = [HMBase generateKeyPair];
+    
+    NSLog(@"keyPair: %@", keyPair);
+    
+    NSString *message = @"{\"blargh\": \"😄\"}";
+    
+    NSString *signature = [HMBase signMessage:message secretKey:keyPair[@"secretKey"]];
+    
+    NSLog(@"signature: %lu", [signature length]);
+    
+    BOOL verified = [HMBase verifyMessage:signature message:message publicKey:keyPair[@"publicKey"]];
+    
+    NSLog(@"verified %i", verified);
+    
     //self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     //self.window.backgroundColor = [UIColor whiteColor];

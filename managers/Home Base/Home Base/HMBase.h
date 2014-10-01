@@ -13,6 +13,11 @@
 @property NSString *managerToken;
 @property NSString *baseURL;
 
++ (NSDictionary *)generateKeyPair;
++ (NSString *)signMessage:(NSString*)message secretKey:(NSString*)secretKey;
++ (BOOL)verifyMessage:(NSString *)signature message:(NSString*)message publicKey:(NSString *)publicKey;
+
+
 + (HMBase*)baseWithBaseURL:(NSString*)baseUrl andManagerToken:(NSString*)managerToken;
 
 - (void)getAccountsForApp:(NSString*)appID block:(void (^)(NSArray* accounts, NSError* error))callbackBlock;
