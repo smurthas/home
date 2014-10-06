@@ -5,13 +5,22 @@ var tokens = require('./lib/tokens.js');
 
 var app = express();
 
-app.use(require('cors')());
-app.use(require('body-parser').json());
-
 app.use(function(req, res, next) {
   console.log(req.method, req.path);
   next();
 });
+
+app.use(require('cors')());
+
+app.use(function(req, res, next) {
+  req.rawBody = '';
+  req.on('data', function(chunk) {
+    req.rawBody += chunk;
+  });
+  next();
+});
+
+app.use(require('body-parser').json());
 
 
 app.post('/auth/manager_requests', function(req, res) {
@@ -87,6 +96,18 @@ function verifyAuth(req, res, next) {
     return next();
   }
 
+  var signature = req.header('X-Slab-Signature');
+  var publicKey = req.header('X-Slab-PublicKey');
+  var reqURL = 'http://' + req.headers.host + req.originalUrl;
+  var message = req.method.toUpperCase() + '\n' +  reqURL + '\n' + req.rawBody;
+  var verified = tokens.verifySignature(message, signature, publicKey);
+
+
+  if (verified) {
+    req.grantIDs = backend.getGrantsForIdentity(publicKey);
+    return next();
+  }
+
   var token = req.query.token;
   if (!token && req.headers.Authorization) {
     try {
@@ -113,15 +134,14 @@ function verifyAuth(req, res, next) {
 app.post('/apps/:appID', verifyManagerAuth, function(req, res) {
   backend.createAccount({
     appID: req.params.appID,
-    accountName: req.body.accountName,
+    publicKey: req.body.public_key,
+    //accountName: req.body.accountName,
   }, function(err, account) {
     if (err) return res.status(500).end();
 
-    var token = tokens.generateToken(account._id);
-
+    console.error('account', account);
     res.status(201).json({
-      account_id: account._id,
-      token: token
+      account_id: account._id
     });
   });
 });
@@ -131,7 +151,7 @@ app.post('/apps/:appID/:accountID/__grants', verifyAuth, function(req, res) {
   backend.createGrantForAccount({
     appID: req.params.appID,
     isManager: req.isManager,
-    asAccountID: req.grantID,
+    grantIDs: req.grantIDs,
     forAccountID: req.params.accountID,
     toAccountID: req.body.to_account_id,
     permissions: req.body.permissions || {}
@@ -168,7 +188,7 @@ app.get('/apps/:appID/:accountID/:collectionID/__attributes', function(req, res)
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.grantID
+    grantIDs: req.grantIDs
   }, function(err, collection) {
     if (err) {
       if (err.notFound) {
@@ -195,7 +215,7 @@ app.get('/apps/:appID/:accountID', function(req, res) {
   backend.getCollections({
     appID: req.params.appID,
     accountID: req.params.accountID,
-    grantID: req.grantID,
+    grantIDs: req.grantIDs,
     filter: req.query.filter && JSON.parse(req.query.filter)
   }, function(err, collections) {
     if (err) {
@@ -224,7 +244,7 @@ app.post('/apps/:appID/:accountID', function(req, res) {
   backend.createCollection({
     appID: req.params.appID,
     accountID: req.params.accountID,
-    grantID: req.grantID,
+    grantIDs: req.grantIDs,
     attributes: req.body.attributes
   }, function(err, collectionAttributes) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
@@ -241,7 +261,7 @@ app.put('/apps/:appID/:accountID/:collectionID', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.grantID,
+    grantIDs: req.grantIDs,
     attributes: req.body
   }, function(err, response) {
     if (err) {
@@ -277,7 +297,7 @@ app.get('/apps/:appID/:accountID/:collectionID', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.grantID,
+    grantIDs: req.grantIDs,
     filter: req.query.filter && JSON.parse(req.query.filter)
   }, function(err, data) {
     if (err) return res.status(500).json({message: 'didnt work, not sure why'});
@@ -295,7 +315,7 @@ app.post('/apps/:appID/:accountID/:collectionID', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.grantID,
+    grantIDs: req.grantIDs,
     object: req.body
   }, function(err, response) {
     if (err) return res.jsonError(500, 'didnt work', 'not sure why');
@@ -311,7 +331,7 @@ app.put('/apps/:appID/:accountID/:collectionID/__batch', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.grantID,
+    grantIDs: req.grantIDs,
     objects: req.body
   }, function(err, response) {
     if (err) {
@@ -332,7 +352,7 @@ app.put('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.grantID,
+    grantIDs: req.grantIDs,
     _id: req.params.objectID,
     object: req.body
   }, function(err, response) {
@@ -349,12 +369,12 @@ app.put('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
 
 // delete one
 app.delete('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
-  console.error('Delete One:', req.params._id);
+  console.error('Delete One:', req.params.objectID);
   backend.delete({
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
-    grantID: req.grantID,
+    grantIDs: req.grantIDs,
     _id: req.params.objectID,
   }, function(err) {
     if (err) {
@@ -365,6 +385,7 @@ app.delete('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res)
   });
 });
 
+tokens.initSecrets();
 
 var PORT = process.env.PORT || 2570;
 app.listen(PORT, function(err) {
