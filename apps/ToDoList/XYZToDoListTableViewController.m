@@ -8,6 +8,7 @@
 
 #import "XYZToDoListTableViewController.h"
 #import "XYZAddToDoItemViewController.h"
+#import "XYZShareListTableViewController.h"
 
 #import "HMQuery.h"
 #import "HMAccount.h"
@@ -15,6 +16,8 @@
 #import <AFNetworking.h>
 
 @interface XYZToDoListTableViewController ()
+
+//@property NSArray* identities;
 
 @end
 
@@ -31,6 +34,7 @@
         if (error == nil) {
             self.toDoItems = [NSMutableArray arrayWithArray:objects];
             [self.tableView reloadData];
+            callbackBlock(nil);
         }
         NSLog(@"self.toDoItems count: %@", @([self.toDoItems count]));
         callbackBlock(error);
@@ -40,12 +44,10 @@
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue
 {
     XYZAddToDoItemViewController *source = [segue sourceViewController];
-    
-    NSLog(@"todoItem: %@", source.toDoItem);
+
     if (source.toDoItem != nil) {
-//        source.toDoItem[@"list"] = self.listItem[@"name"];
         source.toDoItem[@"_grants"] = [[NSMutableDictionary alloc] init];
-        source.toDoItem[@"_grants"][[self.account getAccountID]] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+        source.toDoItem[@"_grants"][[self.account getPublicKey]] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
         [self.account saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
         [self.toDoItems addObject:source.toDoItem];
         [self.tableView reloadData];
@@ -64,18 +66,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
 
-    
-    
     [self loadInitialData:^(NSError *error) {
         NSLog(@"reloaded data");
     }];
     
     [self.navigationController setToolbarHidden:NO animated:NO];
-    
-//    self.toDoItems = [[NSMutableArray alloc] init];
-    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
@@ -83,60 +79,54 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
-- (IBAction)shareList:(id)sender {
-    NSLog(@"sharing list %@", self.listItem[@"name"]);
-    // pick or enter user info
-    NSString *toAccountID = @"ea975416-d59f-4f70-aec8-2a78c67ebc24";
-    
-    
-    // enable the toAccountID to create objects in this collection
-    self.listItem[@"_grants"][toAccountID] = [NSMutableDictionary dictionaryWithDictionary:@{
-            @"createObjects": @YES,
-            @"modifyCollection": @YES
-        }];
+- (void)shareWith:(NSString*)grantID {
+    // enable the grantID to create objects in this collection
+    self.listItem[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{
+         @"createObjects": @YES,
+         @"readAttributes": @YES,
+         @"modifyAttributes": @YES
+    }];
+
+    NSLog(@"self.listItem: %@", self.listItem);
     [self.account saveCollection:self.listItem block:^(NSDictionary *updateCollection, NSError *error) {
-        
-        
         // grant permission for all items in the list
-        
+
         for (NSMutableDictionary* todo in self.toDoItems) {
-            ((NSMutableDictionary*)todo[@"_grants"])[toAccountID] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+            ((NSMutableDictionary*)todo[@"_grants"])[grantID] =
+                [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
         }
-        
-        NSString *batchURL = [[[[self.account URLStringForCollection:self.listItem[@"_id"]] stringByAppendingString:@"__batch"] stringByAppendingString:@"?token="] stringByAppendingString:[self.account getToken]];
-        
-        
-        
-        AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-        manager.requestSerializer = [AFJSONRequestSerializer serializer];
-        [manager PUT:batchURL parameters:self.toDoItems success:^(AFHTTPRequestOperation *operation, id responseObject) {
+
+        [[HMAccount currentAccount] batchUpdate:self.toDoItems toCollection:self.listItem[@"_id"] block:^(NSDictionary *responseObject, NSError *error) {
             NSLog(@"JSON: %@", responseObject);
-            
+
             // TODO: update the _updatedAt timestamps
-            
-            
+
             // send the other account a notification with my AccountID, List Name, CollectionID
             // TODO: send it
+
+            //            [self.account createGrantWithPublicKey:toPublicKey block:^(NSDictionary *grant, NSError *error) {
+            //                NSString *resourceURL = [self.account URLStringForCollection:self.listItem[@"_id"]];
+            //                NSLog(@"sharing resourceURL: %@", resourceURL);
+            //
+            //                               NSDictionary *invitation = @{
+            //                 @"token": grant[@"token"],
+            //                 @"uri": resourceURL
+            //                 };
+            //
+            //                 NSLog(@"sharing: %@", invitation);
+            //            }];
             
-            [self.account createGrantWithAccountID:toAccountID block:^(NSDictionary *grant, NSError *error) {
-                NSString *resourceURL = [[[self.account URLStringForCollection:self.listItem[@"_id"]] stringByAppendingString:@"?token="] stringByAppendingString:grant[@"token"]];
-                NSLog(@"sharing resourceURL: %@", resourceURL);
-                
-/*                NSDictionary *invitation = @{
-                    @"token": grant[@"token"],
-                    @"uri": resourceURL
-                };
-                
-                NSLog(@"sharing: %@", invitation);*/
-            }];
-            
-            //callbackBlock(responseObject, nil);
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-            NSLog(@"Error: %@", error);
-            //callbackBlock(nil, error);
         }];
         
     }];
+}
+
+- (IBAction)unwindToShareList:(UIStoryboardSegue *)segue
+{
+    XYZShareListTableViewController *source = [segue sourceViewController];
+    NSLog(@"sharing list %@, source %@", self.listItem[@"name"], source.publicKey);
+
+    [self shareWith:source.publicKey];
 }
 
 - (void)refresh:(id)sender
@@ -231,8 +221,19 @@
 {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-}
-*/
+    UIViewController *vc = [segue destinationViewController];
+    NSLog(@"vc %@", vc);
+    if ([vc isKindOfClass:[UINavigationController class]]) {
+        vc = [((UINavigationController*)vc) visibleViewController];
+        NSLog(@"vc2 %@", vc);
+        if ([vc isKindOfClass:[XYZShareListTableViewController class]]) {
+            XYZShareListTableViewController *sltvc = (XYZShareListTableViewController*)vc;
+            sltvc.identities = self.identities;
+        }
+
+    }
+}*/
+
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -264,7 +265,11 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
     NSMutableDictionary *tappedItem = [self.toDoItems objectAtIndex:indexPath.row];
-    tappedItem[@"completed"] = @(![tappedItem[@"completed"] boolValue]);
+    if ([tappedItem[@"completed"]  isEqual: @YES]) {
+        tappedItem[@"completed"] = @NO;
+    } else {
+        tappedItem[@"completed"] = @YES;
+    }
     
     NSString *collectionID = self.listItem[@"_id"];
     [self.account saveInBackground:tappedItem toCollection:collectionID];

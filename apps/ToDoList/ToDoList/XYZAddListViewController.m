@@ -55,9 +55,10 @@
             @"name": self.textField.text,
             @"type": @"list",
             @"_grants": [NSMutableDictionary dictionaryWithDictionary:@{
-                [[HMAccount currentAccount] getAccountID]: @{
+                [[HMAccount currentAccount] getPublicKey]: @{
                     @"createObjects": @YES,
-                    @"modifyCollection": @YES
+                    @"readAttributes": @YES,
+                    @"modifyAttributes": @YES
                 }
             }]
         }];

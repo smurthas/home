@@ -44,25 +44,20 @@
 
 -(BOOL) application: (UIApplication * ) application openURL: (NSURL * ) url sourceApplication: (NSString * ) sourceApplication annotation: (id) annotation {
     if ([url.scheme isEqualToString: @"todos"]) {
-        NSLog(@"todos!");
         
         // check our `host` value to see what screen to display
         if ([url.path isEqualToString: @"/auth_complete"]) {
-            NSLog(@"query %@", url.query);
             
             NSDictionary *query = [self queryDictFromString:url.query];
-            NSLog(@"parsed query %@", query);
-            NSString *token = query[@"token"];
+            NSString *publicKey = query[@"public_key"];
+            NSString *secretKey = query[@"secret_key"];
             NSString *accountID = query[@"account_id"];
             NSString *baseURL = query[@"base_url"];
             
             // TODO: make this more real
             NSString *appID = @"myTodos";
-            
-            NSLog(@"token: %@", token);
-            NSLog(@"accountID: %@", accountID);
-            NSLog(@"baseURL: %@", baseURL);
-            [HMAccount becomeWithToken:token accountID:accountID appID:appID baseURL:baseURL block:^(BOOL succeeded, NSError *error) {
+
+            [HMAccount becomeWithKeyPair:@{@"publicKey":publicKey, @"secretKey": secretKey} accountID:accountID appID:appID baseURL:baseURL block:^(BOOL succeeded, NSError *error) {
                 if (error != nil) {
                     NSLog(@"error becoming in bg %@", error);
                     return;
@@ -76,11 +71,9 @@
                         NSLog(@"error loading initial data %@", error);
                         return;
                     }
-                    
-                    NSLog(@"reloaded after login");
+
                 }];
             }];
-            NSLog(@"source: %@", sourceApplication);
             
         } else {
             NSLog(@"An unknown action was passed.");

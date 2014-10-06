@@ -26,11 +26,8 @@
     HMQuery *query = [HMQuery collectionQuery];
     [query whereKey:@"type" equalTo:@"list"];
     [[HMAccount currentAccount] findInBackground:query block:^(NSArray *objects, NSError *error) {
-        NSLog(@"objects %@", objects);
-        NSLog(@"error %@", error);
         if (error == nil) {
             self.lists = [[NSMutableArray alloc] initWithArray:objects];
-            NSLog(@"listItems %@", self.lists);
             [self.tableView reloadData];
         }
         callbackBlock(error);
@@ -90,9 +87,6 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    NSLog(@"self.lists class %@", [self.lists class]);
-    NSLog(@"self.lists %@", self.lists);
-    NSLog(@"self.lists.count %@", @([self.lists count]));
     return [self.lists count];
 }
 
@@ -100,10 +94,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ListListPrototypeCell" forIndexPath:indexPath];
-    
-    NSLog(@"self.lists class %@", [self.lists class]);
-    NSLog(@"self.lists %@", self.lists);
-    NSLog(@"self.lists.count %@", @([self.lists count]));
+
     cell.textLabel.text = [self.lists objectAtIndex:indexPath.row][@"name"];
     // Configure the cell...
     

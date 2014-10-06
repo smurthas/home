@@ -26,6 +26,7 @@
 		F4177B0619C7D2F50009667A /* XYZAddToDoItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4177B0519C7D2F50009667A /* XYZAddToDoItemViewController.m */; };
 		F4177B0C19C7D3E90009667A /* XYZToDoListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4177B0B19C7D3E90009667A /* XYZToDoListTableViewController.m */; };
 		F4177B1719C935070009667A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177B1619C935070009667A /* CoreLocation.framework */; };
+		F431FDDF19E1B1DE00D41D18 /* XYZShareListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F431FDDE19E1B1DE00D41D18 /* XYZShareListTableViewController.m */; };
 		F44F408C19CDF85A0061E4AB /* XYZListsListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */; };
 		F44F408F19CE5BB90061E4AB /* XYZAddListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */; };
 /* End PBXBuildFile section */
@@ -41,7 +42,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		59463C3C76CB4961A26F99A0 /* Pods-ToDoList.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList.xcconfig"; path = "Pods/Pods-ToDoList.xcconfig"; sourceTree = "<group>"; };
+		6850A415108FF33E62D457B3 /* Pods-ToDoList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoList/Pods-ToDoList.debug.xcconfig"; sourceTree = "<group>"; };
+		D3FFCE470D7AA8EFBD2841AC /* Pods-ToDoList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList.release.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoList/Pods-ToDoList.release.xcconfig"; sourceTree = "<group>"; };
 		F407B4A119CA63FB0075C3DC /* HMQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMQuery.h; sourceTree = "<group>"; };
 		F407B4A219CA63FB0075C3DC /* HMQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HMQuery.m; sourceTree = "<group>"; };
 		F407B4A719CA68820075C3DC /* HMAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HMAccount.h; sourceTree = "<group>"; };
@@ -72,6 +74,8 @@
 		F4177B1319C934E60009667A /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
 		F4177B1419C934E60009667A /* libKeenClient-Aggregate.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libKeenClient-Aggregate.a"; sourceTree = "<group>"; };
 		F4177B1619C935070009667A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		F431FDDD19E1B1DE00D41D18 /* XYZShareListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XYZShareListTableViewController.h; path = ToDoList/XYZShareListTableViewController.h; sourceTree = "<group>"; };
+		F431FDDE19E1B1DE00D41D18 /* XYZShareListTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XYZShareListTableViewController.m; path = ToDoList/XYZShareListTableViewController.m; sourceTree = "<group>"; };
 		F44F408A19CDF85A0061E4AB /* XYZListsListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XYZListsListTableViewController.h; sourceTree = "<group>"; };
 		F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XYZListsListTableViewController.m; sourceTree = "<group>"; };
 		F44F408D19CE5BB90061E4AB /* XYZAddListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XYZAddListViewController.h; path = ToDoList/XYZAddListViewController.h; sourceTree = "<group>"; };
@@ -105,6 +109,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A6669365813D0E4D931BAF3A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				6850A415108FF33E62D457B3 /* Pods-ToDoList.debug.xcconfig */,
+				D3FFCE470D7AA8EFBD2841AC /* Pods-ToDoList.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		F4177AC719C7C1CB0009667A = {
 			isa = PBXGroup;
 			children = (
@@ -121,11 +134,13 @@
 				F4177B0519C7D2F50009667A /* XYZAddToDoItemViewController.m */,
 				F44F408D19CE5BB90061E4AB /* XYZAddListViewController.h */,
 				F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */,
+				F431FDDD19E1B1DE00D41D18 /* XYZShareListTableViewController.h */,
+				F431FDDE19E1B1DE00D41D18 /* XYZShareListTableViewController.m */,
 				F4177AD919C7C1CB0009667A /* ToDoList */,
 				F4177AF219C7C1CB0009667A /* ToDoListTests */,
 				F4177AD219C7C1CB0009667A /* Frameworks */,
 				F4177AD119C7C1CB0009667A /* Products */,
-				59463C3C76CB4961A26F99A0 /* Pods-ToDoList.xcconfig */,
+				A6669365813D0E4D931BAF3A /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -325,7 +340,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Pods-ToDoList-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ToDoList/Pods-ToDoList-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -341,6 +356,7 @@
 				F407B4A319CA63FB0075C3DC /* HMQuery.m in Sources */,
 				F44F408F19CE5BB90061E4AB /* XYZAddListViewController.m in Sources */,
 				F4177AE019C7C1CB0009667A /* main.m in Sources */,
+				F431FDDF19E1B1DE00D41D18 /* XYZShareListTableViewController.m in Sources */,
 				F4177B0C19C7D3E90009667A /* XYZToDoListTableViewController.m in Sources */,
 				F4177B0619C7D2F50009667A /* XYZAddToDoItemViewController.m in Sources */,
 			);
@@ -456,7 +472,7 @@
 		};
 		F4177AFD19C7C1CB0009667A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 59463C3C76CB4961A26F99A0 /* Pods-ToDoList.xcconfig */;
+			baseConfigurationReference = 6850A415108FF33E62D457B3 /* Pods-ToDoList.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -471,7 +487,7 @@
 		};
 		F4177AFE19C7C1CB0009667A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 59463C3C76CB4961A26F99A0 /* Pods-ToDoList.xcconfig */;
+			baseConfigurationReference = D3FFCE470D7AA8EFBD2841AC /* Pods-ToDoList.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;

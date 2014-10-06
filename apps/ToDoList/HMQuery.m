@@ -57,9 +57,7 @@
     if (!self.filters || self.filters.count < 1) return nil;
     
     SBJson4Writer *writer = [[SBJson4Writer alloc] init];
-    NSString* string = [writer stringWithObject:self.filters];
-    
-    return [string stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    return [writer stringWithObject:self.filters];
 }
 
 

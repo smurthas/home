@@ -16,7 +16,7 @@
 @property NSMutableDictionary *listItem;
 @property HMAccount *account;
 
-- (IBAction)unwindToList:(UIStoryboardSegue *)segue;
+- (IBAction)unwindToShareList:(UIStoryboardSegue *)segue;
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock;
 
 @end
