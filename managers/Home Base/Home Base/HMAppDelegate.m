@@ -10,19 +10,20 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "HMAuthAlert.h"
 #import "HMBase.h"
+#import "SLIdentity.h"
 
 @import UIKit;
 
 @interface HMAppDelegate ()
 
-@property NSString *pubkey;
+@property NSString *appID;
 @property NSString *redirectURI;
 
 @property NSMutableArray *bases;
 
 @property HMBase *base;
+@property SLIdentity *identity;
 
 @end
 
@@ -81,14 +82,14 @@
             
             NSDictionary *query = [HMAppDelegate queryDictFromString:url.query];
             
-            self.pubkey = query[@"pubkey"];
+            self.appID = query[@"pubkey"];
             self.redirectURI = query[@"redirect_uri"];
             
             
             if (self.bases && self.bases.count > 1) {
                 [self promptForBase];
             } else {
-                [self promptForAuth];
+                [self promptForIdentity];
             }
         } else if ([url.host isEqualToString: @"authcomplete"]) {
             //[self.viewController presentAboutScreen];
@@ -117,48 +118,32 @@
     [actionSheet showInView:self.window.rootViewController.view];
 }
 
-- (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
-    NSLog(@"tag: %li", popup.tag);
-    if (popup.tag == 0) {
-        NSLog(@"buttonIndex %li", (long)buttonIndex);
-        if (buttonIndex == popup.cancelButtonIndex) return;
-        
-        self.base = self.bases[buttonIndex];
-        NSLog(@"set base to %@", self.base.baseURL);
-        
-        [self promptForAuth];
-    } else if (popup.tag == 1) {
-        // create account button is first
-        if (buttonIndex == 0) {
-            [self.base createAccountAndApp:self.pubkey block:^(NSDictionary *info, NSError *error) {
-                NSLog(@"info: %@", info);
-                NSLog(@"token: %@", info[@"token"]);
-                [self redirectWithToken:info[@"token"] accountID:info[@"account_id"]];
-            }];
-        } else if (buttonIndex == popup.cancelButtonIndex) {
-            return;
-        } else {
-            NSString *accountID = [popup buttonTitleAtIndex:buttonIndex];
-            NSDictionary *permissions = @{
-                @"createCollections": @YES,
-                @"createGrants": @YES
-            };
-            [self.base createGrantForApp:self.pubkey accountID:accountID permissions:permissions block:^(NSDictionary *info, NSError *error) {
-                NSLog(@"token: %@", info[@"token"]);
-                [self redirectWithToken:info[@"token"] accountID:accountID];
-            }];
-        }
+- (void) promptForIdentity {
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"Which Identity?"
+                                                             delegate:self
+                                                    cancelButtonTitle:nil
+                                               destructiveButtonTitle:nil
+                                                    otherButtonTitles:nil];
+    [actionSheet addButtonWithTitle:@"Create New Identity"];
+    for (SLIdentity *identity in [SLIdentity getIdentities]) {
+        [actionSheet addButtonWithTitle:identity.publicKey];
     }
+
+
+    actionSheet.tag = 1;
+    actionSheet.cancelButtonIndex = [actionSheet addButtonWithTitle:@"Cancel"];
+    [actionSheet showInView:self.window.rootViewController.view];
 }
 
-- (void) promptForAuth {
-    [self.base getAccountsForApp:self.pubkey block:^(NSArray *accounts, NSError *error) {
+
+- (void) promptForAccount {
+    [self.base getAccountsForApp:self.appID block:^(NSArray *accounts, NSError *error) {
         NSLog(@"accounts: %@, accounts.count %lu", accounts, (unsigned long)accounts.count);
         if (!accounts || !accounts.count || accounts.count < 1) {
             NSString *title = @"Do you want to create a new account for ";
-            
-            title = [[title stringByAppendingString:self.pubkey] stringByAppendingString:@"?"];
-            
+
+            title = [[title stringByAppendingString:self.appID] stringByAppendingString:@"?"];
+
             UIAlertView *myAlert = [[UIAlertView alloc] initWithTitle:title
                                                               message:nil
                                                              delegate:self
@@ -166,47 +151,99 @@
                                                     otherButtonTitles:@"No", @"Yes", nil];
             [myAlert show];
         } else {
-            [self promptForAccount:accounts];
+            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"Which account?"
+                                                                     delegate:self
+                                                            cancelButtonTitle:nil
+                                                       destructiveButtonTitle:nil
+                                                            otherButtonTitles:nil];
+            [actionSheet addButtonWithTitle:@"Create New Account"];
+            for (NSString *accountID in accounts) {
+                [actionSheet addButtonWithTitle:accountID];
+            }
+
+            actionSheet.tag = 2;
+            actionSheet.cancelButtonIndex = [actionSheet addButtonWithTitle:@"Cancel"];
+            [actionSheet showInView:self.window.rootViewController.view];
+
         }
         
     }];
 }
 
-- (void) promptForAccount:(NSArray*)accounts {
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"Which account?"
-                                                             delegate:self
-                                                    cancelButtonTitle:nil
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:nil];
-    [actionSheet addButtonWithTitle:@"Create New Account"];
-    for (NSString *accountID in accounts) {
-        [actionSheet addButtonWithTitle:accountID];
+- (void)actionSheet:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"tag: %li", popup.tag);
+    if (popup.tag == 0) { // prompted for base
+        [self handleBasePromptResponse:popup clickedButtonAtIndex:buttonIndex];
+    } else if (popup.tag == 1) { // prompted for identity
+        [self handleIdentityPromptResponse:popup clickedButtonAtIndex:buttonIndex];
+    } else if (popup.tag == 2) { // prompted for account
+        [self handleAccountPromptResponse:popup clickedButtonAtIndex:buttonIndex];
     }
-    
-    actionSheet.tag = 1;
-    actionSheet.cancelButtonIndex = [actionSheet addButtonWithTitle:@"Cancel"];
-    [actionSheet showInView:self.window.rootViewController.view];
 }
 
+
+- (void)handleBasePromptResponse:(UIActionSheet *)popup clickedButtonAtIndex:(NSInteger)buttonIndex {
+    // prompted for base
+    if (buttonIndex == popup.cancelButtonIndex) return;
+
+    self.base = self.bases[buttonIndex];
+    [self promptForIdentity];
+}
+
+- (void)handleIdentityPromptResponse:(UIActionSheet*) popup clickedButtonAtIndex:(NSInteger)buttonIndex {
+    // create identity button is first
+    if (buttonIndex == 0) {
+        [self.base createAccountAndIdentityForApp:self.appID block:^(NSDictionary *keyPair, NSString *accountID, NSError *error) {
+            [self redirectWithKeyPair:keyPair accountID:accountID];
+        }];
+    } else if (buttonIndex == popup.cancelButtonIndex) {
+        return;
+    } else {
+        NSString *publicKey = [popup buttonTitleAtIndex:buttonIndex];
+        self.identity = [SLIdentity identityForPublicKey:publicKey];
+        [self promptForAccount];
+    }
+}
+
+- (void)handleAccountPromptResponse:(UIActionSheet*) popup clickedButtonAtIndex:(NSInteger)buttonIndex {
+    // create account button is first
+    if (buttonIndex == 0) {
+        [self.base createAccountForApp:self.appID identity:self.identity block:^(NSString *accountID, NSError *error) {
+            [self redirectWithKeyPair:[self.identity keyPair] accountID:accountID];
+        }];
+    } else if (buttonIndex == popup.cancelButtonIndex) {
+        return;
+    } else {
+        NSString *accountID = [popup buttonTitleAtIndex:buttonIndex];
+        NSDictionary *keyPair = [self.identity keyPair];
+
+        // TODO: ensure identity has access, if not prompt to grant
+        [self redirectWithKeyPair:keyPair accountID:accountID];
+    }
+}
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     NSLog(@"index %ld", (long)buttonIndex);
-    NSLog(@"pubkey %@, would open %@", self.pubkey, self.redirectURI);
-    [self.base createAccountAndApp:self.pubkey block:^(NSDictionary *info, NSError *error) {
-        NSLog(@"info: %@", info);
-        [self redirectWithToken:info[@"token"] accountID:info[@"account_id"]];
+    NSLog(@"appID %@, would open %@", self.appID, self.redirectURI);
+    [self.base createAccountAndIdentityForApp:self.appID block:^(NSDictionary *keyPair, NSString *accountID, NSError *error) {
+        [self redirectWithKeyPair:keyPair accountID:accountID];
     }];
 }
 
-- (void) redirectWithToken:(NSString*)token accountID:(NSString*)accountID {
-    NSString *url =[[[[[[self.redirectURI
-        stringByAppendingString:@"?token="] stringByAppendingString:token]
+- (void) redirectWithKeyPair:(NSDictionary*)keyPair accountID:(NSString*)accountID {
+    NSString *url =[[[[[[[[self.redirectURI
+        stringByAppendingString:@"?secret_key="] stringByAppendingString:keyPair[@"secretKey"]]
+        stringByAppendingString:@"&public_key="] stringByAppendingString:keyPair[@"publicKey"]]
         stringByAppendingString:@"&account_id="] stringByAppendingString:accountID]
         stringByAppendingString:@"&base_url="] stringByAppendingString:self.base.baseURL];
     NSLog(@"redirecting to %@", url);
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
 }
+
+
+
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -216,20 +253,6 @@
     
     
     [self.bases addObject: [HMBase baseWithBaseURL:@"http://localhost:2571" andManagerToken:@"4TnuvjZtk5nVR3xVKs9ANywHhYfxBBhxUYP52BVhEUq3a9rCndRCqb99wFUtczuh3kgXc3HziKfYvoESPnTu2SVZ"]];
-    
-    NSDictionary *keyPair = [HMBase generateKeyPair];
-    
-    NSLog(@"keyPair: %@", keyPair);
-    
-    NSString *message = @"{\"blargh\": \"😄\"}";
-    
-    NSString *signature = [HMBase signMessage:message secretKey:keyPair[@"secretKey"]];
-    
-    NSLog(@"signature: %lu", [signature length]);
-    
-    BOOL verified = [HMBase verifyMessage:signature message:message publicKey:keyPair[@"publicKey"]];
-    
-    NSLog(@"verified %i", verified);
     
     //self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.

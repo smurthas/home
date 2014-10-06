@@ -8,19 +8,16 @@
 
 #import <Foundation/Foundation.h>
 
+#import "SLIdentity.h"
+
 @interface HMBase : NSObject
 
 @property NSString *managerToken;
 @property NSString *baseURL;
-
-+ (NSDictionary *)generateKeyPair;
-+ (NSString *)signMessage:(NSString*)message secretKey:(NSString*)secretKey;
-+ (BOOL)verifyMessage:(NSString *)signature message:(NSString*)message publicKey:(NSString *)publicKey;
-
-
 + (HMBase*)baseWithBaseURL:(NSString*)baseUrl andManagerToken:(NSString*)managerToken;
 
 - (void)getAccountsForApp:(NSString*)appID block:(void (^)(NSArray* accounts, NSError* error))callbackBlock;
-- (void)createAccountAndApp:(NSString*)appID block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
-- (void)createGrantForApp:(NSString*)appID accountID:(NSString*)accountID permissions:(NSDictionary*)dictionary block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
+- (void)createAccountAndIdentityForApp:(NSString*)appID block:(void (^)(NSDictionary* identity, NSString* accountID, NSError* error))callbackBlock;
+- (void)createAccountForApp:(NSString*)appID identity:(SLIdentity*)identity block:(void (^)(NSString* accountID, NSError* error))callbackBlock;
+- (void)createGrantForApp:(NSString*)appID accountID:(NSString*)accountID permissions:(NSDictionary*)permissions keyPair:(NSDictionary*)keyPair block:(void (^)(NSDictionary* info, NSError* error))callbackBlock;
 @end
