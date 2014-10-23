@@ -13,6 +13,7 @@
 @interface HMAccount : NSObject
 
 + (HMAccount*) accountWithBaseUrl:(NSString*)baseUrl appID:(NSString*)appID accountID:(NSString*)accountID  keyPair:(NSDictionary*)keyPair;
++ (HMAccount*) accountFromObject:(NSDictionary*)object;
 + (void) loginWithPublicKey:(NSString*)pubkey callbackURI:(NSString*)redirectURI;
 + (HMAccount*) currentAccount;
 + (void) becomeWithKeyPair:(NSDictionary*)keyPair accountID:(NSString*)accountID appID:(NSString*)appID baseURL:(NSString*)baseURL block:(void (^)(BOOL succeeded, NSError* error))callbackBlock;

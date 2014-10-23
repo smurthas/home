@@ -23,31 +23,17 @@
 
 @implementation XYZToDoListTableViewController
 
+
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
     HMQuery *query = [HMQuery objectQueryWithCollectionName:self.listItem[@"_id"]];
     [query whereKey:@"logged" equalTo:@NO];
-//    [query whereKey:@"list" equalTo:self.listItem[@"name"]];
 
-    NSString *baseUrl = self.listItem[@"_host"];
-    NSString *accountID = self.listItem[@"_accountID"];
-    NSDictionary *keyPair = @{
-        @"publicKey": [[HMAccount currentAccount] getPublicKey],
-        @"secretKey": [[HMAccount currentAccount] getSecretKey]
-    };
-    NSLog(@"baseUrl %@", baseUrl);
-    NSLog(@"accountID, %@", accountID);
-
-    HMAccount *listAccount = [HMAccount accountWithBaseUrl:baseUrl appID:@"myTodos" accountID:accountID keyPair:keyPair];
-    
-    NSLog(@"my list name: %@", self.listItem[@"name"]);
-    [listAccount findInBackground:query block:^(NSArray *objects, NSError *error) {
-        NSLog(@"objects count: %@", @([objects count]));
+    [[HMAccount accountFromObject:self.listItem] findInBackground:query block:^(NSArray *objects, NSError *error) {
         if (error == nil) {
             self.toDoItems = [NSMutableArray arrayWithArray:objects];
             [self.tableView reloadData];
             callbackBlock(nil);
         }
-        NSLog(@"self.toDoItems count: %@", @([self.toDoItems count]));
         callbackBlock(error);
     }];
 }
@@ -61,11 +47,10 @@
         source.toDoItem[@"_grants"][[self.account getPublicKey]] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
 
         for (id grantID in self.listItem[@"_grants"]) {
-            NSLog(@"grantID %@", grantID);
             source.toDoItem[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
         }
 
-        [self.account saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
+        [[HMAccount accountFromObject:self.listItem] saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
         [self.toDoItems addObject:source.toDoItem];
         [self.tableView reloadData];
     }
@@ -104,8 +89,8 @@
          @"modifyAttributes": @YES
     }];
 
-    NSLog(@"self.listItem: %@", self.listItem);
-    [self.account saveCollection:self.listItem block:^(NSDictionary *updateCollection, NSError *error) {
+    HMAccount *listAccount = [HMAccount accountFromObject:self.listItem];
+    [listAccount saveCollection:self.listItem block:^(NSDictionary *updateCollection, NSError *error) {
         // grant permission for all items in the list
 
         for (NSMutableDictionary* todo in self.toDoItems) {
@@ -113,7 +98,7 @@
                 [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
         }
 
-        [[HMAccount currentAccount] batchUpdate:self.toDoItems toCollection:self.listItem[@"_id"] block:^(NSDictionary *responseObject, NSError *error) {
+        [listAccount batchUpdate:self.toDoItems toCollection:self.listItem[@"_id"] block:^(NSDictionary *responseObject, NSError *error) {
             NSLog(@"JSON: %@", responseObject);
 
             // TODO: update the _updatedAt timestamps
@@ -146,24 +131,27 @@
     if (source.publicKey != nil) {
         NSLog(@"sharing with pubkey");
         [self shareWith:source.publicKey];
+
+        // TODO: send notification without token
+
     } else {
         NSLog(@"creating identity");
         // create an identity with an alias and a token
-        [[HMAccount currentAccount] createTemporaryIdentity:^(NSString *token, NSError *error) {
+        [[HMAccount accountFromObject:self.listItem] createTemporaryIdentity:^(NSString *token, NSError *error) {
             NSLog(@"token %@", token);
             [self shareWith:token];
 
             // send email/text
             NSMutableDictionary *messagePayload = [[NSMutableDictionary alloc] init];
             messagePayload[@"token"] = token;
-            messagePayload[@"base_url"] = [self.account getBaseUrl];
-            messagePayload[@"account_id"] = [self.account getAccountID];
+            messagePayload[@"base_url"] = self.listItem[@"_host"];
+            messagePayload[@"account_id"] = self.listItem[@"_accountID"];
             messagePayload[@"collection_id"] = self.listItem[@"_id"];
-//            messagePayload[@"list_name"] = self.listItem[@"name"];
+            messagePayload[@"list_name"] = self.listItem[@"name"];
 
             NSString *url = [NSString stringWithFormat:@"todos://com.sms.todos/accept_invite?token=%@&base_url=%@&account_id=%@&collection_id=%@&list_name=%@",
                   messagePayload[@"token"],
-                  messagePayload[@"base_url"],
+                  [messagePayload[@"base_url"] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]],
                   messagePayload[@"account_id"],
                   messagePayload[@"collection_id"],
                   messagePayload[@"list_name"]];
@@ -172,10 +160,10 @@
             [[UIActivityViewController alloc] initWithActivityItems:@[url]
                                               applicationActivities:nil];
             [self presentViewController:activityViewController
-                                               animated:YES
-                                             completion:^{
-                                                 NSLog(@"shared!");
-                                             }];
+                               animated:YES
+                             completion:^{
+                NSLog(@"shared!");
+            }];
         }];
     }
 }
@@ -303,9 +291,7 @@
     
     NSString *collectionID = self.listItem[@"_id"];
     
-    [self.account deleteInBackground:toDoItem fromCollection:collectionID];
-    
-    NSLog(@"Deleted row.");
+    [[HMAccount accountFromObject:self.listItem] deleteInBackground:toDoItem fromCollection:collectionID];
 }
 
 
@@ -323,7 +309,7 @@
     }
     
     NSString *collectionID = self.listItem[@"_id"];
-    [self.account saveInBackground:tappedItem toCollection:collectionID];
+    [[HMAccount accountFromObject:self.listItem] saveInBackground:tappedItem toCollection:collectionID];
     
     [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
 }

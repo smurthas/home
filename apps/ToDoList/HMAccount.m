@@ -43,6 +43,18 @@ static HMAccount *currentAccount;
     return account;
 }
 
++ (HMAccount*) accountFromObject:(NSDictionary*)object {
+
+    NSString *baseUrl = object[@"_host"];
+    NSString *accountID = object[@"_accountID"];
+    NSDictionary *usedKeyPair = @{
+        @"publicKey": [[HMAccount currentAccount] getPublicKey],
+        @"secretKey": [[HMAccount currentAccount] getSecretKey]
+    };
+
+    return [HMAccount accountWithBaseUrl:baseUrl appID:[HMAccount currentAccount].appID accountID:accountID keyPair:usedKeyPair];
+}
+
 + (void) loginWithPublicKey:(NSString*)pubkey callbackURI:(NSString*)redirectURI {
 
     NSString *encodedPublicKey = [[pubkey stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]] stringByReplacingOccurrencesOfString:@"+" withString:@"%2B"];

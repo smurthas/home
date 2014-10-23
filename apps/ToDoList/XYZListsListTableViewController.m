@@ -22,43 +22,31 @@
 @implementation XYZListsListTableViewController
 
 - (void) fillData:(NSArray*)objects fromIndex:(unsigned long)index block:(void (^)(NSError* error))callbackBlock {
-    NSLog(@"index %lu, count %lu", index, [objects count]);
-
     if (index == 0) {
-        NSLog(@"index == 0");
         self.lists = [[NSMutableArray alloc] init];
     }
     if (index == [objects count]) {
-
-        NSLog(@"index == [objects count]");
         return callbackBlock(nil);
     }
 
     NSDictionary *list = objects[index];
 
-    NSLog(@"set list, index %lu, count %lu", index, [objects count]);
-
     if (list[@"pointer"] == nil) {
-        NSLog(@"pointer, index %lu, count %lu", index, [objects count]);
         [self.lists addObject:list];
         [self fillData:objects fromIndex:(index + 1) block:callbackBlock];
     } else {
-        NSLog(@"else, index %lu, count %lu", index, [objects count]);
         NSString *baseUrl = list[@"pointer"][@"base_url"];
         NSString *accountID = list[@"pointer"][@"account_id"];
         NSDictionary *keyPair = @{
             @"publicKey": [[HMAccount currentAccount] getPublicKey],
             @"secretKey": [[HMAccount currentAccount] getSecretKey]
         };
-        NSLog(@"baseUrl %@", baseUrl);
-        NSLog(@"accountID, %@", accountID);
         HMAccount *account = [HMAccount accountWithBaseUrl:baseUrl appID:@"myTodos" accountID:accountID keyPair:keyPair];
 
         HMQuery *query = [HMQuery collectionQuery];
 
         [query whereKey:@"_id" equalTo:list[@"pointer"][@"collection_id"]];
         [account findInBackground:query block:^(NSArray *foundObjects, NSError *error) {
-            NSLog(@"found in background %@", foundObjects);
             if (error != nil) {
                 return callbackBlock(error);
             }
@@ -70,9 +58,6 @@
             [self fillData:objects fromIndex:(index + 1) block:callbackBlock];
         }];
     }
-
-
-
 }
 
 
