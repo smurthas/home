@@ -27,9 +27,20 @@
     HMQuery *query = [HMQuery objectQueryWithCollectionName:self.listItem[@"_id"]];
     [query whereKey:@"logged" equalTo:@NO];
 //    [query whereKey:@"list" equalTo:self.listItem[@"name"]];
+
+    NSString *baseUrl = self.listItem[@"_host"];
+    NSString *accountID = self.listItem[@"_accountID"];
+    NSDictionary *keyPair = @{
+        @"publicKey": [[HMAccount currentAccount] getPublicKey],
+        @"secretKey": [[HMAccount currentAccount] getSecretKey]
+    };
+    NSLog(@"baseUrl %@", baseUrl);
+    NSLog(@"accountID, %@", accountID);
+
+    HMAccount *listAccount = [HMAccount accountWithBaseUrl:baseUrl appID:@"myTodos" accountID:accountID keyPair:keyPair];
     
     NSLog(@"my list name: %@", self.listItem[@"name"]);
-    [self.account findInBackground:query block:^(NSArray *objects, NSError *error) {
+    [listAccount findInBackground:query block:^(NSArray *objects, NSError *error) {
         NSLog(@"objects count: %@", @([objects count]));
         if (error == nil) {
             self.toDoItems = [NSMutableArray arrayWithArray:objects];

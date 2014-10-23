@@ -64,7 +64,6 @@
             }
 
             NSMutableDictionary *fullList = (NSMutableDictionary*)foundObjects[0];
-            fullList[@"pointer"] = list[@"pointer"];
             [self.lists addObject:fullList];
 
             // phew!
