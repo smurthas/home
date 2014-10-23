@@ -23,6 +23,26 @@ app.use(function(req, res, next) {
 app.use(require('body-parser').json());
 
 
+// Helpers
+
+
+function handleError(err, res) {
+  if (err) {
+    if (err.notFound) {
+      return res.status(404).json({
+        type: err.notFound
+      });
+    }
+    if (err.unauthorized) {
+      return res.status(401).json({
+        type: err.unauthorized
+      });
+    }
+  }
+
+  return req.status(500).json({});
+}
+
 app.post('/auth/manager_requests', function(req, res) {
   var secondFactorToken = 12345;
   var token = tokens.generateToken(secondFactorToken);
@@ -129,6 +149,50 @@ function verifyAuth(req, res, next) {
   next();
 }
 
+//
+// Identity management endpoints
+//
+
+// add a grantID to an identity
+app.put('/identities/:publicKey/_grantsID/:grantID', verifyAuth, function(req, res) {
+  backend.addGrantToIdentity({
+    publicKey: req.params.publicKey,
+    grantID: req.params.grantID,
+    grantIDs: req.grantIDs
+  }, function(err) {
+    if (err) handleError(err, res);
+
+    return res.json({});
+  });
+});
+
+// create a temporary identity
+app.post('/identities/__temp', verifyAuth, function(req, res) {
+  backend.createTemporaryIdentity({
+    grantIDs: req.grantIDs
+  }, function(err, temporaryIdentity) {
+    if (err) return handleError(err, res);
+
+    return res.status(201).json({
+      temporary_id: temporaryIdentity
+    });
+  });
+});
+
+// create a new identity from a temporary identity
+app.put('/identities/:publicKey', verifyAuth, function(req, res) {
+  backend.createIdentityFromTemporary({
+    temporaryIdentity: req.body.temporary_id,
+    publicKey: req.params.publicKey
+  }, function(err) {
+    if (err) return handleError(err, res);
+
+    res.status(200).json({});
+  });
+});
+
+
+// App and account management endpoints
 
 // Create a new account for an app
 app.post('/apps/:appID', verifyManagerAuth, function(req, res) {
@@ -137,7 +201,7 @@ app.post('/apps/:appID', verifyManagerAuth, function(req, res) {
     publicKey: req.body.public_key,
     //accountName: req.body.accountName,
   }, function(err, account) {
-    if (err) return res.status(500).end();
+    if (err) return handleError(err, res);
 
     console.error('account', account);
     res.status(201).json({
@@ -147,14 +211,12 @@ app.post('/apps/:appID', verifyManagerAuth, function(req, res) {
 });
 
 // Create a new grant for an account
-app.post('/apps/:appID/:accountID/__grants', verifyAuth, function(req, res) {
+app.post('/apps/:appID/:accountID/__temp_grants', verifyAuth, function(req, res) {
   backend.createGrantForAccount({
     appID: req.params.appID,
     isManager: req.isManager,
     grantIDs: req.grantIDs,
-    forAccountID: req.params.accountID,
-    toAccountID: req.body.to_account_id,
-    permissions: req.body.permissions || {}
+    forAccountID: req.params.accountID
   }, function(err) {
     if (err) return res.status(500).json({msg:err});
 
@@ -211,7 +273,7 @@ app.get('/apps/:appID/:accountID/:collectionID/__attributes', function(req, res)
 
 // get collections' attributes
 app.get('/apps/:appID/:accountID', function(req, res) {
-  console.error('Get Collections:', req.body);
+  console.error('Get Collections:', req.query);
   backend.getCollections({
     appID: req.params.appID,
     accountID: req.params.accountID,
