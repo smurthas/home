@@ -12,16 +12,18 @@
 
 @interface HMAccount : NSObject
 
-+ (HMAccount*) accountWithBaseUrl:(NSString*)baseUrl appID:(NSString*)appID accountID:(NSString*)accountID token:(NSString*)token;
++ (HMAccount*) accountWithBaseUrl:(NSString*)baseUrl appID:(NSString*)appID accountID:(NSString*)accountID  keyPair:(NSDictionary*)keyPair;
 + (void) loginWithPublicKey:(NSString*)pubkey callbackURI:(NSString*)redirectURI;
 + (HMAccount*) currentAccount;
 + (void) becomeWithKeyPair:(NSDictionary*)keyPair accountID:(NSString*)accountID appID:(NSString*)appID baseURL:(NSString*)baseURL block:(void (^)(BOOL succeeded, NSError* error))callbackBlock;
++ (void) become:(HMAccount *)anotherAccount;
 
 
 - (NSString *) getToken;
 - (NSString *) getAccountID;
 - (NSString *) getBaseUrl;
 - (NSString *) getPublicKey;
+- (NSString *) getSecretKey;
 
 - (void) saveInBackground:(NSDictionary*)object toCollection:(NSString*)collection;
 - (void) batchUpdate:(NSArray*)objects toCollection:(NSString*)collection block:(void (^)(NSDictionary *, NSError *))callbackBlock;
@@ -37,6 +39,8 @@
 
 - (void) findInBackground:(HMQuery*)query block:(void (^)(NSArray *objects, NSError* error))callbackBlock;
 
+- (void) createTemporaryIdentity:(void (^)(NSString *token, NSError* error))callbackBlock;
+- (void) convertTemporaryIdentity:(NSString *)token block:(void (^)(NSError* error))callbackBlock;
 
 
 - (NSString*) URLStringForAccount;

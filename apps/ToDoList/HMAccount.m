@@ -67,6 +67,11 @@ static HMAccount *currentAccount;
     callbackBlock(YES, nil);
 }
 
++ (void) become:(HMAccount *)anotherAccount {
+    currentAccount = anotherAccount;
+}
+
+
 - (NSString *) getToken {
     return self.token;
 }
@@ -81,6 +86,10 @@ static HMAccount *currentAccount;
 
 - (NSString *) getPublicKey {
     return self.publicKey;
+}
+
+- (NSString *) getSecretKey {
+    return self.secretKey;
 }
 
 
@@ -234,7 +243,7 @@ static HMAccount *currentAccount;
     if (!query.collections) {
         url = [self URLStringForCollection:query.collectionName];
     } else {
-        url = [[HMAccount currentAccount] URLStringForAccount];
+        url = [self URLStringForAccount];
     }
     
     NSString *filterString = [query filterString];
@@ -246,6 +255,28 @@ static HMAccount *currentAccount;
     }
 
     [self makeRequest:@"GET" url:url parameters:parameters callback:callbackBlock];
+}
+
+- (void) createTemporaryIdentity:(void (^)(NSString *token, NSError* error))callbackBlock {
+    NSString *url = [self.baseUrl stringByAppendingString:@"/identities/__temp"];
+
+    [self makeRequest:@"POST" url:url parameters:nil callback:^(id response, NSError *error) {
+        if (error) {
+            return callbackBlock(nil, error);
+        }
+        callbackBlock(response[@"temporary_id"], nil);
+    }];
+}
+
+- (void) convertTemporaryIdentity:(NSString *)token block:(void (^)(NSError* error))callbackBlock {
+    NSString *url = [[self.baseUrl stringByAppendingString:@"/identities/"] stringByAppendingString:self.publicKey];
+
+    [self makeRequest:@"PUT" url:url parameters:@{@"temporary_id": token} callback:^(id response, NSError *error) {
+        if (error) {
+            return callbackBlock(error);
+        }
+        callbackBlock(nil);
+    }];
 }
 
 - (void) makeRequest:(NSString*)method url:(NSString*)url parameters:(id)parameters callback:(void (^)(id response, NSError* error))callbackBlock {

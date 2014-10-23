@@ -48,6 +48,12 @@
     if (source.toDoItem != nil) {
         source.toDoItem[@"_grants"] = [[NSMutableDictionary alloc] init];
         source.toDoItem[@"_grants"][[self.account getPublicKey]] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+
+        for (id grantID in self.listItem[@"_grants"]) {
+            NSLog(@"grantID %@", grantID);
+            source.toDoItem[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+        }
+
         [self.account saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
         [self.toDoItems addObject:source.toDoItem];
         [self.tableView reloadData];
@@ -124,9 +130,43 @@
 - (IBAction)unwindToShareList:(UIStoryboardSegue *)segue
 {
     XYZShareListTableViewController *source = [segue sourceViewController];
-    NSLog(@"sharing list %@, source %@", self.listItem[@"name"], source.publicKey);
+    NSLog(@"sharing list %@, public key %@", self.listItem[@"name"], source.publicKey);
 
-    [self shareWith:source.publicKey];
+    if (source.publicKey != nil) {
+        NSLog(@"sharing with pubkey");
+        [self shareWith:source.publicKey];
+    } else {
+        NSLog(@"creating identity");
+        // create an identity with an alias and a token
+        [[HMAccount currentAccount] createTemporaryIdentity:^(NSString *token, NSError *error) {
+            NSLog(@"token %@", token);
+            [self shareWith:token];
+
+            // send email/text
+            NSMutableDictionary *messagePayload = [[NSMutableDictionary alloc] init];
+            messagePayload[@"token"] = token;
+            messagePayload[@"base_url"] = [self.account getBaseUrl];
+            messagePayload[@"account_id"] = [self.account getAccountID];
+            messagePayload[@"collection_id"] = self.listItem[@"_id"];
+//            messagePayload[@"list_name"] = self.listItem[@"name"];
+
+            NSString *url = [NSString stringWithFormat:@"todos://com.sms.todos/accept_invite?token=%@&base_url=%@&account_id=%@&collection_id=%@&list_name=%@",
+                  messagePayload[@"token"],
+                  messagePayload[@"base_url"],
+                  messagePayload[@"account_id"],
+                  messagePayload[@"collection_id"],
+                  messagePayload[@"list_name"]];
+
+            UIActivityViewController *activityViewController =
+            [[UIActivityViewController alloc] initWithActivityItems:@[url]
+                                              applicationActivities:nil];
+            [self presentViewController:activityViewController
+                                               animated:YES
+                                             completion:^{
+                                                 NSLog(@"shared!");
+                                             }];
+        }];
+    }
 }
 
 - (void)refresh:(id)sender

@@ -8,6 +8,7 @@
 
 #import "XYZAppDelegate.h"
 #import "XYZToDoListTableViewController.h"
+#import "XYZListsListTableViewController.h"
 
 #import "HMAccount.h"
 
@@ -43,44 +44,74 @@
 
 
 -(BOOL) application: (UIApplication * ) application openURL: (NSURL * ) url sourceApplication: (NSString * ) sourceApplication annotation: (id) annotation {
-    if ([url.scheme isEqualToString: @"todos"]) {
-        
-        // check our `host` value to see what screen to display
-        if ([url.path isEqualToString: @"/auth_complete"]) {
-            
-            NSDictionary *query = [self queryDictFromString:url.query];
-            NSString *publicKey = query[@"public_key"];
-            NSString *secretKey = query[@"secret_key"];
-            NSString *accountID = query[@"account_id"];
-            NSString *baseURL = query[@"base_url"];
-            
-            // TODO: make this more real
-            NSString *appID = @"myTodos";
 
-            [HMAccount becomeWithKeyPair:@{@"publicKey":publicKey, @"secretKey": secretKey} accountID:accountID appID:appID baseURL:baseURL block:^(BOOL succeeded, NSError *error) {
+    // TODO: make this more real
+    NSString *appID = @"myTodos";
+
+    if (![url.scheme isEqualToString: @"todos"])  return NO;
+
+    NSDictionary *query = [self queryDictFromString:url.query];
+
+    // check our `host` value to see what screen to display
+    if ([url.path isEqualToString: @"/auth_complete"]) {
+
+        NSString *publicKey = query[@"public_key"];
+        NSString *secretKey = query[@"secret_key"];
+        NSString *accountID = query[@"account_id"];
+        NSString *baseURL = query[@"base_url"];
+
+
+        [HMAccount becomeWithKeyPair:@{@"publicKey":publicKey, @"secretKey": secretKey} accountID:accountID appID:appID baseURL:baseURL block:^(BOOL succeeded, NSError *error) {
+            if (error != nil) {
+                NSLog(@"error becoming in bg %@", error);
+                return;
+            }
+            
+            XYZToDoListTableViewController *mainViewController = (XYZToDoListTableViewController*)((UINavigationController*)self.window.rootViewController).topViewController;
+            
+            [mainViewController loadInitialData:^(NSError *error) {
+                
                 if (error != nil) {
-                    NSLog(@"error becoming in bg %@", error);
+                    NSLog(@"error loading initial data %@", error);
                     return;
                 }
-                
-                XYZToDoListTableViewController *mainViewController = (XYZToDoListTableViewController*)((UINavigationController*)self.window.rootViewController).topViewController;
-                
-                [mainViewController loadInitialData:^(NSError *error) {
-                    
-                    if (error != nil) {
-                        NSLog(@"error loading initial data %@", error);
-                        return;
-                    }
 
+            }];
+        }];
+        
+    } else if([url.path isEqualToString: @"/accept_invite"]) {
+        NSDictionary *keyPair = @{@"secretKey": [[HMAccount currentAccount] getSecretKey], @"publicKey": [[HMAccount currentAccount] getPublicKey]};
+        HMAccount *tempAccount = [HMAccount accountWithBaseUrl:query[@"base_url"] appID:appID accountID:query[@"account_id"] keyPair:keyPair];
+
+        [tempAccount convertTemporaryIdentity:query[@"token"] block:^(NSError *error) {
+            // TODO: sort out how to manage multiple bases and multiple accounts
+            //[HMAccount become:tempAccount];
+            NSMutableDictionary *grants = [[NSMutableDictionary alloc] init];
+            grants[keyPair[@"publicKey"]] = @{
+                @"readAttributes": @YES,
+                @"modifyAttributes": @YES
+            };
+            NSMutableDictionary *collectionAttributes = [NSMutableDictionary dictionaryWithDictionary:@{
+                @"type": @"list",
+                @"_grants": grants,
+                @"pointer": @{
+                    @"base_url": query[@"base_url"],
+                    @"account_id": query[@"account_id"],
+                    @"collection_id": query[@"collection_id"]
+                }
+            }];
+            [[HMAccount currentAccount] createCollectionWithAttributes:collectionAttributes
+                block:^(NSDictionary *collection, NSError *error) {
+
+                [((XYZListsListTableViewController*)((UINavigationController*)self.window.rootViewController).visibleViewController) loadInitialData:^(NSError *error) {
+                    NSLog(@"reloaded the root view controller!");
                 }];
             }];
-            
-        } else {
-            NSLog(@"An unknown action was passed.");
-        }
+        }];
     } else {
-        NSLog(@"We were not opened with todos.");
+        NSLog(@"An unknown action was passed.");
     }
+    
     return NO;
 }
 

@@ -11,5 +11,6 @@
 @interface XYZListsListTableViewController : UITableViewController
 
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue;
+- (void) loadInitialData:(void (^)(NSError* error))callbackBlock;
 
 @end
