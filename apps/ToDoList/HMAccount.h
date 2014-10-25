@@ -20,7 +20,6 @@
 + (void) become:(HMAccount *)anotherAccount;
 
 
-- (NSString *) getToken;
 - (NSString *) getAccountID;
 - (NSString *) getBaseUrl;
 - (NSString *) getPublicKey;
@@ -32,15 +31,13 @@
 
 - (void) saveCollection:(NSMutableDictionary*)collection block:(void (^)(NSDictionary *, NSError *))callbackBlock;
 
-//- (void) createGrantWithPublicKey:(NSString *)toAccountID block:(void (^)(NSDictionary *, NSError *))callbackBlock;
-- (void)sendGrant:(NSDictionary*)grant toAccount:(HMAccount*)toAccount forResource:(NSDictionary*)resource;
 - (void) getKnownIdentities:(void (^)(NSArray *identities, NSError* error))callbackBlock;
 
 - (void) createCollectionWithAttributes:(NSDictionary*)attributes block:(void (^)(NSDictionary* collection, NSError* error))callbackBlock;
 
 - (void) findInBackground:(HMQuery*)query block:(void (^)(NSArray *objects, NSError* error))callbackBlock;
 
-- (void) createTemporaryIdentity:(void (^)(NSString *token, NSError* error))callbackBlock;
+- (void) createTemporaryIdentity:(NSDictionary*)createTemporaryIdentity block:(void (^)(NSString *token, NSError* error))callbackBlock;
 - (void) convertTemporaryIdentity:(NSString *)token block:(void (^)(NSError* error))callbackBlock;
 
 

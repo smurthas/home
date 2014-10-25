@@ -86,6 +86,9 @@
         [tempAccount convertTemporaryIdentity:query[@"token"] block:^(NSError *error) {
             // TODO: sort out how to manage multiple bases and multiple accounts
             //[HMAccount become:tempAccount];
+
+            // TODO: check if we already have access to this collection
+            
             NSMutableDictionary *grants = [[NSMutableDictionary alloc] init];
             grants[keyPair[@"publicKey"]] = @{
                 @"readAttributes": @YES,
@@ -100,6 +103,7 @@
                     @"collection_id": query[@"collection_id"]
                 }
             }];
+
             [[HMAccount currentAccount] createCollectionWithAttributes:collectionAttributes
                 block:^(NSDictionary *collection, NSError *error) {
 

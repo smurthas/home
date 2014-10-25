@@ -20,6 +20,9 @@ PODS:
   - AFNetworking/UIKit (2.4.1):
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
+  - APAddressBook (0.1.4):
+    - APAddressBook/Core
+  - APAddressBook/Core (0.1.4)
   - libsodium-ios (0.4.5)
   - SBJson (4.0.1)
   - SlabClient (0.0.1):
@@ -27,6 +30,7 @@ PODS:
 
 DEPENDENCIES:
   - AFNetworking (~> 2.0)
+  - APAddressBook (~> 0.1.4)
   - SBJson (~> 4.0.0)
   - SlabClient (from `../../ios-lib/SlabClient`)
 
@@ -36,6 +40,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: 0aabc6fae66d6e5d039eeb21c315843c7aae51ab
+  APAddressBook: 2b23557950065f8eb048e421dd4a18373f69949b
   libsodium-ios: 569dedc61af104e5ba188f4cd4ab3eb607f2ce44
   SBJson: d71212c078abf4679d54b0d0565260c474e46235
   SlabClient: f3190187a65e876c5aa80e9abc6ecc3be80b5ca9

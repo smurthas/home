@@ -137,7 +137,12 @@
     } else {
         NSLog(@"creating identity");
         // create an identity with an alias and a token
-        [[HMAccount accountFromObject:self.listItem] createTemporaryIdentity:^(NSString *token, NSError *error) {
+        NSMutableDictionary *identityParameters = [[NSMutableDictionary alloc] init];
+        if (source.name != nil) identityParameters[@"name"] = source.name;
+        if (source.emailAddress != nil) identityParameters[@"email"] = source.emailAddress;
+        if (source.phoneNumber != nil) identityParameters[@"phone_number"] = source.phoneNumber;
+        
+        [[HMAccount accountFromObject:self.listItem] createTemporaryIdentity:identityParameters block:^(NSString *token, NSError *error) {
             NSLog(@"token %@", token);
             [self shareWith:token];
 

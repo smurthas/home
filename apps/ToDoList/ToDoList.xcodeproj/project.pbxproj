@@ -26,6 +26,7 @@
 		F4177B0619C7D2F50009667A /* XYZAddToDoItemViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4177B0519C7D2F50009667A /* XYZAddToDoItemViewController.m */; };
 		F4177B0C19C7D3E90009667A /* XYZToDoListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4177B0B19C7D3E90009667A /* XYZToDoListTableViewController.m */; };
 		F4177B1719C935070009667A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177B1619C935070009667A /* CoreLocation.framework */; };
+		F4293EE419FC580B00621685 /* SLContactTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F4293EE319FC580B00621685 /* SLContactTableViewCell.m */; };
 		F431FDDF19E1B1DE00D41D18 /* XYZShareListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F431FDDE19E1B1DE00D41D18 /* XYZShareListTableViewController.m */; };
 		F44F408C19CDF85A0061E4AB /* XYZListsListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */; };
 		F44F408F19CE5BB90061E4AB /* XYZAddListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */; };
@@ -69,11 +70,9 @@
 		F4177B0519C7D2F50009667A /* XYZAddToDoItemViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XYZAddToDoItemViewController.m; sourceTree = "<group>"; };
 		F4177B0A19C7D3E90009667A /* XYZToDoListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XYZToDoListTableViewController.h; sourceTree = "<group>"; };
 		F4177B0B19C7D3E90009667A /* XYZToDoListTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XYZToDoListTableViewController.m; sourceTree = "<group>"; };
-		F4177B1119C934E60009667A /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenClient.h; sourceTree = "<group>"; };
-		F4177B1219C934E60009667A /* KeenProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenProperties.h; sourceTree = "<group>"; };
-		F4177B1319C934E60009667A /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
-		F4177B1419C934E60009667A /* libKeenClient-Aggregate.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libKeenClient-Aggregate.a"; sourceTree = "<group>"; };
 		F4177B1619C935070009667A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		F4293EE219FC580B00621685 /* SLContactTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLContactTableViewCell.h; sourceTree = "<group>"; };
+		F4293EE319FC580B00621685 /* SLContactTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLContactTableViewCell.m; sourceTree = "<group>"; };
 		F431FDDD19E1B1DE00D41D18 /* XYZShareListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XYZShareListTableViewController.h; path = ToDoList/XYZShareListTableViewController.h; sourceTree = "<group>"; };
 		F431FDDE19E1B1DE00D41D18 /* XYZShareListTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XYZShareListTableViewController.m; path = ToDoList/XYZShareListTableViewController.m; sourceTree = "<group>"; };
 		F44F408A19CDF85A0061E4AB /* XYZListsListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XYZListsListTableViewController.h; sourceTree = "<group>"; };
@@ -121,11 +120,12 @@
 		F4177AC719C7C1CB0009667A = {
 			isa = PBXGroup;
 			children = (
+				F4293EE219FC580B00621685 /* SLContactTableViewCell.h */,
+				F4293EE319FC580B00621685 /* SLContactTableViewCell.m */,
 				F407B4A119CA63FB0075C3DC /* HMQuery.h */,
 				F407B4A219CA63FB0075C3DC /* HMQuery.m */,
 				F407B4A719CA68820075C3DC /* HMAccount.h */,
 				F407B4A819CA68830075C3DC /* HMAccount.m */,
-				F4177B1019C934E60009667A /* KeenClient */,
 				F4177B0A19C7D3E90009667A /* XYZToDoListTableViewController.h */,
 				F4177B0B19C7D3E90009667A /* XYZToDoListTableViewController.m */,
 				F44F408A19CDF85A0061E4AB /* XYZListsListTableViewController.h */,
@@ -205,17 +205,6 @@
 				F4177AF519C7C1CB0009667A /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		F4177B1019C934E60009667A /* KeenClient */ = {
-			isa = PBXGroup;
-			children = (
-				F4177B1119C934E60009667A /* KeenClient.h */,
-				F4177B1219C934E60009667A /* KeenProperties.h */,
-				F4177B1319C934E60009667A /* KIOEventStore.h */,
-				F4177B1419C934E60009667A /* libKeenClient-Aggregate.a */,
-			);
-			path = KeenClient;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -357,6 +346,7 @@
 				F44F408F19CE5BB90061E4AB /* XYZAddListViewController.m in Sources */,
 				F4177AE019C7C1CB0009667A /* main.m in Sources */,
 				F431FDDF19E1B1DE00D41D18 /* XYZShareListTableViewController.m in Sources */,
+				F4293EE419FC580B00621685 /* SLContactTableViewCell.m in Sources */,
 				F4177B0C19C7D3E90009667A /* XYZToDoListTableViewController.m in Sources */,
 				F4177B0619C7D2F50009667A /* XYZAddToDoItemViewController.m in Sources */,
 			);

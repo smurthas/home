@@ -84,10 +84,6 @@ static HMAccount *currentAccount;
 }
 
 
-- (NSString *) getToken {
-    return self.token;
-}
-
 - (NSString *) getAccountID {
     return self.accountID;
 }
@@ -224,6 +220,9 @@ static HMAccount *currentAccount;
     // TODO –––––––––––––––
     // Get them from server
     // ––––––––––––––– ODOT
+
+    
+
     callbackBlock([NSArray arrayWithObjects:
         @{@"_id": @"1235", @"name": @"Sam"},
         @{@"_id": @"34567", @"name": @"Sarah"},
@@ -231,11 +230,6 @@ static HMAccount *currentAccount;
         nil],
     nil);
 }
-
-- (void)sendGrant:(NSDictionary*)grant toAccount:(HMAccount*)toAccount forResource:(NSDictionary*)resource {
-    
-}
-
 
 
 - (void) createCollectionWithAttributes:(NSMutableDictionary*)attributes block:(void (^)(NSDictionary* collection, NSError* error))callbackBlock {
@@ -269,10 +263,10 @@ static HMAccount *currentAccount;
     [self makeRequest:@"GET" url:url parameters:parameters callback:callbackBlock];
 }
 
-- (void) createTemporaryIdentity:(void (^)(NSString *token, NSError* error))callbackBlock {
+- (void) createTemporaryIdentity:(NSDictionary*)parameters block:(void (^)(NSString *token, NSError* error))callbackBlock {
     NSString *url = [self.baseUrl stringByAppendingString:@"/identities/__temp"];
 
-    [self makeRequest:@"POST" url:url parameters:nil callback:^(id response, NSError *error) {
+    [self makeRequest:@"POST" url:url parameters:parameters callback:^(id response, NSError *error) {
         if (error) {
             return callbackBlock(nil, error);
         }

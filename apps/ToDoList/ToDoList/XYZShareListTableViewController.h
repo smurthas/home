@@ -11,6 +11,8 @@
 @interface XYZShareListTableViewController : UITableViewController
 
 @property NSArray* identities;
+@property NSMutableArray* contacts;
+
 @property NSString* publicKey;
 @property NSString* phoneNumber;
 @property NSString* emailAddress;
