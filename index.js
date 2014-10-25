@@ -169,6 +169,7 @@ app.put('/identities/:publicKey/_grantsID/:grantID', verifyAuth, function(req, r
 // create a temporary identity
 app.post('/identities/__temp', verifyAuth, function(req, res) {
   backend.createTemporaryIdentity({
+    attributes: req.body,
     grantIDs: req.grantIDs
   }, function(err, temporaryIdentity) {
     if (err) return handleError(err, res);
