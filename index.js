@@ -180,6 +180,25 @@ app.post('/identities/__temp', verifyAuth, function(req, res) {
   });
 });
 
+app.get('/identities/__temp/:tokens', verifyAuth, function(req, res) {
+  var tokens = req.params.tokens;
+  if (!tokens) {
+    return handleError(null, res);
+  }
+
+  if (tokens.indexOf(',') === -1) tokens = [tokens];
+  else tokens = tokens.split(',');
+
+  backend.getTemporaryIdentities({
+    tokens: tokens,
+    grantIDs: req.grantIDs
+  }, function(err, temporaryIdentities) {
+    if (err) return handleError(err, res);
+
+    res.status(200).json(temporaryIdentities);
+  })
+});
+
 // create a new identity from a temporary identity
 app.put('/identities/:publicKey', verifyAuth, function(req, res) {
   backend.createIdentityFromTemporary({
@@ -189,6 +208,38 @@ app.put('/identities/:publicKey', verifyAuth, function(req, res) {
     if (err) return handleError(err, res);
 
     res.status(200).json({});
+  });
+});
+
+// get all identities
+app.get('/identities', verifyAuth, function(req, res) {
+  backend.getIdentities({
+    grantIDs: req.grantIDs
+  }, function(err, identities) {
+    if (err) return handleError(err, res);
+
+    res.status(200).json(identities);
+  });
+
+});
+
+// get identities by public key
+app.get('/identities/:publicKeys', verifyAuth, function(req, res) {
+  var publicKeys = req.params.publicKeys;
+  if (!publicKeys) {
+    return handleError(null, res);
+  }
+
+  if (publicKeys.indexOf(',') === -1) publicKeys = [publicKeys];
+  else publicKeys = publicKeys.split(',');
+
+  backend.getIdentities({
+    publicKeys: publicKeys,
+    grantIDs: req.grantIDs
+  }, function(err, identities) {
+    if (err) return handleError(err, res);
+
+    res.status(200).json(identities);
   });
 });
 
