@@ -32,6 +32,8 @@
 - (void) saveCollection:(NSMutableDictionary*)collection block:(void (^)(NSDictionary *, NSError *))callbackBlock;
 
 - (void) getKnownIdentities:(void (^)(NSArray *identities, NSError* error))callbackBlock;
+- (void) getIdentities:(NSArray*)publicKeys block:(void (^)(NSArray *identities, NSError* error))callbackBlock;
+- (void) getTemporaryIdentities:(NSArray*)tokens block:(void (^)(NSArray *identities, NSError* error))callbackBlock;
 
 - (void) createCollectionWithAttributes:(NSDictionary*)attributes block:(void (^)(NSDictionary* collection, NSError* error))callbackBlock;
 

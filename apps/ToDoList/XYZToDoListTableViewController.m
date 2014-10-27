@@ -15,6 +15,9 @@
 
 #import <AFNetworking.h>
 
+#import <MessageUI/MFMailComposeViewController.h>
+#import <MessageUI/MFMessageComposeViewController.h>
+
 @interface XYZToDoListTableViewController ()
 
 //@property NSArray* identities;
@@ -161,6 +164,32 @@
                   messagePayload[@"collection_id"],
                   messagePayload[@"list_name"]];
 
+            if (source.emailAddress != nil) {
+                //Check if mail can be sent
+                if ([MFMailComposeViewController canSendMail])
+                {
+                    MFMailComposeViewController *mailer = [[MFMailComposeViewController alloc] init];
+                    mailer.mailComposeDelegate = self;
+                    NSLog(@"emailadress %@", source.emailAddress);
+//                    [mailer setToRecipients:@[source.emailAddress]];
+//                    [mailer setMessageBody:url isHTML:NO];
+
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+
+                        [self presentViewController:mailer
+                                           animated:YES completion:^{
+                                               NSLog(@"ok");
+                                           }];
+                    });
+                    
+                } else {
+                    NSLog(@"can't sent mail!");
+                }
+            } else if (source.phoneNumber != nil) {
+
+            }
+
+            /*
             UIActivityViewController *activityViewController =
             [[UIActivityViewController alloc] initWithActivityItems:@[url]
                                               applicationActivities:nil];
@@ -168,10 +197,20 @@
                                animated:YES
                              completion:^{
                 NSLog(@"shared!");
-            }];
+            }];*/
         }];
     }
 }
+
+-(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+
+    // dismiss the compose message view controller
+    [self dismissViewControllerAnimated:YES completion:^{
+        NSLog(@"dismissed");
+    }];
+}
+
 
 - (void)refresh:(id)sender
 {
@@ -257,7 +296,7 @@
 }
 */
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -272,11 +311,11 @@
         NSLog(@"vc2 %@", vc);
         if ([vc isKindOfClass:[XYZShareListTableViewController class]]) {
             XYZShareListTableViewController *sltvc = (XYZShareListTableViewController*)vc;
-            sltvc.identities = self.identities;
+            sltvc.listItem = self.listItem;
         }
 
     }
-}*/
+}
 
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath

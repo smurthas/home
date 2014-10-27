@@ -217,18 +217,74 @@ static HMAccount *currentAccount;
 }*/
 
 - (void) getKnownIdentities:(void (^)(NSArray *identities, NSError* error))callbackBlock {
-    // TODO –––––––––––––––
-    // Get them from server
-    // ––––––––––––––– ODOT
+    NSMutableArray *identities = [[NSMutableArray alloc] init];
+    NSString *url =[[self getBaseUrl] stringByAppendingString:@"/identities"];
+    [self makeRequest:@"GET" url:url parameters:nil callback:^(id response, NSError *error) {
+        if (error != nil) {
+            callbackBlock(nil, error);
+        }
+        for (id publicKey in response) {
+            NSMutableDictionary *identity = [NSMutableDictionary dictionaryWithDictionary:response[publicKey]];
+            identity[@"_id"] = publicKey;
+            [identities addObject:identity];
+        }
 
-    
+        callbackBlock(identities, error);
+    }];
+}
 
-    callbackBlock([NSArray arrayWithObjects:
-        @{@"_id": @"1235", @"name": @"Sam"},
-        @{@"_id": @"34567", @"name": @"Sarah"},
-        @{@"_id": @"9642", @"name": @"Simon"},
-        nil],
-    nil);
+- (void) getIdentities:(NSArray*)publicKeys block:(void (^)(NSArray *identities, NSError* error))callbackBlock {
+    NSMutableArray *identities = [[NSMutableArray alloc] init];
+    NSString *publicKeysString = @"";
+    for (int i = 0; i < publicKeys.count; i++) {
+        publicKeysString = [publicKeysString stringByAppendingString:publicKeys[i]];
+        if (i < publicKeys.count - 1) {
+            publicKeysString = [publicKeysString stringByAppendingString:@","];
+        }
+    }
+
+    NSString *url =[NSString stringWithFormat:@"%@/identities/%@", [self getBaseUrl], publicKeysString];
+    NSLog(@"GET identities url %@", url);
+
+    [self makeRequest:@"GET" url:url parameters:nil callback:^(id response, NSError *error) {
+        if (error != nil) {
+            callbackBlock(nil, error);
+        }
+        for (id publicKey in response) {
+            NSMutableDictionary *identity = [NSMutableDictionary dictionaryWithDictionary:response[publicKey]];
+            identity[@"_id"] = publicKey;
+            [identities addObject:identity];
+        }
+
+        callbackBlock(identities, error);
+    }];
+}
+
+- (void) getTemporaryIdentities:(NSArray*)tokens block:(void (^)(NSArray *identities, NSError* error))callbackBlock {
+    NSMutableArray *identities = [[NSMutableArray alloc] init];
+    NSString *tokensString = @"";
+    for (int i = 0; i < tokens.count; i++) {
+        tokensString = [tokensString stringByAppendingString:tokens[i]];
+        if (i < tokens.count - 1) {
+            tokensString = [tokensString stringByAppendingString:@","];
+        }
+    }
+
+    NSString *url =[NSString stringWithFormat:@"%@/identities/__temp/%@", [self getBaseUrl], tokensString];
+    NSLog(@"GET identities url %@", url);
+
+    [self makeRequest:@"GET" url:url parameters:nil callback:^(id response, NSError *error) {
+        if (error != nil) {
+            callbackBlock(nil, error);
+        }
+        for (id token in response) {
+            NSMutableDictionary *identity = [NSMutableDictionary dictionaryWithDictionary:response[token]];
+            identity[@"_id"] = token;
+            [identities addObject:identity];
+        }
+
+        callbackBlock(identities, error);
+    }];
 }
 
 

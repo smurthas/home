@@ -10,8 +10,13 @@
 
 @interface XYZShareListTableViewController : UITableViewController
 
-@property NSArray* identities;
+@property NSMutableArray* identities;
 @property NSMutableArray* contacts;
+@property NSMutableArray* alreadyShared;
+
+@property NSMutableArray* sections;
+
+@property NSDictionary *listItem;
 
 @property NSString* publicKey;
 @property NSString* phoneNumber;

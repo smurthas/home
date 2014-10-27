@@ -27,6 +27,7 @@
 		F4177B0C19C7D3E90009667A /* XYZToDoListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F4177B0B19C7D3E90009667A /* XYZToDoListTableViewController.m */; };
 		F4177B1719C935070009667A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177B1619C935070009667A /* CoreLocation.framework */; };
 		F4293EE419FC580B00621685 /* SLContactTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = F4293EE319FC580B00621685 /* SLContactTableViewCell.m */; };
+		F4293EE619FC66D300621685 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4293EE519FC66D300621685 /* MessageUI.framework */; };
 		F431FDDF19E1B1DE00D41D18 /* XYZShareListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F431FDDE19E1B1DE00D41D18 /* XYZShareListTableViewController.m */; };
 		F44F408C19CDF85A0061E4AB /* XYZListsListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */; };
 		F44F408F19CE5BB90061E4AB /* XYZAddListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */; };
@@ -73,6 +74,7 @@
 		F4177B1619C935070009667A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		F4293EE219FC580B00621685 /* SLContactTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLContactTableViewCell.h; sourceTree = "<group>"; };
 		F4293EE319FC580B00621685 /* SLContactTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLContactTableViewCell.m; sourceTree = "<group>"; };
+		F4293EE519FC66D300621685 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		F431FDDD19E1B1DE00D41D18 /* XYZShareListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XYZShareListTableViewController.h; path = ToDoList/XYZShareListTableViewController.h; sourceTree = "<group>"; };
 		F431FDDE19E1B1DE00D41D18 /* XYZShareListTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XYZShareListTableViewController.m; path = ToDoList/XYZShareListTableViewController.m; sourceTree = "<group>"; };
 		F44F408A19CDF85A0061E4AB /* XYZListsListTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XYZListsListTableViewController.h; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4293EE619FC66D300621685 /* MessageUI.framework in Frameworks */,
 				F4177B1719C935070009667A /* CoreLocation.framework in Frameworks */,
 				F4177AD619C7C1CB0009667A /* CoreGraphics.framework in Frameworks */,
 				F4177AD819C7C1CB0009667A /* UIKit.framework in Frameworks */,
@@ -156,6 +159,7 @@
 		F4177AD219C7C1CB0009667A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F4293EE519FC66D300621685 /* MessageUI.framework */,
 				F4177B1619C935070009667A /* CoreLocation.framework */,
 				F4177AD319C7C1CB0009667A /* Foundation.framework */,
 				F4177AD519C7C1CB0009667A /* CoreGraphics.framework */,
