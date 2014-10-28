@@ -138,13 +138,23 @@
      SLContactTableViewCell *cell = (SLContactTableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"IdentityPrototypeCell" forIndexPath:indexPath];
 
     if (indexPath.section == 0) {
-        cell.textLabel.text = self.alreadyShared[indexPath.row][@"name"];
-        cell.detailTextLabel.text = self.alreadyShared[indexPath.row][@"_id"];
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        NSString *_id = self.alreadyShared[indexPath.row][@"_id"];
+        if ([_id isEqualToString:[[HMAccount currentAccount] getPublicKey]]) {
+            cell.textLabel.text = @"Me";
+        } else {
+            cell.textLabel.text = self.alreadyShared[indexPath.row][@"name"];
+        }
+
+        if ([_id containsString:@"-"]) {
+            cell.detailTextLabel.text = @"Invite pending...";
+        } else {
+            cell.detailTextLabel.text = nil;
+        }
+//        cell.accessoryType = UITableViewCellAccessoryCheckmark;
     } else if (indexPath.section == 1) {
         cell.textLabel.text = self.identities[indexPath.row][@"name"];
         cell.detailTextLabel.text = self.identities[indexPath.row][@"_id"];
-        cell.accessoryType = UITableViewCellAccessoryNone;
+//        cell.accessoryType = UITableViewCellAccessoryNone;
     } else {
         NSDictionary *contact = (NSDictionary*)self.contacts[indexPath.row];
         cell.textLabel.text = contact[@"name"];
@@ -155,7 +165,7 @@
             cell.detailTextLabel.text = contact[@"phone_number"];
             cell.isPhoneNumber = YES;
         }
-        cell.accessoryType = UITableViewCellAccessoryNone;
+//        cell.accessoryType = UITableViewCellAccessoryNone;
     }
 
     /*
@@ -194,25 +204,46 @@
 }
 
 
-/*
+
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the specified item to be editable.
-    return YES;
+    return indexPath.section == 0;
 }
-*/
 
-/*
+
+
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+
+        HMAccount *listAccount = [HMAccount accountFromObject:self.listItem];
+        NSString *_id = self.alreadyShared[indexPath.row][@"_id"];
+        NSLog(@"_id: %@", _id);
+        [self.listItem[@"_grants"] removeObjectForKey:_id];
+
+        // update collection object
+        [listAccount saveCollection:self.listItem block:^(NSDictionary *reponse, NSError *error) {
+            // update all other objects
+            for (NSMutableDictionary *item in self.todoItems) {
+                [item[@"_grants"] removeObjectForKey:_id];
+            }
+
+            [listAccount batchUpdate:self.todoItems toCollection:self.listItem[@"_id"] block:^(NSDictionary *bResp, NSError *bErr) {
+                // remove from UI
+                [self.alreadyShared removeObjectAtIndex:indexPath.row];
+                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [self.tableView reloadData];
+            }];
+        }];
+
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   
 }
-*/
+
+
 
 /*
 // Override to support rearranging the table view.
@@ -229,6 +260,39 @@
 */
 
 
+
+
+#pragma mark - Table view delegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:NO];
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+
+    if (indexPath.section == 0) {
+        // TODO: show details
+    } else {
+        [self performSegueWithIdentifier:@"Unwind" sender:cell];
+    }
+
+
+
+    /*
+
+    NSMutableDictionary *tappedItem = [self.toDoItems objectAtIndex:indexPath.row];
+    if ([tappedItem[@"completed"]  isEqual: @YES]) {
+        tappedItem[@"completed"] = @NO;
+    } else {
+        tappedItem[@"completed"] = @YES;
+    }
+
+    NSString *collectionID = self.listItem[@"_id"];
+    [[HMAccount accountFromObject:self.listItem] saveInBackground:tappedItem toCollection:collectionID];
+
+    [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];*/
+}
+
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -243,7 +307,6 @@
         else if (cell.isPhoneNumber) self.phoneNumber = cell.detailTextLabel.text;
         else self.publicKey = cell.detailTextLabel.text;
     }
-
 }
 
 

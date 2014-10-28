@@ -261,6 +261,9 @@ static HMAccount *currentAccount;
 }
 
 - (void) getTemporaryIdentities:(NSArray*)tokens block:(void (^)(NSArray *identities, NSError* error))callbackBlock {
+    if (tokens == nil || tokens.count < 1) {
+        return callbackBlock(nil, nil);
+    }
     NSMutableArray *identities = [[NSMutableArray alloc] init];
     NSString *tokensString = @"";
     for (int i = 0; i < tokens.count; i++) {

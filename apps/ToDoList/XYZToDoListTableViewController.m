@@ -137,7 +137,7 @@
 
         // TODO: send notification without token
 
-    } else {
+    } else if (source.emailAddress != nil || source.phoneNumber != nil) {
         NSLog(@"creating identity");
         // create an identity with an alias and a token
         NSMutableDictionary *identityParameters = [[NSMutableDictionary alloc] init];
@@ -312,6 +312,7 @@
         if ([vc isKindOfClass:[XYZShareListTableViewController class]]) {
             XYZShareListTableViewController *sltvc = (XYZShareListTableViewController*)vc;
             sltvc.listItem = self.listItem;
+            sltvc.todoItems = self.toDoItems;
         }
 
     }

@@ -16,7 +16,8 @@
 
 @property NSMutableArray* sections;
 
-@property NSDictionary *listItem;
+@property NSMutableDictionary *listItem;
+@property NSMutableArray *todoItems;
 
 @property NSString* publicKey;
 @property NSString* phoneNumber;

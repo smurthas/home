@@ -274,9 +274,6 @@
                                         </label>
                                     </subviews>
                                 </tableViewCellContentView>
-                                <connections>
-                                    <segue destination="aGQ-tM-cdo" kind="unwind" unwindAction="unwindToShareList:" id="5Lb-Gb-7xj"/>
-                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -291,6 +288,9 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <segue destination="aGQ-tM-cdo" kind="unwind" identifier="Unwind" unwindAction="unwindToShareList:" id="Rcg-Lb-xtl"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3OM-Ur-7pk" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="aGQ-tM-cdo" userLabel="Exit" sceneMemberID="exit"/>
