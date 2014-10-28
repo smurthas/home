@@ -310,6 +310,8 @@ static HMAccount *currentAccount;
     } else {
         url = [self URLStringForAccount];
     }
+
+    NSLog(@"findInBackground URL: %@", url);
     
     NSString *filterString = [query filterString];
 

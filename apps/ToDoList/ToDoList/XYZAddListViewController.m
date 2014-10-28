@@ -65,7 +65,15 @@
     }
     
     NSLog(@"listItem: %@", self.listItem);
+    // XXX: this is a race condition as the collection will be added before it has a
+    // chance to be created on the backend. As a result, the object won't have the
+    // required _host, etc fields so `accountFromObject` won't work.
+    // TODO: real solution is offline/not logged in editing
     [[HMAccount currentAccount] createCollectionWithAttributes:self.listItem block:^(NSDictionary *collection, NSError *error) {
+        for (NSString *key in [collection allKeys]) {
+            self.listItem[key] = collection[key];
+        }
+
         NSLog(@"collection: %@", collection);
     }];
 }
