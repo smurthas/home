@@ -71,6 +71,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.title = self.listItem[@"name"];
 
     [self loadInitialData:^(NSError *error) {
         NSLog(@"reloaded data");
