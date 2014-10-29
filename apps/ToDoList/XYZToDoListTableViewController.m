@@ -54,7 +54,7 @@
         }
 
         [[HMAccount accountFromObject:self.listItem] saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
-        [self.toDoItems addObject:source.toDoItem];
+        [self.toDoItems insertObject:source.toDoItem atIndex:0];
         [self.tableView reloadData];
     }
 }

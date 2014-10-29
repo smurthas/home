@@ -88,7 +88,7 @@
     XYZAddListViewController *source = [segue sourceViewController];
     NSLog(@"listItem: %@", source.listItem);
     if (source.listItem != nil) {
-        [self.lists addObject:source.listItem];
+        [self.lists insertObject:source.listItem atIndex:0];
         [self.tableView reloadData];
     }
 }
