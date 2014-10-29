@@ -386,6 +386,20 @@ app.put('/apps/:appID/:accountID/:collectionID', function(req, res) {
   });
 });
 
+
+// delete a collection
+app.delete('/apps/:appID/:accountID/:collectionID', function(req, res) {
+  backend.deleteCollection({
+    appID: req.params.appID,
+    accountID: req.params.accountID,
+    collectionID: req.params.collectionID,
+    grantIDs: req.grantIDs
+  }, function(err, response) {
+    if (err) return handleError(err, res);
+    res.status(200).json({});
+  });
+});
+
 // update the collection's meta data (ACL, etc?)
 /*app.put('/apps/:appID/:accountID/:collectionID', function(req, res) {
   console.error('Create One:', req.body);
