@@ -169,7 +169,12 @@ static HMAccount *currentAccount;
 }
 
 - (void) deleteInBackground:(NSDictionary*)object fromCollection:(NSString*)collection {
-    NSString *url = [self URLStringForObject:object collection:collection];
+    NSString *url;
+    if (collection != nil) {
+        url = [self URLStringForObject:object collection:collection];
+    } else {
+        url = [self URLStringForCollection:object[@"_id"]];
+    }
     NSLog(@"delete url %@", url);
     [self makeRequest:@"DELETE" url:url parameters:nil callback:^(id response, NSError *error) {
         NSLog(@"JSON: %@", response);
