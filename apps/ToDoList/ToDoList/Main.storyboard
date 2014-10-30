@@ -143,6 +143,11 @@
                         </connections>
                     </tableView>
                     <toolbarItems>
+                        <barButtonItem title="→" id="Rq3-sC-pZW">
+                            <connections>
+                                <action selector="logCompleted:" destination="wjT-UR-hdK" id="tcG-qx-vFw"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem systemItem="flexibleSpace" id="DtZ-1O-By3"/>
                         <barButtonItem systemItem="action" id="2wE-u4-khK">
                             <connections>

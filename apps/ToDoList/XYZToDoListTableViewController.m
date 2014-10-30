@@ -41,6 +41,25 @@
     }];
 }
 
+- (IBAction)logCompleted:(id)sender {
+    NSMutableArray *toLog = [[NSMutableArray alloc] init];
+    for (NSMutableDictionary *todo in self.toDoItems) {
+        if ([todo[@"completed"] isEqual:@YES]) {
+            todo[@"logged"] = @YES;
+            [toLog addObject:todo];
+        }
+    }
+
+    NSLog(@"toLog %@", toLog);
+
+    [[HMAccount accountFromObject:self.listItem] batchUpdate:toLog toCollection:self.listItem[@"_id"] block:^(NSDictionary *response, NSError *error) {
+        for (NSDictionary *todo in toLog) {
+            [self.toDoItems removeObject:todo];
+        }
+        [self.tableView reloadData];
+    }];
+}
+
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue
 {
     XYZAddToDoItemViewController *source = [segue sourceViewController];
