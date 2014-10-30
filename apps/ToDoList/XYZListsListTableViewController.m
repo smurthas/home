@@ -50,6 +50,11 @@
             if (error != nil) {
                 return callbackBlock(error);
             }
+            if (foundObjects.count != 1) {
+                NSLog(@"didn't find an object when following pointer: %@", list);
+                [self fillData:objects fromIndex:(index + 1) block:callbackBlock];
+                return;
+            }
 
             NSMutableDictionary *fullList = (NSMutableDictionary*)foundObjects[0];
             [self.lists addObject:fullList];
