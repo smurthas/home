@@ -27,10 +27,13 @@
 
     NSArray *grantIDs = [[((NSDictionary*)self.listItem[@"_grants"]) keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop) {
         NSString *keyString = (NSString*)key;
-        return !([keyString containsString:@"-"] || [keyString isEqualToString:[[HMAccount currentAccount] getPublicKey]]);
+        return !([keyString containsString:@"-"]);
     }] allObjects];
-    [[HMAccount accountFromObject:self.listItem] getIdentities:grantIDs block:^(NSArray *alreadySharedWithIdentities, NSError *error) {
 
+    NSLog(@"getting grantIDs %@", grantIDs);
+
+    // XXX: If grantIDs is nil or empty, the getIdentities method will return ALL known identities!
+    [[HMAccount accountFromObject:self.listItem] getIdentities:grantIDs block:^(NSArray *alreadySharedWithIdentities, NSError *error) {
         NSArray *temporaryIDs = [[((NSDictionary*)self.listItem[@"_grants"]) keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop) {
             NSString *keyString = (NSString*)key;
             return [keyString containsString:@"-"];
@@ -38,15 +41,15 @@
         [[HMAccount currentAccount] getTemporaryIdentities:temporaryIDs block:^(NSArray *temporaryIdentities, NSError *error) {
             self.alreadyShared = [NSMutableArray arrayWithArray:alreadySharedWithIdentities];
             [self.alreadyShared addObjectsFromArray:temporaryIdentities];
-            NSLog(@"alreadySharedWithIdentities %@", alreadySharedWithIdentities);
     //        if (self.alreadyShared.count > 0) {
                 [self.sections addObject:@"Sharing With"];
     //        }
 
-            [[HMAccount currentAccount] getKnownIdentities:^(NSArray *identities, NSError *error) {
+            [[HMAccount currentAccount] getKnownIdentities:^(NSArray *knownIdentities, NSError *error) {
                 self.identities = [[NSMutableArray alloc] init];
-                for (NSDictionary *i in identities) {
-                    if ([i[@"_id"] isEqualToString:[[HMAccount currentAccount] getPublicKey]]) continue;
+                NSString *myPublicKey = [[HMAccount currentAccount] getPublicKey];
+                for (NSDictionary *i in knownIdentities) {
+                    if ([i[@"_id"] isEqualToString:myPublicKey]) continue;
                     BOOL found = NO;
                     for (NSDictionary *j in self.alreadyShared) {
                         NSLog(@"i._id:%@, j._id:%@", i[@"_id"], j[@"_id"]);
