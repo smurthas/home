@@ -1,6 +1,6 @@
 var express = require('express');
 
-var backend = require('./lib/be-single-fs.js');
+var backend = require('./lib/backend.js');
 var tokens = require('./lib/tokens.js');
 
 var app = express();
@@ -515,11 +515,18 @@ app.delete('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res)
 
 tokens.initSecrets();
 
-var PORT = process.env.PORT || 2570;
-app.listen(PORT, function(err) {
+backend.init(function(err) {
   if (err) {
-    console.error(err);
+    console.error('Error initing backend:', err);
     process.exit(1);
   }
-  console.log('listening on', PORT);
+
+  var PORT = process.env.PORT || 2570;
+  app.listen(PORT, function(err) {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    console.log('listening on', PORT);
+  });
 });
