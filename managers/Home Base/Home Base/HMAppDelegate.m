@@ -253,6 +253,9 @@
     
     
     [self.bases addObject: [HMBase baseWithBaseURL:@"http://localhost:2571" andManagerToken:@"4TnuvjZtk5nVR3xVKs9ANywHhYfxBBhxUYP52BVhEUq3a9rCndRCqb99wFUtczuh3kgXc3HziKfYvoESPnTu2SVZ"]];
+
+    [self.bases addObject: [HMBase baseWithBaseURL:@"http://slab-base.herokuapp.com"
+        andManagerToken:@"kfLFL5zLR62S42keuCaSUakZ2n1z2PZTt3Urorp7CfspxuLsVZp9HeuMWC7MEP8Py3cQiM7EhoURqZQSb98sq19"]];
     
     //self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.

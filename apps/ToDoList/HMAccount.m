@@ -355,7 +355,7 @@ static HMAccount *currentAccount;
 
     method = [method uppercaseString];
 
-    NSLog(@"method %@", method);
+    NSLog(@"method: %@", method);
 
     // TODO: ensure method is only {GET,POST,PUT,DELETE}
 
@@ -371,7 +371,7 @@ static HMAccount *currentAccount;
 
     NSString *signature = [SLCrypto signMessage:message secretKey:self.secretKey];
 
-    NSLog(@"message %@, signature %@", message, signature);
+    NSLog(@"message: %@\nsignature: %@", message, signature);
 
 
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
@@ -381,6 +381,7 @@ static HMAccount *currentAccount;
     [manager.requestSerializer setValue:self.publicKey forHTTPHeaderField:@"X-Slab-PublicKey"];
 
     if ([method isEqualToString:@"GET"]) {
+        NSLog(@"getting: %@", url);
         [manager GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
             callbackBlock(responseObject, nil);
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

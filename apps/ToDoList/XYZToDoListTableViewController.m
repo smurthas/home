@@ -32,6 +32,7 @@
     [query whereKey:@"logged" equalTo:@NO];
 
     [[HMAccount accountFromObject:self.listItem] findInBackground:query block:^(NSArray *objects, NSError *error) {
+        NSLog(@"got back objects for collection: %@", objects);
         if (error == nil) {
             self.toDoItems = [NSMutableArray arrayWithArray:objects];
             [self.tableView reloadData];
