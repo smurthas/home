@@ -421,9 +421,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="N0G-0Y-YXv">
-                        <barButtonItem key="leftBarButtonItem" style="plain" systemItem="cancel" id="Eoe-Z1-YRZ">
+                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="done" id="Eoe-Z1-YRZ">
                             <connections>
-                                <segue destination="lLb-X2-sCI" kind="unwind" unwindAction="unwindToShareList:" id="hOE-oJ-ob2"/>
+                                <segue destination="lLb-X2-sCI" kind="unwind" unwindAction="unwindFromSharing:" id="Xar-ws-ILl"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

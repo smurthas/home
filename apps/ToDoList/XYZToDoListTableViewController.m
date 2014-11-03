@@ -62,8 +62,7 @@
     }];
 }
 
-- (IBAction)unwindToList:(UIStoryboardSegue *)segue
-{
+- (IBAction)unwindToList:(UIStoryboardSegue *)segue {
     XYZAddToDoItemViewController *source = [segue sourceViewController];
 
     if (source.toDoItem != nil) {
@@ -78,6 +77,10 @@
         [self.toDoItems insertObject:source.toDoItem atIndex:0];
         [self.tableView reloadData];
     }
+}
+
+- (IBAction)unwindFromSharing:(UIStoryboardSegue *)segue {
+
 }
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -104,124 +107,6 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-}
-
-- (void)shareWith:(NSString*)grantID {
-    // enable the grantID to create objects in this collection
-    self.listItem[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{
-         @"createObjects": @YES,
-         @"readAttributes": @YES,
-         @"modifyAttributes": @YES
-    }];
-
-    HMAccount *listAccount = [HMAccount accountFromObject:self.listItem];
-    [listAccount saveCollection:self.listItem block:^(NSDictionary *updateCollection, NSError *error) {
-        // grant permission for all items in the list
-
-        for (NSMutableDictionary* todo in self.toDoItems) {
-            ((NSMutableDictionary*)todo[@"_grants"])[grantID] =
-                [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
-        }
-
-        [listAccount batchUpdate:self.toDoItems toCollection:self.listItem[@"_id"] block:^(NSDictionary *responseObject, NSError *error) {
-            NSLog(@"JSON: %@", responseObject);
-
-            // TODO: update the _updatedAt timestamps
-
-            // send the other account a notification with my AccountID, List Name, CollectionID
-            // TODO: send it
-
-            //            [self.account createGrantWithPublicKey:toPublicKey block:^(NSDictionary *grant, NSError *error) {
-            //                NSString *resourceURL = [self.account URLStringForCollection:self.listItem[@"_id"]];
-            //                NSLog(@"sharing resourceURL: %@", resourceURL);
-            //
-            //                               NSDictionary *invitation = @{
-            //                 @"token": grant[@"token"],
-            //                 @"uri": resourceURL
-            //                 };
-            //
-            //                 NSLog(@"sharing: %@", invitation);
-            //            }];
-            
-        }];
-        
-    }];
-}
-
-- (IBAction)unwindToShareList:(UIStoryboardSegue *)segue
-{
-    XYZShareListTableViewController *source = [segue sourceViewController];
-    NSLog(@"sharing list %@, public key %@", self.listItem[@"name"], source.publicKey);
-
-    if (source.publicKey != nil) {
-        NSLog(@"sharing with pubkey");
-        [self shareWith:source.publicKey];
-
-        // TODO: send notification without token
-
-    } else if (source.emailAddress != nil || source.phoneNumber != nil) {
-        NSLog(@"creating identity");
-        // create an identity with an alias and a token
-        NSMutableDictionary *identityParameters = [[NSMutableDictionary alloc] init];
-        if (source.name != nil) identityParameters[@"name"] = source.name;
-        if (source.emailAddress != nil) identityParameters[@"email"] = source.emailAddress;
-        if (source.phoneNumber != nil) identityParameters[@"phone_number"] = source.phoneNumber;
-        
-        [[HMAccount accountFromObject:self.listItem] createTemporaryIdentity:identityParameters block:^(NSString *token, NSError *error) {
-            NSLog(@"token %@", token);
-            [self shareWith:token];
-
-            // send email/text
-            NSMutableDictionary *messagePayload = [[NSMutableDictionary alloc] init];
-            messagePayload[@"token"] = token;
-            messagePayload[@"base_url"] = self.listItem[@"_host"];
-            messagePayload[@"account_id"] = self.listItem[@"_accountID"];
-            messagePayload[@"collection_id"] = self.listItem[@"_id"];
-            messagePayload[@"list_name"] = self.listItem[@"name"];
-
-            NSString *url = [NSString stringWithFormat:@"todos://com.sms.todos/accept_invite?token=%@&base_url=%@&account_id=%@&collection_id=%@&list_name=%@",
-                  messagePayload[@"token"],
-                  [messagePayload[@"base_url"] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]],
-                  messagePayload[@"account_id"],
-                  messagePayload[@"collection_id"],
-                  messagePayload[@"list_name"]];
-
-            if (source.emailAddress != nil) {
-                //Check if mail can be sent
-                if ([MFMailComposeViewController canSendMail])
-                {
-                    MFMailComposeViewController *mailer = [[MFMailComposeViewController alloc] init];
-                    mailer.mailComposeDelegate = self;
-                    NSLog(@"emailadress %@", source.emailAddress);
-//                    [mailer setToRecipients:@[source.emailAddress]];
-//                    [mailer setMessageBody:url isHTML:NO];
-
-                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-
-                        [self presentViewController:mailer
-                                           animated:YES completion:^{
-                                               NSLog(@"ok");
-                                           }];
-                    });
-                    
-                } else {
-                    NSLog(@"can't sent mail!");
-                }
-            } else if (source.phoneNumber != nil) {
-
-            }
-
-            /*
-            UIActivityViewController *activityViewController =
-            [[UIActivityViewController alloc] initWithActivityItems:@[url]
-                                              applicationActivities:nil];
-            [self presentViewController:activityViewController
-                               animated:YES
-                             completion:^{
-                NSLog(@"shared!");
-            }];*/
-        }];
-    }
 }
 
 -(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
