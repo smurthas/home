@@ -8,7 +8,7 @@ pod 'AFNetworking', '~> 2.0'
 pod 'SlabClient', :path => '../../ios-lib/SlabClient'
 pod 'SBJson', '~> 4.0.0'
 pod 'APAddressBook', '~> 0.1.4'
-pod 'SSKeychain'
+pod 'Lockbox', '~> 2.0.0'
 
 end
 

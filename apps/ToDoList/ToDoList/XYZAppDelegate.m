@@ -12,6 +12,8 @@
 
 #import "HMAccount.h"
 
+#import <Lockbox/Lockbox.h>
+
 @implementation XYZAppDelegate
 
 
@@ -66,7 +68,15 @@
                 NSLog(@"error becoming in bg %@", error);
                 return;
             }
-            
+
+            [Lockbox setDictionary:@{
+                 @"public_key": publicKey,
+                 @"secret_key": secretKey,
+                 @"account_id": accountID,
+                 @"app_id": appID,
+                 @"base_url": baseURL
+             } forKey:@"slab_info"];
+
             XYZToDoListTableViewController *mainViewController = (XYZToDoListTableViewController*)((UINavigationController*)self.window.rootViewController).topViewController;
             
             [mainViewController loadInitialData:^(NSError *error) {
@@ -122,6 +132,33 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    NSDictionary *slabInfo = [Lockbox dictionaryForKey:@"slab_info"];
+    if (slabInfo != nil) {
+
+        NSLog(@"slabInfo, %@", slabInfo);
+        if (slabInfo[@"secret_key"] == nil || slabInfo[@"public_key"] == nil ||
+            slabInfo[@"account_id"] == nil || slabInfo[@"app_id"] == nil ||
+            slabInfo[@"base_url"] == nil) {
+            NSLog(@"invalid slabInfo, not logging in");
+            return YES;
+        }
+
+        [HMAccount becomeWithKeyPair:@{@"secretKey":slabInfo[@"secret_key"], @"publicKey": slabInfo[@"public_key"]} accountID:slabInfo[@"account_id"] appID:slabInfo[@"app_id"] baseURL:slabInfo[@"base_url"] block:^(BOOL succeeded, NSError *error) {
+            NSLog(@"loaded from keychain");
+
+
+            XYZToDoListTableViewController *mainViewController = (XYZToDoListTableViewController*)((UINavigationController*)self.window.rootViewController).topViewController;
+
+            [mainViewController loadInitialData:^(NSError *error) {
+
+                if (error != nil) {
+                    NSLog(@"error loading initial data %@", error);
+                    return;
+                }
+
+            }];
+        }];
+    }
     return YES;
 }
 
