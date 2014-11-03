@@ -25,88 +25,67 @@
 
     self.sections = [[NSMutableArray alloc] init];
 
-    NSArray *grantIDs = [[((NSDictionary*)self.listItem[@"_grants"]) keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop) {
-        NSString *keyString = (NSString*)key;
-        return !([keyString containsString:@"-"]);
-    }] allObjects];
-
-    NSLog(@"getting grantIDs %@", grantIDs);
-
     // XXX: If grantIDs is nil or empty, the getIdentities method will return ALL known identities!
-    [[HMAccount accountFromObject:self.listItem] getIdentities:grantIDs block:^(NSArray *alreadySharedWithIdentities, NSError *error) {
-        NSArray *temporaryIDs = [[((NSDictionary*)self.listItem[@"_grants"]) keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop) {
-            NSString *keyString = (NSString*)key;
-            return [keyString containsString:@"-"];
-        }] allObjects];
-        [[HMAccount currentAccount] getTemporaryIdentities:temporaryIDs block:^(NSArray *temporaryIdentities, NSError *error) {
-            self.alreadyShared = [NSMutableArray arrayWithArray:alreadySharedWithIdentities];
-            [self.alreadyShared addObjectsFromArray:temporaryIdentities];
-    //        if (self.alreadyShared.count > 0) {
-                [self.sections addObject:@"Sharing With"];
-    //        }
-
-            [[HMAccount currentAccount] getKnownIdentities:^(NSArray *knownIdentities, NSError *error) {
-                self.identities = [[NSMutableArray alloc] init];
-                NSString *myPublicKey = [[HMAccount currentAccount] getPublicKey];
-                for (NSDictionary *i in knownIdentities) {
-                    if ([i[@"_id"] isEqualToString:myPublicKey]) continue;
-                    BOOL found = NO;
-                    for (NSDictionary *j in self.alreadyShared) {
-                        NSLog(@"i._id:%@, j._id:%@", i[@"_id"], j[@"_id"]);
-                        if ([j[@"_id"] isEqualToString:i[@"_id"]]) {
-                            found = YES;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        [self.identities addObject:i];
-                    }
+    [[HMAccount currentAccount] getKnownIdentities:^(NSArray *knownIdentities, NSError *error) {
+        self.identities = [[NSMutableArray alloc] init];
+        NSString *myPublicKey = [[HMAccount currentAccount] getPublicKey];
+        for (NSDictionary *i in knownIdentities) {
+            if ([i[@"_id"] isEqualToString:myPublicKey]) continue;
+            BOOL found = NO;
+            for (NSDictionary *j in self.alreadyShared) {
+                NSLog(@"i._id:%@, j._id:%@", i[@"_id"], j[@"_id"]);
+                if ([j[@"_id"] isEqualToString:i[@"_id"]]) {
+                    found = YES;
+                    break;
                 }
+            }
+            if (!found) {
+                [self.identities addObject:i];
+            }
+        }
 
-    //            if (self.identities.count > 0) {
-                    [self.sections addObject:@"Known Identities"];
-    //            }
+//            if (self.identities.count > 0) {
+            [self.sections addObject:@"Known Identities"];
+//            }
 
-                // TODO: get contacts from address book
-                APAddressBook *addressBook = [[APAddressBook alloc] init];
-                addressBook.fieldsMask = APContactFieldFirstName |
-                    APContactFieldEmails |
-                    APContactFieldLastName |
-                    APContactFieldPhones |
-                    APContactFieldCompositeName;
-                [addressBook loadContacts:^(NSArray *contacts, NSError *error) {
-                    // hide activity
-                    if (!error) {
-                        self.contacts = [[NSMutableArray alloc] init];
-                        for (APContact* contact in contacts) {
-                            for (id phoneNumber in contact.phones) {
-                                [self.contacts addObject:@{
-                                                           @"name": contact.compositeName,
-                                                           @"phone_number": phoneNumber
-                                                           }];
-                            }
-                            for (id email in contact.emails) {
-                                [self.contacts addObject:@{
-                                                           @"name": contact.compositeName,
-                                                           @"email": email
-                                                           }];
-                            }
-
-                        }
-                        NSLog(@"contacts %@", contacts);
-
-    //                    if (self.contacts.count > 0) {
-                            [self.sections addObject:@"Contact List"];
-     //                   }
-
-                        [self.tableView reloadData];
-                        // do something with contacts array
-                    } else {
-                        // show error
+        // TODO: get contacts from address book
+        APAddressBook *addressBook = [[APAddressBook alloc] init];
+        addressBook.fieldsMask = APContactFieldFirstName |
+            APContactFieldEmails |
+            APContactFieldLastName |
+            APContactFieldPhones |
+            APContactFieldCompositeName;
+        [addressBook loadContacts:^(NSArray *contacts, NSError *error) {
+            // hide activity
+            if (!error) {
+                self.contacts = [[NSMutableArray alloc] init];
+                for (APContact* contact in contacts) {
+                    for (id phoneNumber in contact.phones) {
+                        [self.contacts addObject:@{
+                                                   @"name": contact.compositeName,
+                                                   @"phone_number": phoneNumber
+                                                   }];
+                    }
+                    for (id email in contact.emails) {
+                        [self.contacts addObject:@{
+                                                   @"name": contact.compositeName,
+                                                   @"email": email
+                                                   }];
                     }
 
-                }];
-            }];
+                }
+                NSLog(@"contacts %@", contacts);
+
+//                    if (self.contacts.count > 0) {
+                    [self.sections addObject:@"Contact List"];
+//                   }
+
+                [self.tableView reloadData];
+                // do something with contacts array
+            } else {
+                // show error
+            }
+
         }];
     }];
 
@@ -125,36 +104,36 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 3;
+    return 2;
 //    return self.sections.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSLog(@"id count: %lu, cont count: %lu", (unsigned long)[self.identities count], (unsigned long)[self.contacts count]);
-    if (section == 0) return self.alreadyShared.count;
-    if (section == 1) return self.identities.count;
+    if (section == 0) return self.identities.count;
     return self.contacts.count;
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
      SLContactTableViewCell *cell = (SLContactTableViewCell *)[tableView dequeueReusableCellWithIdentifier:@"IdentityPrototypeCell" forIndexPath:indexPath];
-
+//
+//    if (indexPath.section == 0) {
+//        NSString *_id = self.alreadyShared[indexPath.row][@"_id"];
+//        if ([_id isEqualToString:[[HMAccount currentAccount] getPublicKey]]) {
+//            cell.textLabel.text = @"Me";
+//        } else {
+//            cell.textLabel.text = self.alreadyShared[indexPath.row][@"name"];
+//        }
+//
+//        if ([_id containsString:@"-"]) {
+//            cell.detailTextLabel.text = @"Invite pending...";
+//        } else {
+//            cell.detailTextLabel.text = nil;
+//        }
+////        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+//    } else
     if (indexPath.section == 0) {
-        NSString *_id = self.alreadyShared[indexPath.row][@"_id"];
-        if ([_id isEqualToString:[[HMAccount currentAccount] getPublicKey]]) {
-            cell.textLabel.text = @"Me";
-        } else {
-            cell.textLabel.text = self.alreadyShared[indexPath.row][@"name"];
-        }
-
-        if ([_id containsString:@"-"]) {
-            cell.detailTextLabel.text = @"Invite pending...";
-        } else {
-            cell.detailTextLabel.text = nil;
-        }
-//        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-    } else if (indexPath.section == 1) {
         cell.textLabel.text = self.identities[indexPath.row][@"name"];
         cell.detailTextLabel.text = self.identities[indexPath.row][@"_id"];
 //        cell.accessoryType = UITableViewCellAccessoryNone;
@@ -208,7 +187,7 @@
 
 
 
-// Override to support conditional editing of the table view.
+/*// Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the specified item to be editable.
     return indexPath.section == 0;
@@ -244,7 +223,7 @@
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   
-}
+}*/
 
 
 
@@ -272,27 +251,8 @@
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
 
-    if (indexPath.section == 0) {
-        // TODO: show details
-    } else {
-        [self performSegueWithIdentifier:@"Unwind" sender:cell];
-    }
-
-
-
-    /*
-
-    NSMutableDictionary *tappedItem = [self.toDoItems objectAtIndex:indexPath.row];
-    if ([tappedItem[@"completed"]  isEqual: @YES]) {
-        tappedItem[@"completed"] = @NO;
-    } else {
-        tappedItem[@"completed"] = @YES;
-    }
-
-    NSString *collectionID = self.listItem[@"_id"];
-    [[HMAccount accountFromObject:self.listItem] saveInBackground:tappedItem toCollection:collectionID];
-
-    [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];*/
+    // TODO: can this just be a regular unwind segue?
+    [self performSegueWithIdentifier:@"Unwind" sender:cell];
 }
 
 

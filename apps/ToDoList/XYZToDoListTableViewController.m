@@ -9,6 +9,7 @@
 #import "XYZToDoListTableViewController.h"
 #import "XYZAddToDoItemViewController.h"
 #import "XYZShareListTableViewController.h"
+#import "XYZShareListViewController.h"
 
 #import "HMQuery.h"
 #import "HMAccount.h"
@@ -330,8 +331,8 @@
     if ([vc isKindOfClass:[UINavigationController class]]) {
         vc = [((UINavigationController*)vc) visibleViewController];
         NSLog(@"vc2 %@", vc);
-        if ([vc isKindOfClass:[XYZShareListTableViewController class]]) {
-            XYZShareListTableViewController *sltvc = (XYZShareListTableViewController*)vc;
+        if ([vc isKindOfClass:[XYZShareListViewController class]]) {
+            XYZShareListViewController *sltvc = (XYZShareListViewController*)vc;
             sltvc.listItem = self.listItem;
             sltvc.todoItems = self.toDoItems;
         }
