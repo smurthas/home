@@ -82,7 +82,10 @@
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="What's the name of this list?" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="vcC-w8-EBE">
                                 <rect key="frame" x="20" y="151" width="280" height="30"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" returnKeyType="done"/>
+                                <connections>
+                                    <outlet property="delegate" destination="jv8-Wo-k7D" id="xWk-No-ClQ"/>
+                                </connections>
                             </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -93,7 +96,11 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Add List" id="SUd-Fd-M7T">
-                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="5MQ-mD-7r0"/>
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="5MQ-mD-7r0">
+                            <connections>
+                                <segue destination="dv4-cU-d5f" kind="unwind" identifier="UnwindToList" unwindAction="unwindToList:" id="jCL-Ey-bRZ"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Done" id="8EQ-9b-7Cn">
                             <connections>
                                 <segue destination="Iqx-ec-r7L" kind="unwind" unwindAction="unwindToList:" id="t4Y-x0-gn9"/>
@@ -101,11 +108,13 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="cancelButton" destination="5MQ-mD-7r0" id="cZh-Ni-e4h"/>
                         <outlet property="doneButton" destination="8EQ-9b-7Cn" id="MKG-t4-egf"/>
                         <outlet property="textField" destination="vcC-w8-EBE" id="D4g-dm-Vxw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FZN-Hj-OwX" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="dv4-cU-d5f" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="723" y="-803"/>
         </scene>
@@ -182,8 +191,12 @@
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="What needs to be done?" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="r2m-eo-iPh">
                                 <rect key="frame" x="20" y="151" width="280" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <textInputTraits key="textInputTraits" returnKeyType="done"/>
+                                <connections>
+                                    <outlet property="delegate" destination="omn-gf-eh8" id="0i5-K7-ArT"/>
+                                </connections>
                             </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -206,8 +219,10 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="cancelButton" destination="exa-0g-KAB" id="mFP-Lq-5y4"/>
                         <outlet property="doneButton" destination="Luy-VL-lKT" id="nac-Ci-Q1U"/>
                         <outlet property="textField" destination="r2m-eo-iPh" id="vRp-Up-3nA"/>
+                        <segue destination="YV2-jZ-hfU" kind="unwind" identifier="UnwindToList" unwindAction="unwindToList:" id="Stg-HR-Osf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bir-rR-eld" userLabel="First Responder" sceneMemberID="firstResponder"/>

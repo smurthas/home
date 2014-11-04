@@ -13,6 +13,7 @@
 @interface XYZAddListViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *textField;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
 
 @end
 
@@ -31,6 +32,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self.textField becomeFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning
@@ -48,7 +50,7 @@
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
     
-    if (sender != self.doneButton) return;
+    if (sender == self.cancelButton) return;
     
     if (self.textField.text.length > 0) {
         self.listItem = [NSMutableDictionary dictionaryWithDictionary:@{
@@ -76,6 +78,17 @@
 
         NSLog(@"collection: %@", collection);
     }];
+}
+
+
+
+-(BOOL)textFieldShouldReturn:(UITextField*)textField;
+{
+    [textField resignFirstResponder];
+
+    [self performSegueWithIdentifier:@"UnwindToList" sender:self];
+
+    return YES;
 }
 
 

@@ -15,6 +15,7 @@
 @interface XYZAddToDoItemViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *textField;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
 
 @end
 
@@ -33,6 +34,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self.textField becomeFirstResponder];
 }
 
 - (void)didReceiveMemoryWarning
@@ -47,15 +49,23 @@
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    if (sender != self.doneButton) return;
-    
+    if (sender == self.cancelButton) return;
+
     if (self.textField.text.length > 0) {
         self.toDoItem = [[NSMutableDictionary alloc] init];
         [self.toDoItem setValue:self.textField.text forKey:@"title"];
         [self.toDoItem setValue: @NO forKey:@"completed"];
         [self.toDoItem setValue: @NO forKey:@"logged"];
     }
-    
+}
+
+-(BOOL)textFieldShouldReturn:(UITextField*)textField;
+{
+    [textField resignFirstResponder];
+
+    [self performSegueWithIdentifier:@"UnwindToList" sender:self];
+
+    return YES;
 }
 
 
