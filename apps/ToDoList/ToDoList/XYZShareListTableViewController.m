@@ -55,26 +55,38 @@
             APContactFieldLastName |
             APContactFieldPhones |
             APContactFieldCompositeName;
+        NSLog(@"loading contacts...");
         [addressBook loadContacts:^(NSArray *contacts, NSError *error) {
+            NSLog(@"loaded contacts!");
             // hide activity
             if (!error) {
                 self.contacts = [[NSMutableArray alloc] init];
                 for (APContact* contact in contacts) {
+                    NSString *name = contact.compositeName;
+                    if (name == nil) name = @"";
                     for (id phoneNumber in contact.phones) {
+                        if (phoneNumber == nil) continue;
                         [self.contacts addObject:@{
-                                                   @"name": contact.compositeName,
+                                                   @"name": name,
                                                    @"phone_number": phoneNumber
                                                    }];
                     }
                     for (id email in contact.emails) {
+                        if (email == nil) continue;
                         [self.contacts addObject:@{
-                                                   @"name": contact.compositeName,
+                                                   @"name": name,
                                                    @"email": email
                                                    }];
                     }
 
                 }
-                NSLog(@"contacts %@", contacts);
+
+                [self.contacts sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+                    NSString *name1 = obj1[@"name"];
+                    NSString *name2 = obj2[@"name"];
+                    return [name1 compare:name2 options:NSCaseInsensitiveSearch];
+                }];
+//                NSLog(@"contacts %@", contacts);
 
 //                    if (self.contacts.count > 0) {
                     [self.sections addObject:@"Contact List"];
@@ -139,6 +151,10 @@
 //        cell.accessoryType = UITableViewCellAccessoryNone;
     } else {
         NSDictionary *contact = (NSDictionary*)self.contacts[indexPath.row];
+
+        cell.isEmail = NO;
+        cell.isPhoneNumber = NO;
+
         cell.textLabel.text = contact[@"name"];
         if (contact[@"email"] != nil) {
             cell.detailTextLabel.text = contact[@"email"];

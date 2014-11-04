@@ -7,13 +7,14 @@
 //
 
 #import "XYZShareListViewController.h"
-
 #import "XYZShareListTableViewController.h"
 
 #import "HMAccount.h"
 
 
-@interface XYZShareListViewController ()
+#import <MessageUI/MessageUI.h>
+
+@interface XYZShareListViewController () <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
 
 @end
 
@@ -183,6 +184,8 @@
         if (source.emailAddress != nil) identityParameters[@"email"] = source.emailAddress;
         if (source.phoneNumber != nil) identityParameters[@"phone_number"] = source.phoneNumber;
 
+        NSLog(@"identityParameters %@", identityParameters);
+
         [[HMAccount accountFromObject:self.listItem] createTemporaryIdentity:identityParameters block:^(NSString *token, NSError *error) {
             NSLog(@"token %@", token);
             [self shareWith:token];
@@ -202,30 +205,41 @@
                              messagePayload[@"collection_id"],
                              messagePayload[@"list_name"]];
             NSLog(@"share url %@", url);
-            
-            if (source.emailAddress != nil) {
-                //Check if mail can be sent
-//                if ([MFMailComposeViewController canSendMail])
-//                {
-//                    MFMailComposeViewController *mailer = [[MFMailComposeViewController alloc] init];
-//                    mailer.mailComposeDelegate = self;
-//                    NSLog(@"emailadress %@", source.emailAddress);
-//                    //                    [mailer setToRecipients:@[source.emailAddress]];
-//                    //                    [mailer setMessageBody:url isHTML:NO];
-//
-//                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-//
-//                        [self presentViewController:mailer
-//                                           animated:YES completion:^{
-//                                               NSLog(@"ok");
-//                                           }];
-//                    });
-//
-//                } else {
-//                    NSLog(@"can't sent mail!");
-//                }
-            } else if (source.phoneNumber != nil) {
 
+            NSString *body = [NSString stringWithFormat:@"Help me keep track of all these todos!\n\n Join \"%@\": %@", self.listItem[@"name"], url];
+
+            if (source.emailAddress != nil) {
+                NSLog(@"emailing: %@", source.emailAddress);
+                //Check if mail can be sent
+                if ([MFMailComposeViewController canSendMail])
+                {
+                    MFMailComposeViewController *mailer = [[MFMailComposeViewController alloc] init];
+                    mailer.mailComposeDelegate = self;
+                    NSLog(@"emailadress %@", source.emailAddress);
+
+                    [mailer setToRecipients:@[source.emailAddress]];
+                    [mailer setSubject:[NSString stringWithFormat:@"Collaborate on \"%@\" with me", self.listItem[@"name"]]];
+                    [mailer setMessageBody:body isHTML:NO];
+
+                    [self presentViewController:mailer animated:YES completion:nil];
+
+                } else {
+                    NSLog(@"can't sent mail!");
+                }
+            } else if (source.phoneNumber != nil) {
+                if(![MFMessageComposeViewController canSendText]) {
+                    UIAlertView *warningAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Your device doesn't support SMS!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                    [warningAlert show];
+                    return;
+                }
+            
+                MFMessageComposeViewController *messageController = [[MFMessageComposeViewController alloc] init];
+                messageController.messageComposeDelegate = self;
+                [messageController setRecipients:@[source.phoneNumber]];
+                [messageController setBody:body];
+            
+                // Present message view controller on screen
+                [self presentViewController:messageController animated:YES completion:nil];
             }
 
             /*
@@ -239,6 +253,29 @@
              }];*/
         }];
     }
+}
+
+- (void)mailComposeController:(MFMailComposeViewController*)controller
+          didFinishWithResult:(MFMailComposeResult)result
+                        error:(NSError*)error;
+{
+    if (result == MFMailComposeResultSent) {
+        NSLog(@"It's away!");
+    }
+    [self dismissViewControllerAnimated:YES completion:^{
+        NSLog(@"It's dismissed!");
+    }];
+}
+
+
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult) result
+{
+    if (result == MessageComposeResultSent) {
+        NSLog(@"It's away!");
+    }
+    [self dismissViewControllerAnimated:YES completion:^{
+        NSLog(@"It's dismissed!");
+    }];
 }
 
 
