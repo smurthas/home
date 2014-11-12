@@ -163,14 +163,14 @@
                                 <segue destination="1O7-bS-883" kind="modal" id="Ux0-PM-Ahd"/>
                             </connections>
                         </barButtonItem>
-                    </toolbarItems>
-                    <navigationItem key="navigationItem" title="Important Todos" id="3IG-gI-Q4n">
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="Ktj-Kk-QUo">
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="hJK-IR-xrR"/>
+                        <barButtonItem systemItem="add" id="O8J-x7-JMl">
                             <connections>
-                                <segue destination="uMt-lI-Ava" kind="modal" id="aMi-qj-C5e"/>
+                                <segue destination="uMt-lI-Ava" kind="modal" id="UV3-x0-s1i"/>
                             </connections>
                         </barButtonItem>
-                    </navigationItem>
+                    </toolbarItems>
+                    <navigationItem key="navigationItem" title="Important Todos" id="3IG-gI-Q4n"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rG2-SL-Gmy" userLabel="First Responder" sceneMemberID="firstResponder"/>
