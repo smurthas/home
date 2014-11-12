@@ -380,31 +380,41 @@ static HMAccount *currentAccount;
     [manager.requestSerializer setValue:signature forHTTPHeaderField:@"X-Slab-Signature"];
     [manager.requestSerializer setValue:self.publicKey forHTTPHeaderField:@"X-Slab-PublicKey"];
 
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     if ([method isEqualToString:@"GET"]) {
         NSLog(@"getting: %@", url);
         [manager GET:url parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+
             callbackBlock(responseObject, nil);
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
             callbackBlock(nil, error);
         }];
     } else if ([method isEqualToString:@"POST"]) {
         NSLog(@"making POST request. \nurl: %@ \nparameters: %@", url, parameters);
         [manager POST:url parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
             NSLog(@"made request. response object %@", responseObject);
             callbackBlock(responseObject, nil);
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
             callbackBlock(nil, error);
         }];
     } else if ([method isEqualToString:@"PUT"]) {
         [manager PUT:url parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
             callbackBlock(responseObject, nil);
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
             callbackBlock(nil, error);
         }];
     } else if ([method isEqualToString:@"DELETE"]) {
         [manager DELETE:url parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
             callbackBlock(responseObject, nil);
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
             callbackBlock(nil, error);
         }];
     }
