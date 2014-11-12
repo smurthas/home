@@ -40,15 +40,18 @@
                             <outlet property="delegate" destination="2BT-LR-qIl" id="phB-qX-YuV"/>
                         </connections>
                     </tableView>
+                    <toolbarItems>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="aQT-Hu-eLL"/>
+                        <barButtonItem systemItem="add" id="lBg-Oo-UXR">
+                            <connections>
+                                <segue destination="UJu-Hb-R3C" kind="modal" id="Odc-eZ-1Wc"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" title="Todo Lists" id="XiE-lG-MGv">
                         <barButtonItem key="leftBarButtonItem" title="Login" id="Piy-mU-1Xx">
                             <connections>
                                 <action selector="login:" destination="2BT-LR-qIl" id="dgP-A0-GcB"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="MD5-rl-LZ8">
-                            <connections>
-                                <segue destination="UJu-Hb-R3C" kind="modal" id="xt5-sC-U5v"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -244,13 +247,16 @@
         <!--Navigation Controller-->
         <scene sceneID="wzD-yO-1J5">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="uHU-4d-tM1" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" toolbarHidden="NO" id="uHU-4d-tM1" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Kja-Kv-L2V">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="MUy-ZK-GtY">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="2BT-LR-qIl" kind="relationship" relationship="rootViewController" id="c0X-8Q-JjF"/>
                     </connections>
