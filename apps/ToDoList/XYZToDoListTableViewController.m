@@ -14,6 +14,8 @@
 #import "HMQuery.h"
 #import "HMAccount.h"
 
+#import <SlabClient/SLCrypto.h>
+
 #import <AFNetworking.h>
 
 #import <MessageUI/MFMailComposeViewController.h>
@@ -151,9 +153,17 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ListPrototypeCell" forIndexPath:indexPath];
-    
     NSMutableDictionary *toDoItem = [self.toDoItems objectAtIndex:indexPath.row];
+    NSLog(@"title %@", toDoItem[@"title"]);
+    if (toDoItem[@"image"] != nil) {
+        NSData *imageData = [SLCrypto dataFromStringWithHex:toDoItem[@"image"]];
+        [cell.imageView setImage:[UIImage imageWithData:imageData]];
+    } else {
+        [cell.imageView setImage:nil];
+    }
+
     cell.textLabel.text = toDoItem[@"title"];
+
     
     if ([toDoItem[@"completed"] boolValue]) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;

@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface XYZAddToDoItemViewController : UIViewController
+@interface XYZAddToDoItemViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
 @property NSMutableDictionary *toDoItem;
+@property (strong, nonatomic) IBOutlet UIImageView *imageView;
+- (IBAction)addPhoto:(id)sender;
 
 @end

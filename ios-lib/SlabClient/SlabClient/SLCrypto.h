@@ -10,6 +10,9 @@
 
 @interface SLCrypto : NSObject
 
++ (NSString *)stringWithHexFromData:(NSData *)data;
++ (NSData *)dataFromStringWithHex:(NSString *)string;
+
 + (NSDictionary *)generateKeyPair;
 + (NSString *)signMessage:(NSString*)message secretKey:(NSString*)secretKey;
 + (BOOL)verifyMessage:(NSString *)signature message:(NSString*)message publicKey:(NSString *)publicKey;

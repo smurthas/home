@@ -10,6 +10,8 @@
 
 //#import "HMAccount.h"
 
+#import <SlabClient/SLCrypto.h>
+
 //#import <AFNetworking.h>
 
 @interface XYZAddToDoItemViewController ()
@@ -53,7 +55,17 @@
 
     if (self.textField.text.length > 0) {
         self.toDoItem = [[NSMutableDictionary alloc] init];
-        [self.toDoItem setValue:self.textField.text forKey:@"title"];
+        if (self.imageView.image != nil) {
+            CGSize newSize = CGSizeMake(600, 600);
+            UIGraphicsBeginImageContext( newSize );
+            [self.imageView.image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+            UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+
+            NSData *imageData = UIImageJPEGRepresentation(newImage, 0.3);
+            self.toDoItem[@"image"] = [SLCrypto stringWithHexFromData:imageData];
+        }
+        [self.toDoItem setValue: self.textField.text forKey:@"title"];
         [self.toDoItem setValue: @NO forKey:@"completed"];
         [self.toDoItem setValue: @NO forKey:@"logged"];
     }
@@ -68,5 +80,31 @@
     return YES;
 }
 
+
+- (IBAction)addPhoto:(id)sender {
+
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+    picker.allowsEditing = YES;
+    picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+
+    [self presentViewController:picker animated:YES completion:NULL];
+}
+
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+
+    UIImage *chosenImage = info[UIImagePickerControllerEditedImage];
+    self.imageView.image = chosenImage;
+
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+
+    [picker dismissViewControllerAnimated:YES completion:NULL];
+    
+}
 
 @end

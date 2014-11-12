@@ -192,12 +192,22 @@
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="What needs to be done?" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="r2m-eo-iPh">
                                 <rect key="frame" x="20" y="151" width="280" height="30"/>
                                 <nil key="textColor"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done"/>
                                 <connections>
                                     <outlet property="delegate" destination="omn-gf-eh8" id="0i5-K7-ArT"/>
                                 </connections>
                             </textField>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kGV-3u-EDs">
+                                <rect key="frame" x="226" y="189" width="74" height="30"/>
+                                <state key="normal" title="Add Photo"/>
+                                <connections>
+                                    <action selector="addPhoto:" destination="omn-gf-eh8" eventType="touchUpInside" id="YxX-HJ-s8t"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="MLg-3g-ynm">
+                                <rect key="frame" x="40" y="227" width="240" height="240"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -221,6 +231,7 @@
                     <connections>
                         <outlet property="cancelButton" destination="exa-0g-KAB" id="mFP-Lq-5y4"/>
                         <outlet property="doneButton" destination="Luy-VL-lKT" id="nac-Ci-Q1U"/>
+                        <outlet property="imageView" destination="MLg-3g-ynm" id="Uct-CN-DDI"/>
                         <outlet property="textField" destination="r2m-eo-iPh" id="vRp-Up-3nA"/>
                         <segue destination="YV2-jZ-hfU" kind="unwind" identifier="UnwindToList" unwindAction="unwindToList:" id="Stg-HR-Osf"/>
                     </connections>
