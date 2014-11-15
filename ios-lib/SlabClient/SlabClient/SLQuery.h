@@ -1,24 +1,25 @@
 //
-//  HMQuery.h
-//  ToDoList
+//  SLQuery.h
+//  SlabClient
 //
-//  Created by Simon Murtha Smith on 9/17/14.
+//  Created by Simon Murtha Smith on 11/14/14.
 //  Copyright (c) 2014 Simon Murtha Smith. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@interface HMQuery : NSObject
+@interface SLQuery : NSObject
 
 @property NSString *collectionName;
 @property BOOL collections;
 @property NSMutableDictionary *filters;
 
-+ (HMQuery*) objectQueryWithCollectionName:(NSString*)collectionName;
-+ (HMQuery*) collectionQuery;
++ (SLQuery*) objectQueryWithCollectionName:(NSString*)collectionName;
++ (SLQuery*) collectionQuery;
 
 - (void) getObjectInBackgroundWithId:(NSString*)_id;
 - (void) whereKey:(NSString*)whereKey equalTo:(id)equalTo;
 - (NSString*) filterString;
+
 
 @end

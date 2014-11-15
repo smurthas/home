@@ -1,8 +1,8 @@
 //
 //  SLIdentity.h
-//  Home Base
+//  SlabClient
 //
-//  Created by Simon Murtha Smith on 10/2/14.
+//  Created by Simon Murtha Smith on 11/14/14.
 //  Copyright (c) 2014 Simon Murtha Smith. All rights reserved.
 //
 

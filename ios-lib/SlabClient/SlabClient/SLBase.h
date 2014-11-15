@@ -1,8 +1,8 @@
 //
-//  HMApp.h
-//  Home Base
+//  SLBase.h
+//  SlabClient
 //
-//  Created by Simon Murtha Smith on 9/19/14.
+//  Created by Simon Murtha Smith on 11/14/14.
 //  Copyright (c) 2014 Simon Murtha Smith. All rights reserved.
 //
 
@@ -10,11 +10,12 @@
 
 #import "SLIdentity.h"
 
-@interface HMBase : NSObject
+@interface SLBase : NSObject
 
 @property NSString *managerToken;
 @property NSString *baseURL;
-+ (HMBase*)baseWithBaseURL:(NSString*)baseUrl andManagerToken:(NSString*)managerToken;
+
++ (SLBase*)baseWithBaseURL:(NSString*)baseUrl andManagerToken:(NSString*)managerToken;
 
 - (void)getAccountsForApp:(NSString*)appID block:(void (^)(NSArray* accounts, NSError* error))callbackBlock;
 - (void)createAccountAndIdentityForApp:(NSString*)appID block:(void (^)(NSDictionary* identity, NSString* accountID, NSError* error))callbackBlock;

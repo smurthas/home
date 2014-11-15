@@ -15,8 +15,10 @@ Pod::Spec.new do |s|
         :git => 'https://github.com/smurthas/SlabClient.git',
         :tag => s.version.to_s
     }
+    s.ios.deployment_target = "8.0"
     s.source_files      = 'SlabClient/*.{m,h}'
     s.requires_arc      = true
     s.dependency 'libsodium-ios', '~> 0.4.5'
+    s.dependency 'AFNetworking', '~> 2.0'
 
 end

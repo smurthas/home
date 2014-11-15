@@ -1,32 +1,33 @@
 //
-//  HMApp.m
-//  Home Base
+//  SLBase.m
+//  SlabClient
 //
-//  Created by Simon Murtha Smith on 9/19/14.
+//  Created by Simon Murtha Smith on 11/14/14.
 //  Copyright (c) 2014 Simon Murtha Smith. All rights reserved.
 //
 
-#import "HMBase.h"
+#import "SLBase.h"
 
-#import <SlabClient/SLCrypto.h>
+#import "SLCrypto.h"
+#import "SLIdentity.h"
 
 #import <AFNetworking.h>
 
-@implementation HMBase
+@implementation SLBase
 
-+ (HMBase*)baseWithBaseURL:(NSString*)baseUrl andManagerToken:(NSString*)managerToken {
-    HMBase *base = [[HMBase alloc] init];
++ (SLBase*)baseWithBaseURL:(NSString*)baseUrl andManagerToken:(NSString*)managerToken {
+    SLBase *base = [[SLBase alloc] init];
     base.baseURL = baseUrl;
     base.managerToken = managerToken;
-    
+
     return base;
 }
 
 - (void)getAccountsForApp:(NSString*)appID block:(void (^)(NSArray* accounts, NSError* error))callbackBlock {
-    
+
     NSString *url = [[self.baseURL stringByAppendingString: @"/apps/"] stringByAppendingString:appID];
     NSDictionary *parameters = @{@"manager_token": self.managerToken};
-    
+
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
     [manager GET:url parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -49,9 +50,9 @@
     NSString *url = [[self.baseURL stringByAppendingString: @"/apps/"] stringByAppendingString:appID];
 
     NSDictionary *parameters = @{
-        @"manager_token": self.managerToken,
-        @"public_key": [identity keyPair][@"publicKey"]
-    };
+                                 @"manager_token": self.managerToken,
+                                 @"public_key": [identity keyPair][@"publicKey"]
+                                 };
 
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
@@ -63,24 +64,24 @@
 }
 
 - (void)createGrantForApp:(NSString*)appID accountID:(NSString*)accountID permissions:(NSDictionary*)permissions keyPair:(NSDictionary*)keyPair block:(void (^)(NSDictionary* info, NSError* error))callbackBlock {
-    
+
     NSString *url = [[[[[self.baseURL
-        stringByAppendingString: @"/apps/"] stringByAppendingString:appID]
-        stringByAppendingString: @"/"] stringByAppendingString:accountID]
-        stringByAppendingString: @"/__grants"];
+                         stringByAppendingString: @"/apps/"] stringByAppendingString:appID]
+                       stringByAppendingString: @"/"] stringByAppendingString:accountID]
+                     stringByAppendingString: @"/__grants"];
     NSDictionary *parameters = @{
-        @"manager_token": self.managerToken,
-        @"permissions": permissions,
-        @"to_account_id": accountID
-    };
+                                 @"manager_token": self.managerToken,
+                                 @"permissions": permissions,
+                                 @"to_account_id": accountID
+                                 };
 
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:parameters
-        options:(NSJSONWritingOptions) (0) error:&error];
+                                                       options:(NSJSONWritingOptions) (0) error:&error];
     NSString *message = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     NSString *signature = [SLCrypto signMessage:message secretKey:keyPair[@"secretKey"]];
 
-    
+
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
     manager.requestSerializer = [AFJSONRequestSerializer serializer];
     [manager.requestSerializer setValue:signature forHTTPHeaderField:@"X-Slab-Signature"];

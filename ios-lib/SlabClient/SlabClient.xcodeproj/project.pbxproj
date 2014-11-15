@@ -228,7 +228,12 @@ fi
 			<string>2147483647</string>
 			<key>files</key>
 			<array>
+				<string>F467E9251A16FB8D00267087</string>
 				<string>F431FD6419DE0EF900D41D18</string>
+				<string>F467E9281A16FF2C00267087</string>
+				<string>F467E92B1A16FF5900267087</string>
+				<string>F467E91F1A16F3E700267087</string>
+				<string>F467E9221A16F41D00267087</string>
 			</array>
 			<key>isa</key>
 			<string>PBXSourcesBuildPhase</string>
@@ -321,8 +326,18 @@ fi
 		<dict>
 			<key>children</key>
 			<array>
+				<string>F467E9231A16FB8D00267087</string>
+				<string>F467E9241A16FB8D00267087</string>
+				<string>F467E9291A16FF5900267087</string>
+				<string>F467E92A1A16FF5900267087</string>
+				<string>F467E9261A16FF2C00267087</string>
+				<string>F467E9271A16FF2C00267087</string>
 				<string>F431FD6219DE0EF900D41D18</string>
 				<string>F431FD6319DE0EF900D41D18</string>
+				<string>F467E91D1A16F3E700267087</string>
+				<string>F467E91E1A16F3E700267087</string>
+				<string>F467E9201A16F41D00267087</string>
+				<string>F467E9211A16F41D00267087</string>
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
@@ -589,6 +604,8 @@ fi
 			</array>
 			<key>defaultConfigurationIsVisible</key>
 			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
 			<key>isa</key>
 			<string>XCConfigurationList</string>
 		</dict>
@@ -637,6 +654,8 @@ fi
 			</array>
 			<key>defaultConfigurationIsVisible</key>
 			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
 			<key>isa</key>
 			<string>XCConfigurationList</string>
 		</dict>
@@ -717,6 +736,171 @@ fi
 		<dict>
 			<key>fileRef</key>
 			<string>F431FD6319DE0EF900D41D18</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>F467E91D1A16F3E700267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>SLBase.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E91E1A16F3E700267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>SLBase.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E91F1A16F3E700267087</key>
+		<dict>
+			<key>fileRef</key>
+			<string>F467E91E1A16F3E700267087</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>F467E9201A16F41D00267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>SLIdentity.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E9211A16F41D00267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>SLIdentity.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E9221A16F41D00267087</key>
+		<dict>
+			<key>fileRef</key>
+			<string>F467E9211A16F41D00267087</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>F467E9231A16FB8D00267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>SlabClient.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E9241A16FB8D00267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>SlabClient.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E9251A16FB8D00267087</key>
+		<dict>
+			<key>fileRef</key>
+			<string>F467E9241A16FB8D00267087</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>F467E9261A16FF2C00267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>SLAccount.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E9271A16FF2C00267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>SLAccount.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E9281A16FF2C00267087</key>
+		<dict>
+			<key>fileRef</key>
+			<string>F467E9271A16FF2C00267087</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>F467E9291A16FF5900267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>SLQuery.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E92A1A16FF5900267087</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>SLQuery.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F467E92B1A16FF5900267087</key>
+		<dict>
+			<key>fileRef</key>
+			<string>F467E92A1A16FF5900267087</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
