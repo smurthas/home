@@ -8,7 +8,8 @@
 
 #import "XYZAddListViewController.h"
 
-#import "HMAccount.h"
+#import <SlabClient/SLAccount.h>
+#import <SlabClient/SlabClient.h>
 
 @interface XYZAddListViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *textField;
@@ -57,7 +58,7 @@
             @"name": self.textField.text,
             @"type": @"list",
             @"_grants": [NSMutableDictionary dictionaryWithDictionary:@{
-                [[HMAccount currentAccount] getPublicKey]: @{
+                [[SLAccount currentAccount] getPublicKey]: @{
                     @"createObjects": @YES,
                     @"readAttributes": @YES,
                     @"modifyAttributes": @YES
@@ -71,7 +72,7 @@
     // chance to be created on the backend. As a result, the object won't have the
     // required _host, etc fields so `accountFromObject` won't work.
     // TODO: real solution is offline/not logged in editing
-    [[HMAccount currentAccount] createCollectionWithAttributes:self.listItem block:^(NSDictionary *collection, NSError *error) {
+    [[SlabClient sharedClient] createCollectionWithAttributes:self.listItem block:^(NSDictionary *collection, NSError *error) {
         for (NSString *key in [collection allKeys]) {
             self.listItem[key] = collection[key];
         }

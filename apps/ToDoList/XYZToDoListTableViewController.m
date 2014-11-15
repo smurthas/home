@@ -11,12 +11,12 @@
 #import "XYZShareListTableViewController.h"
 #import "XYZShareListViewController.h"
 
-#import "HMQuery.h"
-#import "HMAccount.h"
 
 #import <SlabClient/SLCrypto.h>
+#import <SlabClient/SLAccount.h>
+#import <SlabClient/SLQuery.h>
+#import <SlabClient/SlabClient.h>
 
-#import <AFNetworking.h>
 
 #import <MessageUI/MFMailComposeViewController.h>
 #import <MessageUI/MFMessageComposeViewController.h>
@@ -31,10 +31,10 @@
 
 
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
-    HMQuery *query = [HMQuery objectQueryWithCollectionName:self.listItem[@"_id"]];
+    SLQuery *query = [SLQuery objectQueryWithCollectionName:self.listItem[@"_id"]];
     [query whereKey:@"logged" equalTo:@NO];
 
-    [[HMAccount accountFromObject:self.listItem] findInBackground:query block:^(NSArray *objects, NSError *error) {
+    [[SlabClient sharedClient] findInBackground:query account:[SLAccount accountFromObject:self.listItem] block:^(NSArray *objects, NSError *error) {
         NSLog(@"got back objects for collection: %@", objects);
         if (error == nil) {
             self.toDoItems = [NSMutableArray arrayWithArray:objects];
@@ -56,7 +56,7 @@
 
     NSLog(@"toLog %@", toLog);
 
-    [[HMAccount accountFromObject:self.listItem] batchUpdate:toLog toCollection:self.listItem[@"_id"] block:^(NSDictionary *response, NSError *error) {
+    [[SlabClient sharedClient] batchUpdate:toLog toCollection:self.listItem block:^(NSDictionary *response, NSError *error) {
         for (NSDictionary *todo in toLog) {
             [self.toDoItems removeObject:todo];
         }
@@ -69,13 +69,19 @@
 
     if (source.toDoItem != nil) {
         source.toDoItem[@"_grants"] = [[NSMutableDictionary alloc] init];
-        source.toDoItem[@"_grants"][[self.account getPublicKey]] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+        source.toDoItem[@"_grants"][[[SLAccount currentAccount] getPublicKey]] = [NSMutableDictionary dictionaryWithDictionary:@{
+                @"read": @YES,
+                @"write": @YES
+            }];
 
         for (id grantID in self.listItem[@"_grants"]) {
-            source.toDoItem[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+            source.toDoItem[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{
+                @"read": @YES,
+                @"write": @YES
+            }];
         }
 
-        [[HMAccount accountFromObject:self.listItem] saveInBackground:source.toDoItem toCollection:self.listItem[@"_id"]];
+        [[SlabClient sharedClient] saveInBackground:source.toDoItem toCollection:self.listItem];
         [self.toDoItems insertObject:source.toDoItem atIndex:0];
         [self.tableView reloadData];
     }
@@ -251,9 +257,8 @@
     [self.toDoItems removeObjectAtIndex:indexPath.row];
     [self.tableView reloadData];
     
-    NSString *collectionID = self.listItem[@"_id"];
     
-    [[HMAccount accountFromObject:self.listItem] deleteInBackground:toDoItem fromCollection:collectionID];
+    [[SlabClient sharedClient] deleteInBackground:toDoItem fromCollection:self.listItem];
 }
 
 
@@ -269,9 +274,8 @@
     } else {
         tappedItem[@"completed"] = @YES;
     }
-    
-    NSString *collectionID = self.listItem[@"_id"];
-    [[HMAccount accountFromObject:self.listItem] saveInBackground:tappedItem toCollection:collectionID];
+
+    [[SlabClient sharedClient] saveInBackground:tappedItem toCollection:self.listItem];
     
     [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
 }

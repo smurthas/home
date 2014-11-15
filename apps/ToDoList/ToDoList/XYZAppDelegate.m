@@ -10,7 +10,8 @@
 #import "XYZToDoListTableViewController.h"
 #import "XYZListsListTableViewController.h"
 
-#import "HMAccount.h"
+#import <SlabClient/SLAccount.h>
+#import <SlabClient/SlabClient.h>
 
 #import <Lockbox/Lockbox.h>
 
@@ -63,7 +64,7 @@
         NSString *baseURL = query[@"base_url"];
 
 
-        [HMAccount becomeWithKeyPair:@{@"publicKey":publicKey, @"secretKey": secretKey} accountID:accountID appID:appID baseURL:baseURL block:^(BOOL succeeded, NSError *error) {
+        [SLAccount becomeWithKeyPair:@{@"publicKey":publicKey, @"secretKey": secretKey} accountID:accountID appID:appID baseURL:baseURL block:^(BOOL succeeded, NSError *error) {
             if (error != nil) {
                 NSLog(@"error becoming in bg %@", error);
                 return;
@@ -90,12 +91,12 @@
         }];
         
     } else if([url.path isEqualToString: @"/accept_invite"]) {
-        NSDictionary *keyPair = @{@"secretKey": [[HMAccount currentAccount] getSecretKey], @"publicKey": [[HMAccount currentAccount] getPublicKey]};
-        HMAccount *tempAccount = [HMAccount accountWithBaseUrl:query[@"base_url"] appID:appID accountID:query[@"account_id"] keyPair:keyPair];
+        NSDictionary *keyPair = @{@"secretKey": [[SLAccount currentAccount] getSecretKey], @"publicKey": [[SLAccount currentAccount] getPublicKey]};
+        SLAccount *tempAccount = [SLAccount accountWithBaseUrl:query[@"base_url"] appID:appID accountID:query[@"account_id"] keyPair:keyPair];
 
-        [tempAccount convertTemporaryIdentity:query[@"token"] block:^(NSError *error) {
+        [[SlabClient sharedClient] convertTemporaryIdentity:query[@"token"] account:tempAccount block:^(NSError *error) {
             // TODO: sort out how to manage multiple bases and multiple accounts
-            //[HMAccount become:tempAccount];
+            //[SLAccount become:tempAccount];
 
             // TODO: check if we already have access to this collection
             
@@ -114,7 +115,7 @@
                 }
             }];
 
-            [[HMAccount currentAccount] createCollectionWithAttributes:collectionAttributes
+            [[SlabClient sharedClient] createCollectionWithAttributes:collectionAttributes
                 block:^(NSDictionary *collection, NSError *error) {
 
                 [((XYZListsListTableViewController*)((UINavigationController*)self.window.rootViewController).visibleViewController) loadInitialData:^(NSError *error) {
@@ -143,7 +144,7 @@
             return YES;
         }
 
-        [HMAccount becomeWithKeyPair:@{@"secretKey":slabInfo[@"secret_key"], @"publicKey": slabInfo[@"public_key"]} accountID:slabInfo[@"account_id"] appID:slabInfo[@"app_id"] baseURL:slabInfo[@"base_url"] block:^(BOOL succeeded, NSError *error) {
+        [SLAccount becomeWithKeyPair:@{@"secretKey":slabInfo[@"secret_key"], @"publicKey": slabInfo[@"public_key"]} accountID:slabInfo[@"account_id"] appID:slabInfo[@"app_id"] baseURL:slabInfo[@"base_url"] block:^(BOOL succeeded, NSError *error) {
             NSLog(@"loaded from keychain");
 
 

@@ -8,15 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
-#import "HMAccount.h"
 
 @interface XYZToDoListTableViewController : UITableViewController
 
 @property NSMutableArray *toDoItems;
 @property NSMutableDictionary *listItem;
-@property HMAccount *account;
 
-- (IBAction)unwindToShareList:(UIStoryboardSegue *)segue;
+//- (IBAction)unwindToShareList:(UIStoryboardSegue *)segue;
 - (IBAction)logCompleted:(id)sender;
 //- (IBAction)logCompleted:(UIStoryboardSegue *)segue;
 

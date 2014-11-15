@@ -10,8 +10,9 @@
 #import "XYZToDoListTableViewController.h"
 #import "XYZAddListViewController.h"
 
-#import "HMAccount.h"
-#import "HMQuery.h"
+#import <SlabClient/SlabClient.h>
+#import <SlabClient/SLAccount.h>
+#import <SlabClient/SLQuery.h>
 
 @interface XYZListsListTableViewController ()
 
@@ -38,15 +39,15 @@
         NSString *baseUrl = list[@"pointer"][@"base_url"];
         NSString *accountID = list[@"pointer"][@"account_id"];
         NSDictionary *keyPair = @{
-            @"publicKey": [[HMAccount currentAccount] getPublicKey],
-            @"secretKey": [[HMAccount currentAccount] getSecretKey]
+            @"publicKey": [[SLAccount currentAccount] getPublicKey],
+            @"secretKey": [[SLAccount currentAccount] getSecretKey]
         };
-        HMAccount *account = [HMAccount accountWithBaseUrl:baseUrl appID:@"myTodos" accountID:accountID keyPair:keyPair];
+        SLAccount *account = [SLAccount accountWithBaseUrl:baseUrl appID:@"myTodos" accountID:accountID keyPair:keyPair];
 
-        HMQuery *query = [HMQuery collectionQuery];
+        SLQuery *query = [SLQuery collectionQuery];
 
         [query whereKey:@"_id" equalTo:list[@"pointer"][@"collection_id"]];
-        [account findInBackground:query block:^(NSArray *foundObjects, NSError *error) {
+        [[SlabClient sharedClient] findInBackground:query account:account block:^(NSArray *foundObjects, NSError *error) {
             if (error != nil) {
                 return callbackBlock(error);
             }
@@ -67,9 +68,9 @@
 
 
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
-    HMQuery *query = [HMQuery collectionQuery];
+    SLQuery *query = [SLQuery collectionQuery];
     [query whereKey:@"type" equalTo:@"list"];
-    [[HMAccount currentAccount] findInBackground:query block:^(NSArray *objects, NSError *error) {
+    [[SlabClient sharedClient] findInBackground:query account:[SLAccount currentAccount] block:^(NSArray *objects, NSError *error) {
         if (error != nil) return callbackBlock(error);
 
         NSLog(@"filling with objects: %@", objects);
@@ -84,7 +85,7 @@
 - (IBAction)login:(id)sender {
     NSString *publicKey = @"myTodos";
     
-    [HMAccount loginWithPublicKey:publicKey callbackURI:@"todos://com.sms.todos/auth_complete"];
+    [SlabClient loginWithPublicKey:publicKey callbackURI:@"todos://com.sms.todos/auth_complete"];
 }
 
 
@@ -176,9 +177,8 @@
         // Delete the row from the data source
 
         NSMutableDictionary *list = self.lists[indexPath.row];
-        HMAccount *listAccount = [HMAccount accountFromObject:list];
 
-        [listAccount deleteInBackground:list fromCollection:nil];
+        [[SlabClient sharedClient] deleteInBackground:list fromCollection:nil];
         [self.lists removeObjectAtIndex:indexPath.row];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self.tableView reloadData];
@@ -225,7 +225,7 @@
         //if (listItem[@"_token"]) {
         //    tvc.account = [HMAccount accountWithBaseUrl:listItem[@"_host"] appID:@"myTodos" accountID:listItem[@"_accountID"] token:listItem[@"_token"]];
 //        } else {
-            tvc.account = [HMAccount currentAccount];
+//            tvc.account = [SLAccount currentAccount];
   //      }
     }
     

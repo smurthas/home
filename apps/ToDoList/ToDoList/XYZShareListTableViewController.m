@@ -8,7 +8,8 @@
 
 #import "XYZShareListTableViewController.h"
 
-#import "HMAccount.h"
+#import <SlabClient/SLAccount.h>
+#import <SlabClient/SlabClient.h>
 #import "SLContactTableViewCell.h"
 
 #import <APAddressBook.h>
@@ -26,9 +27,9 @@
     self.sections = [[NSMutableArray alloc] init];
 
     // XXX: If grantIDs is nil or empty, the getIdentities method will return ALL known identities!
-    [[HMAccount currentAccount] getKnownIdentities:^(NSArray *knownIdentities, NSError *error) {
+    [[SlabClient sharedClient] getKnownIdentities:^(NSArray *knownIdentities, NSError *error) {
         self.identities = [[NSMutableArray alloc] init];
-        NSString *myPublicKey = [[HMAccount currentAccount] getPublicKey];
+        NSString *myPublicKey = [[SLAccount currentAccount] getPublicKey];
         for (NSDictionary *i in knownIdentities) {
             if ([i[@"_id"] isEqualToString:myPublicKey]) continue;
             BOOL found = NO;

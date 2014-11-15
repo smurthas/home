@@ -9,7 +9,8 @@
 #import "XYZShareListViewController.h"
 #import "XYZShareListTableViewController.h"
 
-#import "HMAccount.h"
+#import <SlabClient.h>
+#import <SLAccount.h>
 
 
 #import <MessageUI/MessageUI.h>
@@ -58,12 +59,12 @@
     NSLog(@"getting grantIDs %@", grantIDs);
 
     // XXX: If grantIDs is nil or empty, the getIdentities method will return ALL known identities!
-    [[HMAccount accountFromObject:self.listItem] getIdentities:grantIDs block:^(NSArray *alreadySharedWithIdentities, NSError *error) {
+    [[SlabClient sharedClient] getIdentities:grantIDs block:^(NSArray *alreadySharedWithIdentities, NSError *error) {
         NSArray *temporaryIDs = [[((NSDictionary*)self.listItem[@"_grants"]) keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop) {
             NSString *keyString = (NSString*)key;
             return [keyString containsString:@"-"];
         }] allObjects];
-        [[HMAccount currentAccount] getTemporaryIdentities:temporaryIDs block:^(NSArray *temporaryIdentities, NSError *error) {
+        [[SlabClient sharedClient] getTemporaryIdentities:temporaryIDs block:^(NSArray *temporaryIdentities, NSError *error) {
             self.alreadyShared = [NSMutableArray arrayWithArray:alreadySharedWithIdentities];
             [self.alreadyShared addObjectsFromArray:temporaryIdentities];
 
@@ -108,7 +109,7 @@
     cell = [tableView dequeueReusableCellWithIdentifier:@"ListPrototypeCell" forIndexPath:indexPath];
 
     NSString *_id = self.alreadyShared[indexPath.row][@"_id"];
-    if ([_id isEqualToString:[[HMAccount currentAccount] getPublicKey]]) {
+    if ([_id isEqualToString:[[SLAccount currentAccount] getPublicKey]]) {
         cell.textLabel.text = @"Me";
     } else {
         cell.textLabel.text = self.alreadyShared[indexPath.row][@"name"];
@@ -131,8 +132,7 @@
         @"modifyAttributes": @YES
     }];
 
-    HMAccount *listAccount = [HMAccount accountFromObject:self.listItem];
-    [listAccount saveCollection:self.listItem block:^(NSDictionary *updateCollection, NSError *error) {
+    [[SlabClient sharedClient] saveCollection:self.listItem block:^(NSDictionary *updateCollection, NSError *error) {
         // grant permission for all items in the list
 
         for (NSMutableDictionary* todo in self.todoItems) {
@@ -140,7 +140,7 @@
             [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
         }
 
-        [listAccount batchUpdate:self.todoItems toCollection:self.listItem[@"_id"] block:^(NSDictionary *responseObject, NSError *error) {
+        [[SlabClient sharedClient] batchUpdate:self.todoItems toCollection:self.listItem block:^(NSDictionary *responseObject, NSError *error) {
             NSLog(@"JSON: %@", responseObject);
 
             [self loadDataAndLayout];
@@ -186,7 +186,7 @@
 
         NSLog(@"identityParameters %@", identityParameters);
 
-        [[HMAccount accountFromObject:self.listItem] createTemporaryIdentity:identityParameters block:^(NSString *token, NSError *error) {
+        [[SlabClient sharedClient] createTemporaryIdentity:identityParameters account:[SLAccount accountFromObject:self.listItem] block:^(NSString *token, NSError *error) {
             NSLog(@"token %@", token);
             [self shareWith:token];
 
@@ -304,22 +304,21 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
 
-        HMAccount *listAccount = [HMAccount accountFromObject:self.listItem];
         NSString *_id = self.alreadyShared[indexPath.row][@"_id"];
         NSLog(@"_id: %@", _id);
         [self.listItem[@"_grants"] removeObjectForKey:_id];
 
         // update collection object
-        [listAccount saveCollection:self.listItem block:^(NSDictionary *reponse, NSError *error) {
+        [[SlabClient sharedClient] saveCollection:self.listItem block:^(NSDictionary *reponse, NSError *error) {
             // update all other objects
             for (NSMutableDictionary *item in self.todoItems) {
                 [item[@"_grants"] removeObjectForKey:_id];
             }
 
-            [listAccount batchUpdate:self.todoItems toCollection:self.listItem[@"_id"] block:^(NSDictionary *bResp, NSError *bErr) {
+            [[SlabClient sharedClient] batchUpdate:self.todoItems toCollection:self.listItem block:^(NSDictionary *bResp, NSError *bErr) {
                 // remove from UI
                 [self.alreadyShared removeObjectAtIndex:indexPath.row];
-                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+//                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
                 [self.tableView reloadData];
             }];
         }];
