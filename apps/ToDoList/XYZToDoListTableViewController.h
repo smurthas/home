@@ -14,9 +14,7 @@
 @property NSMutableArray *toDoItems;
 @property NSMutableDictionary *listItem;
 
-//- (IBAction)unwindToShareList:(UIStoryboardSegue *)segue;
 - (IBAction)logCompleted:(id)sender;
-//- (IBAction)logCompleted:(UIStoryboardSegue *)segue;
 
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock;
 

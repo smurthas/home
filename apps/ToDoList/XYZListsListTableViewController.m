@@ -221,12 +221,6 @@
         
         NSMutableDictionary *listItem = [self.lists objectAtIndex:path.row];
         tvc.listItem = listItem;
-        
-        //if (listItem[@"_token"]) {
-        //    tvc.account = [HMAccount accountWithBaseUrl:listItem[@"_host"] appID:@"myTodos" accountID:listItem[@"_accountID"] token:listItem[@"_token"]];
-//        } else {
-//            tvc.account = [SLAccount currentAccount];
-  //      }
     }
     
 }
