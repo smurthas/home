@@ -21,12 +21,16 @@ PODS:
     - AFNetworking/NSURLConnection
     - AFNetworking/NSURLSession
   - libsodium-ios (0.4.5)
-  - SlabClient (0.0.1)
+  - SlabClient (0.0.1):
+    - AFNetworking (~> 2.0)
+    - libsodium-ios (~> 0.4.5)
+  - SSKeychain (1.2.2)
 
 DEPENDENCIES:
   - AFNetworking (~> 2.0)
   - libsodium-ios (~> 0.4.5)
   - SlabClient (from `../../ios-lib/SlabClient`)
+  - SSKeychain
 
 EXTERNAL SOURCES:
   SlabClient:
@@ -35,6 +39,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AFNetworking: 0aabc6fae66d6e5d039eeb21c315843c7aae51ab
   libsodium-ios: 569dedc61af104e5ba188f4cd4ab3eb607f2ce44
-  SlabClient: 6f9156f78185be8e7cd2a2758f6e78117a7f22bf
+  SlabClient: 726338fdaa86f6c80c8a695d998410cac884d57c
+  SSKeychain: cc48bd3ad24fcd9125adb9e0d23dd50b8bbd08b9
 
 COCOAPODS: 0.34.1

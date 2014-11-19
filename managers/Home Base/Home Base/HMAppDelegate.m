@@ -10,19 +10,19 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "HMBase.h"
-#import "SLIdentity.h"
+#import <SlabClient/SLIdentity.h>
+#import <SlabClient/SLBase.h>
 
 @import UIKit;
 
-@interface HMAppDelegate ()
+@interface HMAppDelegate () <UIActionSheetDelegate>
 
 @property NSString *appID;
 @property NSString *redirectURI;
 
 @property NSMutableArray *bases;
 
-@property HMBase *base;
+@property SLBase *base;
 @property SLIdentity *identity;
 
 @end
@@ -64,7 +64,7 @@
 {
     const char* str = [input UTF8String];
     unsigned char result[CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(str, strlen(str), result);
+    CC_SHA256(str, (unsigned int)strlen(str), result);
     
     NSMutableString *ret = [NSMutableString stringWithCapacity:CC_SHA256_DIGEST_LENGTH*2];
     for(int i = 0; i<CC_SHA256_DIGEST_LENGTH; i++)
@@ -108,7 +108,7 @@
                                                     cancelButtonTitle:nil
                                                destructiveButtonTitle:nil
                                                     otherButtonTitles:nil];
-    for (HMBase *base in self.bases) {
+    for (SLBase *base in self.bases) {
         [actionSheet addButtonWithTitle:base.baseURL];
     }
     
@@ -249,12 +249,12 @@
 {
     self.bases = [[NSMutableArray alloc] init];
     
-    [self.bases addObject: [HMBase baseWithBaseURL:@"http://localhost:2570" andManagerToken:@"kfLFL5zLR62S42keuCaSUakZ2n1z2PZTt3Urorp7CfspxuLsVZp9HeuMWC7MEP8Py3cQiM7EhoURqZQSb98sq19"]];
+    [self.bases addObject: [SLBase baseWithBaseURL:@"http://localhost:2570" andManagerToken:@"kfLFL5zLR62S42keuCaSUakZ2n1z2PZTt3Urorp7CfspxuLsVZp9HeuMWC7MEP8Py3cQiM7EhoURqZQSb98sq19"]];
     
     
-    [self.bases addObject: [HMBase baseWithBaseURL:@"http://localhost:2571" andManagerToken:@"4TnuvjZtk5nVR3xVKs9ANywHhYfxBBhxUYP52BVhEUq3a9rCndRCqb99wFUtczuh3kgXc3HziKfYvoESPnTu2SVZ"]];
+    [self.bases addObject: [SLBase baseWithBaseURL:@"http://localhost:2571" andManagerToken:@"4TnuvjZtk5nVR3xVKs9ANywHhYfxBBhxUYP52BVhEUq3a9rCndRCqb99wFUtczuh3kgXc3HziKfYvoESPnTu2SVZ"]];
 
-    [self.bases addObject: [HMBase baseWithBaseURL:@"http://slab-base.herokuapp.com"
+    [self.bases addObject: [SLBase baseWithBaseURL:@"http://slab-base.herokuapp.com"
         andManagerToken:@"kfLFL5zLR62S42keuCaSUakZ2n1z2PZTt3Urorp7CfspxuLsVZp9HeuMWC7MEP8Py3cQiM7EhoURqZQSb98sq19"]];
     
     //self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

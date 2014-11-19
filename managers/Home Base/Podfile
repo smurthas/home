@@ -6,6 +6,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 pod 'AFNetworking', '~> 2.0'
 pod 'libsodium-ios', '~> 0.4.5'
 pod 'SlabClient', :path => '../../ios-lib/SlabClient'
+pod 'SSKeychain'
 end
 
 target "Home BaseTests" do
