@@ -82,6 +82,51 @@
             callbackBlock(error);
         }];
     }];
+
+    SLQuery *pendingQuery = [SLQuery objectQueryWithCollectionName:@"_pendingSharedLists"];
+
+    [[SlabClient sharedClient] findInBackground:pendingQuery account:[SLAccount currentAccount] block:^(NSArray *pendingCollections, NSError *error) {
+        NSLog(@"pendingCollection %@", pendingCollections);
+
+        // TODO: prompt for acceptance of these collections.
+        if (error != nil) {
+            NSLog(@"error retrieving pending collections %@", error);
+            return;
+        }
+
+        for (NSDictionary *pendingCollection in pendingCollections) {
+            if (pendingCollection[@"collection"] != nil) {
+                NSDictionary *collectionInfo = pendingCollection[@"collection"];
+                NSMutableDictionary *grants = [[NSMutableDictionary alloc] init];
+                grants[[[SLAccount currentAccount] getPublicKey]] = @{
+                      @"readAttributes": @YES,
+                      @"modifyAttributes": @YES
+                };
+                NSMutableDictionary *collectionAttributes = [NSMutableDictionary dictionaryWithDictionary:@{
+                    @"type": @"list",
+                    @"_grants": grants,
+                    @"pointer": @{
+                        @"base_url": collectionInfo[@"_host"],
+                        @"account_id": collectionInfo[@"_accountID"],
+                        @"collection_id": collectionInfo[@"_id"]
+                    }
+                }];
+
+                NSLog(@"collectionAttributes %@", collectionAttributes);
+
+                [[SlabClient sharedClient] createCollectionWithAttributes:collectionAttributes
+                    block:^(NSDictionary *collection, NSError *error) {
+
+                    [[SlabClient sharedClient] deleteInBackground:pendingCollection fromCollectionID:@"_pendingSharedLists"];
+
+                    [self loadInitialData:^(NSError *error) {
+                        NSLog(@"reloaded the root view controller!");
+                    }];
+                }];
+            }
+        }
+    }];
+
 }
 
 - (IBAction)login:(id)sender {
