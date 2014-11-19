@@ -257,7 +257,7 @@
 
 - (void)mailComposeController:(MFMailComposeViewController*)controller
           didFinishWithResult:(MFMailComposeResult)result
-                        error:(NSError*)error;
+                        error:(NSError*)error
 {
     if (result == MFMailComposeResultSent) {
         NSLog(@"It's away!");
@@ -318,7 +318,7 @@
             [[SlabClient sharedClient] batchUpdate:self.todoItems toCollection:self.listItem block:^(NSDictionary *bResp, NSError *bErr) {
                 // remove from UI
                 [self.alreadyShared removeObjectAtIndex:indexPath.row];
-//                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
                 [self.tableView reloadData];
             }];
         }];

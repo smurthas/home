@@ -12,8 +12,18 @@
 
 #import <SlabClient/SLAccount.h>
 #import <SlabClient/SlabClient.h>
+#import <SlabClient/SLCrypto.h>
+#import <SlabClient/SLBase.h>
+#import <SlabClient/SLIdentity.h>
 
 #import <Lockbox/Lockbox.h>
+
+@interface XYZAppDelegate ()
+
+@property SLBase *defaultBase;
+@property NSString *appID;
+
+@end
 
 @implementation XYZAppDelegate
 
@@ -76,18 +86,8 @@
                  @"account_id": accountID,
                  @"app_id": appID,
                  @"base_url": baseURL
-             } forKey:@"slab_info"];
-
-            XYZToDoListTableViewController *mainViewController = (XYZToDoListTableViewController*)((UINavigationController*)self.window.rootViewController).topViewController;
-            
-            [mainViewController loadInitialData:^(NSError *error) {
-                
-                if (error != nil) {
-                    NSLog(@"error loading initial data %@", error);
-                    return;
-                }
-
-            }];
+            } forKey:@"slab_info"];
+            [self became];
         }];
         
     } else if([url.path isEqualToString: @"/accept_invite"]) {
@@ -133,34 +133,58 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    self.defaultBase = [SLBase baseWithBaseURL: @"http://slab-base.herokuapp.com"
+                               andManagerToken: @"kfLFL5zLR62S42keuCaSUakZ2n1z2PZTt3Urorp7CfspxuLsVZp9HeuMWC7MEP8Py3cQiM7EhoURqZQSb98sq19"];
+    self.appID = @"myTodos";
+
     NSDictionary *slabInfo = [Lockbox dictionaryForKey:@"slab_info"];
-    if (slabInfo != nil) {
 
-        NSLog(@"slabInfo, %@", slabInfo);
-        if (slabInfo[@"secret_key"] == nil || slabInfo[@"public_key"] == nil ||
-            slabInfo[@"account_id"] == nil || slabInfo[@"app_id"] == nil ||
-            slabInfo[@"base_url"] == nil) {
-            NSLog(@"invalid slabInfo, not logging in");
-            return YES;
-        }
+    if (slabInfo == nil || slabInfo[@"secret_key"] == nil || slabInfo[@"public_key"] == nil ||
+        slabInfo[@"account_id"] == nil || slabInfo[@"app_id"] == nil ||
+        slabInfo[@"base_url"] == nil) {
 
-        [SLAccount becomeWithKeyPair:@{@"secretKey":slabInfo[@"secret_key"], @"publicKey": slabInfo[@"public_key"]} accountID:slabInfo[@"account_id"] appID:slabInfo[@"app_id"] baseURL:slabInfo[@"base_url"] block:^(BOOL succeeded, NSError *error) {
-            NSLog(@"loaded from keychain");
+        NSLog(@"creating account");
+        NSDictionary *keyPair = [SLCrypto generateKeyPair];
+        SLIdentity * identity = [SLIdentity identityWithKeyPair:keyPair];
 
+        [self.defaultBase createAccountForApp:self.appID identity:identity block:^(NSString *accountID, NSError *error) {
 
-            XYZToDoListTableViewController *mainViewController = (XYZToDoListTableViewController*)((UINavigationController*)self.window.rootViewController).topViewController;
+            [SLAccount becomeWithKeyPair:keyPair accountID:accountID appID:self.appID baseURL:[self.defaultBase baseURL] block:^(BOOL succeeded, NSError *error) {
 
-            [mainViewController loadInitialData:^(NSError *error) {
+                [Lockbox setDictionary:@{
+                     @"public_key": keyPair[@"publicKey"],
+                     @"secret_key": keyPair[@"secretKey"],
+                     @"account_id": accountID,
+                     @"app_id": self.appID,
+                     @"base_url": [self.defaultBase baseURL]
+                     } forKey:@"slab_info"];
 
-                if (error != nil) {
-                    NSLog(@"error loading initial data %@", error);
-                    return;
-                }
+                NSLog(@"created account");
 
+                [self became];
             }];
         }];
+    } else {
+        NSLog(@"loaded from keychain");
+        [SLAccount becomeWithKeyPair:@{@"secretKey":slabInfo[@"secret_key"], @"publicKey": slabInfo[@"public_key"]} accountID:slabInfo[@"account_id"] appID:slabInfo[@"app_id"] baseURL:slabInfo[@"base_url"] block:^(BOOL succeeded, NSError *error) {
+            [self became];
+        }];
     }
+
     return YES;
+}
+
+- (void)became {
+    XYZToDoListTableViewController *mainViewController = (XYZToDoListTableViewController*)((UINavigationController*)self.window.rootViewController).topViewController;
+
+    [mainViewController loadInitialData:^(NSError *error) {
+
+        if (error != nil) {
+            NSLog(@"error loading initial data %@", error);
+            return;
+        }
+
+    }];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
