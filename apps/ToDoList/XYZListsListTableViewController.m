@@ -70,6 +70,8 @@
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
     SLQuery *query = [SLQuery collectionQuery];
     [query whereKey:@"type" equalTo:@"list"];
+    [query whereKey:@"archived" equalTo:@{@"$ne":@YES}];
+
     [[SlabClient sharedClient] findInBackground:query account:[SLAccount currentAccount] block:^(NSArray *objects, NSError *error) {
         if (error != nil) return callbackBlock(error);
 
@@ -178,10 +180,21 @@
 
         NSMutableDictionary *list = self.lists[indexPath.row];
 
-        [[SlabClient sharedClient] deleteInBackground:list fromCollection:nil];
+        list[@"archived"] = @YES;
+
         [self.lists removeObjectAtIndex:indexPath.row];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         [self.tableView reloadData];
+
+        [[SlabClient sharedClient] saveCollection:list block:^(NSDictionary *resp, NSError *error) {
+            if (error != nil) {
+                list[@"archived"] = @NO;
+                [self.lists insertObject:list atIndex:indexPath.row];
+                [self.tableView reloadData];
+                NSLog(@"error archiving list: %@", error);
+            }
+            NSLog(@"rep from archive list: %@", resp);
+        }];
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }   
