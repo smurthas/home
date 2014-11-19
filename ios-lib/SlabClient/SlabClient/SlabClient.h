@@ -34,6 +34,6 @@
 
 - (void) createTemporaryIdentity:(NSDictionary*)parameters block:(void (^)(NSString *token, NSError* error))callbackBlock;
 - (void) createTemporaryIdentity:(NSDictionary*)parameters account:(SLAccount *)account block:(void (^)(NSString *token, NSError* error))callbackBlock;
-- (void) convertTemporaryIdentity:(NSString *)token account:(SLAccount*)account block:(void (^)(NSError* error))callbackBlock;
+- (void) convertTemporaryIdentity:(NSString *)token remoteAccount:(SLAccount*)account block:(void (^)(NSError* error))callbackBlock;
 
 @end

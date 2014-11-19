@@ -20,8 +20,12 @@
 @property NSMutableArray *todoItems;
 
 @property NSString* publicKey;
+@property NSString* accountID;
+@property NSString* baseUrl;
+
 @property NSString* phoneNumber;
 @property NSString* emailAddress;
 @property NSString* name;
+
 
 @end

@@ -12,5 +12,7 @@
 
 @property BOOL isPhoneNumber;
 @property BOOL isEmail;
+@property NSString *accountID;
+@property NSString *baseUrl;
 
 @end

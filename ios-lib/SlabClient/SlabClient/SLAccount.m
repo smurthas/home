@@ -44,6 +44,7 @@ static SLAccount *currentAccount;
         @"secretKey": currentAccount.secretKey
     };
 
+    // TODO: this probably shouldn't assume the current appID always since apps should be able to share data
     return [SLAccount accountWithBaseUrl:baseUrl appID:SLAccount.currentAccount.appID accountID:accountID keyPair:usedKeyPair];
 }
 
@@ -78,7 +79,7 @@ static SLAccount *currentAccount;
             stringByAppendingString:@"/"];
 }
 
-- (NSString*) URLStringForCollection:(NSString*)collection{
+- (NSString*) URLStringForCollection:(NSString*)collection {
     return [[[[[[self.baseUrl
                  stringByAppendingString:@"/apps/"]
                 stringByAppendingString:self.appID]
@@ -96,12 +97,12 @@ static SLAccount *currentAccount;
 }
 
 
-//
-//
-//- (NSString *) getAccountID {
-//    return self.accountID;
-//}
-//
+
+
+- (NSString *) getAccountID {
+    return self.accountID;
+}
+
 - (NSString *) getBaseUrl {
     return self.baseUrl;
 }

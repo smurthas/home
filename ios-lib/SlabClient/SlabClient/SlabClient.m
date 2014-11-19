@@ -263,10 +263,15 @@ static SlabClient *client;
     }];
 }
 
-- (void) convertTemporaryIdentity:(NSString *)token account:(SLAccount*)account block:(void (^)(NSError* error))callbackBlock {
+- (void) convertTemporaryIdentity:(NSString *)token remoteAccount:(SLAccount*)account block:(void (^)(NSError* error))callbackBlock {
     NSString *url = [[[account getBaseUrl] stringByAppendingString:@"/identities/"] stringByAppendingString:[account getPublicKey]];
 
-    [self makeRequest:@"PUT" account:account url:url parameters:@{@"temporary_id": token} callback:^(id response, NSError *error) {
+    NSDictionary *params = @{
+        @"temporary_id": token,
+        @"account_id": [[SLAccount currentAccount] getAccountID],
+        @"base_url": [[SLAccount currentAccount] getBaseUrl]
+    };
+    [self makeRequest:@"PUT" account:account url:url parameters:params callback:^(id response, NSError *error) {
         if (error) {
             return callbackBlock(error);
         }

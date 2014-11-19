@@ -94,7 +94,7 @@
         NSDictionary *keyPair = @{@"secretKey": [[SLAccount currentAccount] getSecretKey], @"publicKey": [[SLAccount currentAccount] getPublicKey]};
         SLAccount *tempAccount = [SLAccount accountWithBaseUrl:query[@"base_url"] appID:appID accountID:query[@"account_id"] keyPair:keyPair];
 
-        [[SlabClient sharedClient] convertTemporaryIdentity:query[@"token"] account:tempAccount block:^(NSError *error) {
+        [[SlabClient sharedClient] convertTemporaryIdentity:query[@"token"] remoteAccount:tempAccount block:^(NSError *error) {
             // TODO: sort out how to manage multiple bases and multiple accounts
             //[SLAccount become:tempAccount];
 

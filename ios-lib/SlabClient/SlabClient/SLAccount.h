@@ -18,7 +18,7 @@
 + (SLAccount*) currentAccount;
 
 
-//- (NSString *) getAccountID;
+- (NSString *) getAccountID;
 - (NSString *) getBaseUrl;
 - (NSString *) getPublicKey;
 - (NSString *) getSecretKey;

@@ -125,6 +125,10 @@
 }
 
 - (void)shareWith:(NSString*)grantID {
+    [self shareWith:grantID accountID:nil baseUrl:nil];
+}
+
+- (void)shareWith:(NSString*)grantID accountID:(NSString *)accountID baseUrl:(NSString *)baseUrl {
     // enable the grantID to create objects in this collection
     self.listItem[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{
         @"createObjects": @YES,
@@ -146,6 +150,70 @@
             [self loadDataAndLayout];
             // TODO: update the _updatedAt timestamps
 
+            if (accountID != nil && baseUrl != nil) {
+
+                NSMutableDictionary *remoteCollection = [NSMutableDictionary dictionaryWithDictionary:@{
+                    @"_host": baseUrl,
+                    @"_accountID": accountID,
+                    @"_id": @"_pendingSharedLists"
+                }];
+
+                NSMutableDictionary *shareGrants =[NSMutableDictionary dictionaryWithDictionary:@{
+                    grantID:[NSMutableDictionary dictionaryWithDictionary:@{
+                        @"read": @YES,
+                        @"write": @YES,
+                    }],
+                    [[SLAccount currentAccount] getPublicKey]: [NSMutableDictionary dictionaryWithDictionary:@{
+                          @"read": @YES,
+                          @"write": @YES,
+                    }]
+                }];
+                NSMutableDictionary *shareNotification = [NSMutableDictionary dictionaryWithDictionary:@{
+                    @"_grants": shareGrants,
+                    @"collection": @{
+                        @"_host": self.listItem[@"_host"],
+                        @"_accountID": self.listItem[@"_accountID"],
+                        @"_id": self.listItem[@"_id"],
+                        @"name": self.listItem[@"name"],
+                        @"type": @"list"
+                    }
+                }];
+
+                [[SlabClient sharedClient] saveInBackground:shareNotification toCollection:remoteCollection];
+            } else {
+                // never shared with them before, so give the temp grant permission to write to _pendingSharedLists
+                SLQuery * pendingSharedListQuery = [SLQuery collectionQuery];
+                [pendingSharedListQuery whereKey:@"_id" equalTo:@"_pendingSharedLists"];
+                [[SlabClient sharedClient] findInBackground:pendingSharedListQuery account:[SLAccount currentAccount] block:^(NSArray *objects, NSError *error) {
+                    NSLog(@"pending shared query response: %@", objects);
+                    NSMutableDictionary *pendingSharedListAttributes;
+                    if (objects != nil && objects.count > 0) {
+                        pendingSharedListAttributes = [NSMutableDictionary dictionaryWithDictionary:objects[0]];
+                    } else {
+                        pendingSharedListAttributes = [NSMutableDictionary dictionaryWithDictionary:@{
+                            @"_id": @"_pendingSharedLists",
+                            @"_grants": [NSMutableDictionary dictionaryWithDictionary:@{
+                                [[SLAccount currentAccount] getPublicKey]: @{
+                                    @"createObjects": @YES,
+                                    @"modifyAttributes": @YES,
+                                    @"readAttributes": @YES
+                                }
+                            }],
+                            @"_host": [[SLAccount currentAccount] getBaseUrl],
+                            @"_accountID": [[SLAccount currentAccount] getAccountID]
+                        }];
+                    }
+                    pendingSharedListAttributes[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{
+                        @"createObjects": @YES
+                    }];
+
+                    NSLog(@"pendingSharedListAttributes %@", pendingSharedListAttributes);
+
+                    [[SlabClient sharedClient] saveCollection:pendingSharedListAttributes block:^(NSDictionary *response, NSError *saveError) {
+                        NSLog(@"savePendingCollection resp, err %@, %@", response, saveError);
+                    }];
+                }];
+            }
             // send the other account a notification with my AccountID, List Name, CollectionID
             // TODO: send it
 
@@ -172,7 +240,7 @@
 
     if (source.publicKey != nil) {
         NSLog(@"sharing with pubkey");
-        [self shareWith:source.publicKey];
+        [self shareWith:source.publicKey accountID:source.accountID baseUrl:source.baseUrl];
 
         // TODO: send notification without token
 

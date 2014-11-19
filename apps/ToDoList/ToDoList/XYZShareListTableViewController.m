@@ -28,6 +28,7 @@
 
     // XXX: If grantIDs is nil or empty, the getIdentities method will return ALL known identities!
     [[SlabClient sharedClient] getKnownIdentities:^(NSArray *knownIdentities, NSError *error) {
+        NSLog(@"knownIdentities %@", knownIdentities);
         self.identities = [[NSMutableArray alloc] init];
         NSString *myPublicKey = [[SLAccount currentAccount] getPublicKey];
         for (NSDictionary *i in knownIdentities) {
@@ -147,8 +148,12 @@
 ////        cell.accessoryType = UITableViewCellAccessoryCheckmark;
 //    } else
     if (indexPath.section == 0) {
-        cell.textLabel.text = self.identities[indexPath.row][@"name"];
-        cell.detailTextLabel.text = self.identities[indexPath.row][@"_id"];
+        NSDictionary *idty = self.identities[indexPath.row];
+        NSLog(@"idty %@", idty);
+        cell.textLabel.text = idty[@"name"];
+        cell.detailTextLabel.text = idty[@"_id"];
+        if (idty[@"_accountID"] != nil) cell.accountID = idty[@"_accountID"];
+        if (idty[@"_baseUrl"] != nil) cell.baseUrl = idty[@"_baseUrl"];
 //        cell.accessoryType = UITableViewCellAccessoryNone;
     } else {
         NSDictionary *contact = (NSDictionary*)self.contacts[indexPath.row];
@@ -267,7 +272,13 @@
 {
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-
+//
+//    if (indexPath.section == 0) {
+//        // a known identity
+//        self.accountID = self.identities[indexPath.row]
+//        self.baseUrl = cell.baseUrl;
+//
+//    }
     // TODO: can this just be a regular unwind segue?
     [self performSegueWithIdentifier:@"Unwind" sender:cell];
 }
@@ -285,7 +296,11 @@
         self.name = cell.textLabel.text;
         if (cell.isEmail) self.emailAddress = cell.detailTextLabel.text;
         else if (cell.isPhoneNumber) self.phoneNumber = cell.detailTextLabel.text;
-        else self.publicKey = cell.detailTextLabel.text;
+        else {
+            self.publicKey = cell.detailTextLabel.text;
+            self.accountID = cell.accountID;
+            self.baseUrl = cell.baseUrl;
+        }
     }
 }
 

@@ -10,6 +10,9 @@
 
 @implementation SLContactTableViewCell
 
+@synthesize accountID;
+@synthesize baseUrl;
+
 - (void)awakeFromNib {
     // Initialization code
 }
