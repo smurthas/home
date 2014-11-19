@@ -20,6 +20,7 @@
 
 - (void) saveInBackground:(NSMutableDictionary*)object toCollection:(NSMutableDictionary*)collection;
 - (void) batchUpdate:(NSArray*)objects toCollection:(NSDictionary*)collection block:(void (^)(NSDictionary *, NSError *))callbackBlock;
+- (void) deleteInBackground:(NSDictionary*)object fromCollectionID:(NSString*)collectionID;
 - (void) deleteInBackground:(NSDictionary*)object fromCollection:(NSDictionary*)collection;
 
 - (void) saveCollection:(NSMutableDictionary*)collection block:(void (^)(NSDictionary *, NSError *))callbackBlock;

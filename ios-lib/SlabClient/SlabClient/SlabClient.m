@@ -84,6 +84,15 @@ static SlabClient *client;
 
 }
 
+- (void) deleteInBackground:(NSDictionary*)object fromCollectionID:(NSString*)collectionID {
+    NSLog(@"delete object %@", object);
+    NSString *url = [[SLAccount currentAccount] URLStringForObject:object collection:collectionID];
+    NSLog(@"delete url %@", url);
+    [self makeRequest:@"DELETE" account:[SLAccount currentAccount] url:url parameters:nil callback:^(id response, NSError *error) {
+        NSLog(@"JSON: %@", response);
+    }];
+}
+
 - (void) deleteInBackground:(NSDictionary*)object fromCollection:(NSDictionary*)collection {
     NSLog(@"delete object %@", object);
     NSString *url;
