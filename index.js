@@ -40,7 +40,7 @@ function handleError(err, res) {
     }
   }
 
-  return req.status(500).json({});
+  return res.status(500).json({});
 }
 
 app.post('/auth/manager_requests', function(req, res) {
@@ -196,13 +196,15 @@ app.get('/identities/__temp/:tokens', verifyAuth, function(req, res) {
     if (err) return handleError(err, res);
 
     res.status(200).json(temporaryIdentities);
-  })
+  });
 });
 
 // create a new identity from a temporary identity
 app.put('/identities/:publicKey', verifyAuth, function(req, res) {
   backend.createIdentityFromTemporary({
     temporaryIdentity: req.body.temporary_id,
+    accountID: req.body.account_id,
+    baseUrl: req.body.base_url,
     publicKey: req.params.publicKey
   }, function(err) {
     if (err) return handleError(err, res);
@@ -394,7 +396,7 @@ app.delete('/apps/:appID/:accountID/:collectionID', function(req, res) {
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
     grantIDs: req.grantIDs
-  }, function(err, response) {
+  }, function(err) {
     if (err) return handleError(err, res);
     res.status(200).json({});
   });
