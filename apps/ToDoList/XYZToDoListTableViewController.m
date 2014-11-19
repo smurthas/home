@@ -38,6 +38,24 @@
         NSLog(@"got back objects for collection: %@", objects);
         if (error == nil) {
             self.toDoItems = [NSMutableArray arrayWithArray:objects];
+            [self.toDoItems sortUsingComparator:^NSComparisonResult(NSMutableDictionary *obj1, NSMutableDictionary *obj2) {
+                if (obj1[@"sortOrder"] == nil) {
+                    obj1[@"sortOrder"] = @1073741824.0;
+                }
+                if (obj2[@"sortOrder"] == nil) {
+                    obj2[@"sortOrder"] = @1073741824.0;
+                }
+
+                double one = [obj1[@"sortOrder"] doubleValue];
+                double two = [obj2[@"sortOrder"] doubleValue];
+
+                if (one < two) return NSOrderedAscending;
+                else if (one > two) return NSOrderedDescending;
+                return NSOrderedSame;
+            }];
+
+            NSLog(@"sorted collection: %@", self.toDoItems);
+
             [self.tableView reloadData];
             callbackBlock(nil);
         }
@@ -64,6 +82,16 @@
     }];
 }
 
+- (IBAction)startEditing:(id)sender {
+    if (self.editing == YES) {
+        ((UIBarButtonItem*)sender).title = @"Edit";
+        self.editing = NO;
+    } else {
+        ((UIBarButtonItem*)sender).title = @"Done";
+        self.editing = YES;
+    }
+}
+
 - (IBAction)unwindToList:(UIStoryboardSegue *)segue {
     XYZAddToDoItemViewController *source = [segue sourceViewController];
 
@@ -80,6 +108,15 @@
                 @"write": @YES
             }];
         }
+
+        double min = 1073741824.0;
+        for (NSDictionary *todoItem in self.toDoItems) {
+            if ([todoItem[@"sortOrder"] doubleValue] < min) {
+                min = [todoItem[@"sortOrder"] doubleValue];
+            }
+        }
+
+        source.toDoItem[@"sortOrder"] = [NSNumber numberWithDouble:(min / 2.0)];
 
         [[SlabClient sharedClient] saveInBackground:source.toDoItem toCollection:self.listItem];
         [self.toDoItems insertObject:source.toDoItem atIndex:0];
@@ -203,21 +240,61 @@
 }
 */
 
-/*
+
 // Override to support rearranging the table view.
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
 {
-}
-*/
+    NSLog(@"sorting start %@", self.toDoItems);
+    NSMutableDictionary *todoItem = self.toDoItems[fromIndexPath.row];
 
-/*
+    [self.toDoItems removeObjectAtIndex:fromIndexPath.row];
+    const double MIN = -2147483648.0;
+    const double MAX = 2147483648.0;
+    double before = MIN;
+    double after = MAX;
+    if (toIndexPath.row == 0) {
+        after = [self.toDoItems[toIndexPath.row][@"sortOrder"] doubleValue];
+    } else if (toIndexPath.row == self.toDoItems.count) {
+        before = [self.toDoItems[toIndexPath.row - 1][@"sortOrder"] doubleValue];
+    } else {
+        after = [self.toDoItems[toIndexPath.row][@"sortOrder"] doubleValue];
+        before = [self.toDoItems[toIndexPath.row - 1][@"sortOrder"] doubleValue];
+    }
+
+    [self.toDoItems insertObject:todoItem atIndex:toIndexPath.row];
+
+    if (after - before < 1.0) {
+        //time to rebalance
+        double spacing = (MAX - MIN) / ((double)self.toDoItems.count + 1.0);
+        double current = MIN + spacing;
+        for (NSMutableDictionary *item in self.toDoItems) {
+            item[@"sortOrder"] = [NSNumber numberWithDouble:current];
+            current += spacing;
+        }
+
+        NSLog(@"rebalancing complete %@", self.toDoItems);
+
+        [[SlabClient sharedClient] batchUpdate:self.toDoItems toCollection:self.listItem block:^(NSDictionary *resp, NSError *error) {
+            NSLog(@"batch update complete!");
+        }];
+    } else {
+        // still some space, just put it in the middle
+        double sortOrder = (before + after) / 2.0;
+        todoItem[@"sortOrder"] = [NSNumber numberWithDouble:sortOrder];
+        NSLog(@"sorting end %@", self.toDoItems);
+        [[SlabClient sharedClient] saveInBackground:todoItem toCollection:self.listItem];
+    }
+}
+
+
+
 // Override to support conditional rearranging of the table view.
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the item to be re-orderable.
     return YES;
 }
-*/
+
 
 
 #pragma mark - Navigation

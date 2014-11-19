@@ -15,6 +15,7 @@
 @property NSMutableDictionary *listItem;
 
 - (IBAction)logCompleted:(id)sender;
+- (IBAction)startEditing:(id)sender;
 
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock;
 
