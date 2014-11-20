@@ -205,6 +205,7 @@ app.put('/identities/:publicKey', verifyAuth, function(req, res) {
     temporaryIdentity: req.body.temporary_id,
     accountID: req.body.account_id,
     baseUrl: req.body.base_url,
+    appData: req.body.app_data,
     publicKey: req.params.publicKey
   }, function(err) {
     if (err) return handleError(err, res);
