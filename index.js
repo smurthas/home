@@ -201,6 +201,7 @@ app.get('/identities/__temp/:tokens', verifyAuth, function(req, res) {
 
 // create a new identity from a temporary identity
 app.put('/identities/:publicKey', verifyAuth, function(req, res) {
+  console.error('Convert Temporary ID:', req.body);
   backend.createIdentityFromTemporary({
     temporaryIdentity: req.body.temporary_id,
     accountID: req.body.account_id,
