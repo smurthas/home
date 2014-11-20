@@ -27,6 +27,7 @@ app.use(require('body-parser').json());
 
 
 function handleError(err, res) {
+  console.error('HANDLE ERROR', err);
   if (err) {
     if (err.notFound) {
       return res.status(404).json({
