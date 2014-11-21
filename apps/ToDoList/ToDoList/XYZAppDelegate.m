@@ -17,11 +17,13 @@
 #import <SlabClient/SLIdentity.h>
 
 #import <Lockbox/Lockbox.h>
+#import <NWPusher.h>
 
 @interface XYZAppDelegate ()
 
 @property SLBase *defaultBase;
 @property NSString *appID;
+@property NSData *deviceToken;
 
 @end
 
@@ -93,8 +95,13 @@
     } else if([url.path isEqualToString: @"/accept_invite"]) {
         NSDictionary *keyPair = @{@"secretKey": [[SLAccount currentAccount] getSecretKey], @"publicKey": [[SLAccount currentAccount] getPublicKey]};
         SLAccount *tempAccount = [SLAccount accountWithBaseUrl:query[@"base_url"] appID:appID accountID:query[@"account_id"] keyPair:keyPair];
+        NSString *deviceTokenString =[SLCrypto stringWithHexFromData:self.deviceToken];
+        NSLog(@"sending along deviceToken: %@", deviceTokenString);
 
-        [[SlabClient sharedClient] convertTemporaryIdentity:query[@"token"] remoteAccount:tempAccount block:^(NSError *error) {
+        [[SlabClient sharedClient] convertTemporaryIdentity:query[@"token"]
+                                              remoteAccount:tempAccount
+                                                withAppData:@{@"deviceToken":deviceTokenString}
+                                                      block:^(NSError *error) {
             // TODO: sort out how to manage multiple bases and multiple accounts
             //[SLAccount become:tempAccount];
 
@@ -136,6 +143,21 @@
     self.defaultBase = [SLBase baseWithBaseURL: @"http://slab-base.herokuapp.com"
                                andManagerToken: @"kfLFL5zLR62S42keuCaSUakZ2n1z2PZTt3Urorp7CfspxuLsVZp9HeuMWC7MEP8Py3cQiM7EhoURqZQSb98sq19"];
     self.appID = @"myTodos";
+
+
+    // PUSHER
+    if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+        NSLog(@"Requesting permission for push notifications..."); // iOS 8
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:
+                                                UIUserNotificationTypeAlert categories:nil];
+        [UIApplication.sharedApplication registerUserNotificationSettings:settings];
+    } else {
+        NSLog(@"Registering device for push notifications..."); // iOS 7 and earlier
+        [UIApplication.sharedApplication registerForRemoteNotificationTypes:
+         UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge |
+         UIRemoteNotificationTypeSound];
+    }
+    // REHSUP
 
     NSDictionary *slabInfo = [Lockbox dictionaryForKey:@"slab_info"];
 
@@ -213,5 +235,75 @@
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
+
+
+// PUSHER
+- (void)application:(UIApplication *)application
+didRegisterUserNotificationSettings:(UIUserNotificationSettings *)settings
+{
+    NSLog(@"Registering device for push notifications..."); // iOS 8
+    [application registerForRemoteNotifications];
+}
+
+- (void)application:(UIApplication *)application
+didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)token
+{
+    NSLog(@"Registration successful, bundle identifier: %@, mode: %@, device token: %@",
+          [NSBundle.mainBundle bundleIdentifier], [self modeString], token);
+    self.deviceToken = token;
+    NSURL *url = [NSBundle.mainBundle URLForResource:@"pusher.p12" withExtension:nil];
+    NSData *pkcs12 = [NSData dataWithContentsOfURL:url];
+    NSLog(@"pkcs12 %@", pkcs12);
+    NSError *error = nil;
+    NWPusher *pusher = [NWPusher connectWithPKCS12Data:pkcs12 password:@"blargh123" error:&error];
+    if (pusher) {
+        NSLog(@"Connected to APNs");
+
+        NSString *payload = @"{\"aps\":{\"alert\":\"Testing.. from app\"}}";
+        NSString *stringToken = [SLCrypto stringWithHexFromData:token];
+        NSError *error = nil;
+        BOOL pushed = [pusher pushPayload:payload token:stringToken identifier:rand() error:&error];
+        if (pushed) {
+            NSLog(@"Pushed to APNs");
+        } else {
+            NSLog(@"Unable to push: %@", error);
+        }
+    } else {
+        NSLog(@"Unable to connect: %@", error);
+    }
+}
+
+- (void)application:(UIApplication *)application
+didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+    NSLog(@"Failed to register: %@", error);
+}
+
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier
+forRemoteNotification:(NSDictionary *)notification completionHandler:(void(^)())completionHandler
+{
+    NSLog(@"Received push notification: %@, identifier: %@", notification, identifier); // iOS 8
+
+    [((XYZListsListTableViewController*)((UINavigationController*)self.window.rootViewController).visibleViewController) loadInitialData:^(NSError *error) {
+        NSLog(@"reloaded the root view controller after push!");
+        completionHandler();
+    }];
+}
+
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)notification
+{
+    NSLog(@"Received push notification: %@", notification); // iOS 7 and earlier
+}
+
+- (NSString *)modeString
+{
+#if DEBUG
+    return @"Development (sandbox)";
+#else
+    return @"Production";
+#endif
+}
+// REHSUP
 
 @end

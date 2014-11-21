@@ -12,6 +12,7 @@
 
 @synthesize accountID;
 @synthesize baseUrl;
+@synthesize deviceToken;
 
 - (void)awakeFromNib {
     // Initialization code

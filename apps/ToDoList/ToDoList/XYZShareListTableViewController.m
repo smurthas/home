@@ -154,6 +154,7 @@
         cell.detailTextLabel.text = idty[@"_id"];
         if (idty[@"_accountID"] != nil) cell.accountID = idty[@"_accountID"];
         if (idty[@"_baseUrl"] != nil) cell.baseUrl = idty[@"_baseUrl"];
+        if (idty[@"_appData"][@"myTodos"][@"deviceToken"] != nil) cell.deviceToken = idty[@"_appData"][@"myTodos"][@"deviceToken"];
 //        cell.accessoryType = UITableViewCellAccessoryNone;
     } else {
         NSDictionary *contact = (NSDictionary*)self.contacts[indexPath.row];
@@ -300,6 +301,7 @@
             self.publicKey = cell.detailTextLabel.text;
             self.accountID = cell.accountID;
             self.baseUrl = cell.baseUrl;
+            self.deviceToken = cell.deviceToken;
         }
     }
 }

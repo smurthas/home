@@ -14,5 +14,6 @@
 @property BOOL isEmail;
 @property NSString *accountID;
 @property NSString *baseUrl;
+@property NSString *deviceToken;
 
 @end

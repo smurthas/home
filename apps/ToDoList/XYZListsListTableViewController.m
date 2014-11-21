@@ -66,22 +66,7 @@
     }
 }
 
-
-- (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
-    SLQuery *query = [SLQuery collectionQuery];
-    [query whereKey:@"type" equalTo:@"list"];
-    [query whereKey:@"archived" equalTo:@{@"$ne":@YES}];
-
-    [[SlabClient sharedClient] findInBackground:query account:[SLAccount currentAccount] block:^(NSArray *objects, NSError *error) {
-        if (error != nil) return callbackBlock(error);
-
-        NSLog(@"filling with objects: %@", objects);
-
-        [self fillData:objects fromIndex:0 block:^(NSError *error) {
-            if (error == nil) [self.tableView reloadData];
-            callbackBlock(error);
-        }];
-    }];
+- (void) loadPendingShares:(void (^)(NSError* error))callbackBlock {
 
     SLQuery *pendingQuery = [SLQuery objectQueryWithCollectionName:@"_pendingSharedLists"];
 
@@ -99,9 +84,9 @@
                 NSDictionary *collectionInfo = pendingCollection[@"collection"];
                 NSMutableDictionary *grants = [[NSMutableDictionary alloc] init];
                 grants[[[SLAccount currentAccount] getPublicKey]] = @{
-                      @"readAttributes": @YES,
-                      @"modifyAttributes": @YES
-                };
+                                                                      @"readAttributes": @YES,
+                                                                      @"modifyAttributes": @YES
+                                                                      };
                 NSMutableDictionary *collectionAttributes = [NSMutableDictionary dictionaryWithDictionary:@{
                     @"type": @"list",
                     @"_grants": grants,
@@ -113,19 +98,38 @@
                 }];
 
                 NSLog(@"collectionAttributes %@", collectionAttributes);
-
+                
                 [[SlabClient sharedClient] createCollectionWithAttributes:collectionAttributes
-                    block:^(NSDictionary *collection, NSError *error) {
-
+                                                                    block:^(NSDictionary *collection, NSError *error) {
+                                                                        
                     [[SlabClient sharedClient] deleteInBackground:pendingCollection fromCollectionID:@"_pendingSharedLists"];
-
+                    
                     [self loadInitialData:^(NSError *error) {
                         NSLog(@"reloaded the root view controller!");
+                        callbackBlock(error);
                     }];
                 }];
             }
         }
     }];
+}
+
+- (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
+    SLQuery *query = [SLQuery collectionQuery];
+    [query whereKey:@"type" equalTo:@"list"];
+    [query whereKey:@"archived" equalTo:@{@"$ne":@YES}];
+
+    [[SlabClient sharedClient] findInBackground:query account:[SLAccount currentAccount] block:^(NSArray *objects, NSError *error) {
+        if (error != nil) return callbackBlock(error);
+
+        NSLog(@"filling with objects: %@", objects);
+
+        [self fillData:objects fromIndex:0 block:^(NSError *error) {
+            if (error == nil) [self.tableView reloadData];
+            [self loadPendingShares:callbackBlock];
+        }];
+    }];
+
 
 }
 

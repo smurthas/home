@@ -22,6 +22,7 @@
 @property NSString* publicKey;
 @property NSString* accountID;
 @property NSString* baseUrl;
+@property NSString* deviceToken;
 
 @property NSString* phoneNumber;
 @property NSString* emailAddress;

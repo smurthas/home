@@ -11,9 +11,12 @@
 
 #import <SlabClient.h>
 #import <SLAccount.h>
+#import <SLCrypto.h>
 
 
 #import <MessageUI/MessageUI.h>
+
+#import <NWPusher.h>
 
 @interface XYZShareListViewController () <MFMailComposeViewControllerDelegate, MFMessageComposeViewControllerDelegate>
 
@@ -125,10 +128,10 @@
 }
 
 - (void)shareWith:(NSString*)grantID {
-    [self shareWith:grantID accountID:nil baseUrl:nil];
+    [self shareWith:grantID accountID:nil baseUrl:nil deviceToken:nil];
 }
 
-- (void)shareWith:(NSString*)grantID accountID:(NSString *)accountID baseUrl:(NSString *)baseUrl {
+- (void)shareWith:(NSString*)grantID accountID:(NSString *)accountID baseUrl:(NSString *)baseUrl deviceToken:(NSString *)deviceToken {
     // enable the grantID to create objects in this collection
     self.listItem[@"_grants"][grantID] = [NSMutableDictionary dictionaryWithDictionary:@{
         @"createObjects": @YES,
@@ -180,6 +183,25 @@
                 }];
 
                 [[SlabClient sharedClient] saveInBackground:shareNotification toCollection:remoteCollection];
+
+                // TODO: send push notification(s)
+                NSDictionary *notification = @{
+                                               @"aps": @{
+                                                       @"alert": [NSString stringWithFormat:@"New list '%@' available", self.listItem[@"name"]]
+                                                       }
+                                               };
+                NSError *error;
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:notification
+                                                                   options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                                     error:&error];
+
+                if (!jsonData) {
+                    NSLog(@"Got an error: %@", error);
+                    return;
+                }
+
+                NSString *payload = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+                [self sendPushToToken:deviceToken withPayload:payload];
             } else {
                 // never shared with them before, so give the temp grant permission to write to _pendingSharedLists
                 SLQuery * pendingSharedListQuery = [SLQuery collectionQuery];
@@ -240,7 +262,7 @@
 
     if (source.publicKey != nil) {
         NSLog(@"sharing with pubkey");
-        [self shareWith:source.publicKey accountID:source.accountID baseUrl:source.baseUrl];
+        [self shareWith:source.publicKey accountID:source.accountID baseUrl:source.baseUrl deviceToken:source.deviceToken];
 
         // TODO: send notification without token
 
@@ -405,5 +427,25 @@
     // Pass the selected object to the new view controller.
 }
 */
+
+- (void) sendPushToToken:(NSString *)token withPayload:(NSString *)payload {
+    NSURL *url = [NSBundle.mainBundle URLForResource:@"pusher.p12" withExtension:nil];
+    NSData *pkcs12 = [NSData dataWithContentsOfURL:url];
+    NSLog(@"pkcs12 %@", pkcs12);
+    NSError *error = nil;
+    NWPusher *pusher = [NWPusher connectWithPKCS12Data:pkcs12 password:@"blargh123" error:&error];
+    if (pusher) {
+        NSLog(@"Connected to APNs");
+        NSError *error = nil;
+        BOOL pushed = [pusher pushPayload:payload token:token identifier:rand() error:&error];
+        if (pushed) {
+            NSLog(@"Pushed to APNs");
+        } else {
+            NSLog(@"Unable to push: %@", error);
+        }
+    } else {
+        NSLog(@"Unable to connect: %@", error);
+    }
+}
 
 @end

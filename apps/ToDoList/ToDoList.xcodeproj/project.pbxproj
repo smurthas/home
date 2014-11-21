@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		45FBC0B9F8A6451BAFD8C6A2 /* libPods-ToDoList.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F68ED5621BD34740BE91411B /* libPods-ToDoList.a */; };
+		F40218CD1A1EAA67000B28ED /* pusher.p12 in Resources */ = {isa = PBXBuildFile; fileRef = F40218CC1A1EAA67000B28ED /* pusher.p12 */; };
+		F40218CE1A1EAA67000B28ED /* pusher.p12 in Resources */ = {isa = PBXBuildFile; fileRef = F40218CC1A1EAA67000B28ED /* pusher.p12 */; };
 		F4177AD419C7C1CB0009667A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177AD319C7C1CB0009667A /* Foundation.framework */; };
 		F4177AD619C7C1CB0009667A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177AD519C7C1CB0009667A /* CoreGraphics.framework */; };
 		F4177AD819C7C1CB0009667A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177AD719C7C1CB0009667A /* UIKit.framework */; };
@@ -45,6 +47,7 @@
 /* Begin PBXFileReference section */
 		6850A415108FF33E62D457B3 /* Pods-ToDoList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoList/Pods-ToDoList.debug.xcconfig"; sourceTree = "<group>"; };
 		D3FFCE470D7AA8EFBD2841AC /* Pods-ToDoList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList.release.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoList/Pods-ToDoList.release.xcconfig"; sourceTree = "<group>"; };
+		F40218CC1A1EAA67000B28ED /* pusher.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = pusher.p12; sourceTree = "<group>"; };
 		F4177AD019C7C1CB0009667A /* ToDoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4177AD319C7C1CB0009667A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F4177AD519C7C1CB0009667A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -120,6 +123,7 @@
 		F4177AC719C7C1CB0009667A = {
 			isa = PBXGroup;
 			children = (
+				F40218CC1A1EAA67000B28ED /* pusher.p12 */,
 				F44A3C7F1A1D273200374DA1 /* Todos */,
 				F44A3C801A1D274300374DA1 /* Lists */,
 				F4177AD919C7C1CB0009667A /* ToDoList */,
@@ -305,6 +309,7 @@
 			files = (
 				F4177B0319C7C42A0009667A /* Main.storyboard in Resources */,
 				F4177ADE19C7C1CB0009667A /* InfoPlist.strings in Resources */,
+				F40218CD1A1EAA67000B28ED /* pusher.p12 in Resources */,
 				F4177AE619C7C1CB0009667A /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -313,6 +318,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F40218CE1A1EAA67000B28ED /* pusher.p12 in Resources */,
 				F4177AF719C7C1CB0009667A /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -489,6 +495,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -506,6 +513,7 @@
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
