@@ -253,7 +253,6 @@ didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)token
     self.deviceToken = token;
     NSURL *url = [NSBundle.mainBundle URLForResource:@"pusher.p12" withExtension:nil];
     NSData *pkcs12 = [NSData dataWithContentsOfURL:url];
-    NSLog(@"pkcs12 %@", pkcs12);
     NSError *error = nil;
     NWPusher *pusher = [NWPusher connectWithPKCS12Data:pkcs12 password:@"blargh123" error:&error];
     if (pusher) {
