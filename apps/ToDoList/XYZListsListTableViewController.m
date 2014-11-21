@@ -175,7 +175,6 @@
     cell.textLabel.text = [self.lists objectAtIndex:indexPath.row][@"name"];
     // Configure the cell...
     
-    NSLog(@"returning cell");
     return cell;
 }
 
@@ -216,10 +215,10 @@
 
         [[SlabClient sharedClient] saveCollection:list block:^(NSDictionary *resp, NSError *error) {
             if (error != nil) {
+                NSLog(@"error archiving list: %@", error);
                 list[@"archived"] = @NO;
                 [self.lists insertObject:list atIndex:indexPath.row];
                 [self.tableView reloadData];
-                NSLog(@"error archiving list: %@", error);
             }
             NSLog(@"rep from archive list: %@", resp);
         }];
