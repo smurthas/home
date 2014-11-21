@@ -41,7 +41,7 @@
     }];
 
     NSLog(@"collectionAttributes %@", collectionAttributes);
-
+    
     [[SlabClient sharedClient] createCollectionWithAttributes:collectionAttributes
                                                         block:^(NSDictionary *collection, NSError *error) {
         if (error != nil) {
@@ -206,6 +206,14 @@
         // Delete the row from the data source
 
         NSMutableDictionary *list = self.lists[indexPath.row];
+
+        NSLog(@"Archiving list %@", list);
+
+        while (list[@"revPointer"] != nil) {
+            list = list[@"revPointer"];
+        }
+
+        NSLog(@"Archiving unnested list %@", list);
 
         list[@"archived"] = @YES;
 
