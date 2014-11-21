@@ -19,6 +19,7 @@
 
 
 - (NSString *) getAccountID;
+- (NSString *) getAppID;
 - (NSString *) getBaseUrl;
 - (NSString *) getPublicKey;
 - (NSString *) getSecretKey;

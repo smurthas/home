@@ -103,6 +103,10 @@ static SLAccount *currentAccount;
     return self.accountID;
 }
 
+- (NSString *) getAppID {
+    return self.appID;
+}
+
 - (NSString *) getBaseUrl {
     return self.baseUrl;
 }
