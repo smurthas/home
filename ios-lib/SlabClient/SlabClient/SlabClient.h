@@ -31,7 +31,7 @@
 
 - (void) createCollectionWithAttributes:(NSDictionary*)attributes block:(void (^)(NSDictionary* collection, NSError* error))callbackBlock;
 
-- (void) findInBackground:(SLQuery*)query account:(SLAccount *)account block:(void (^)(NSArray *objects, NSError* error))callbackBlock;
+- (void) findInBackground:(SLQuery*)query account:(SLAccount *)account block:(void (^)(NSMutableArray *objects, NSError* error))callbackBlock;
 
 - (void) createTemporaryIdentity:(NSDictionary*)parameters block:(void (^)(NSString *token, NSError* error))callbackBlock;
 - (void) createTemporaryIdentity:(NSDictionary*)parameters account:(SLAccount *)account block:(void (^)(NSString *token, NSError* error))callbackBlock;

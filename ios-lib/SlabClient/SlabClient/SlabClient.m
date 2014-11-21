@@ -233,7 +233,7 @@ static SlabClient *client;
 }
 
 
-- (void) findInBackground:(SLQuery*)query account:(SLAccount *)account block:(void (^)(NSArray *objects, NSError* error))callbackBlock {
+- (void) findInBackground:(SLQuery*)query account:(SLAccount *)account block:(void (^)(NSMutableArray *objects, NSError* error))callbackBlock {
     NSString *url;
 
     if (!query.collections) {
@@ -252,9 +252,63 @@ static SlabClient *client;
         parameters = @{@"filter": filterString};
     }
 
-    [self makeRequest:@"GET" account:[SLAccount currentAccount] url:url parameters:parameters callback:callbackBlock];
+    [self makeRequest:@"GET" account:[SLAccount currentAccount] url:url parameters:parameters callback:^(NSArray *response, NSError *error) {
+        if (error) {
+            callbackBlock(response, error);
+            return;
+        }
+        [self fillData:response withAccount:account block:callbackBlock];
+    }];
 }
 
+- (void) fillData:(NSArray*)objects withAccount:(SLAccount *)account block:(void (^)(NSMutableArray *, NSError* error))callbackBlock {
+    NSMutableArray *followedData = [[NSMutableArray alloc] init];
+    [self fillData:objects fromIndex:0 withAccount:account intoArray:followedData block:^(NSError *error) {
+        callbackBlock(followedData, error);
+    }];
+}
+
+- (void) fillData:(NSArray*)objects fromIndex:(unsigned long)index withAccount:(SLAccount *)account intoArray:(NSMutableArray *)destination block:(void (^)(NSError* error))callbackBlock {
+    if (index == [objects count]) {
+        return callbackBlock(nil);
+    }
+
+    NSDictionary *list = objects[index];
+
+    if (list[@"pointer"] == nil) {
+        [destination addObject:list];
+        [self fillData:objects fromIndex:(index + 1) withAccount:account intoArray:destination block:callbackBlock];
+    } else {
+        NSString *baseUrl = list[@"pointer"][@"base_url"];
+        NSString *accountID = list[@"pointer"][@"account_id"];
+        NSDictionary *keyPair = @{
+            @"publicKey": [[SLAccount currentAccount] getPublicKey],
+            @"secretKey": [[SLAccount currentAccount] getSecretKey]
+        };
+        SLAccount *account = [SLAccount accountWithBaseUrl:baseUrl appID:@"myTodos" accountID:accountID keyPair:keyPair];
+
+        SLQuery *query = [SLQuery collectionQuery];
+
+        [query whereKey:@"_id" equalTo:list[@"pointer"][@"collection_id"]];
+        [[SlabClient sharedClient] findInBackground:query account:account block:^(NSArray *foundObjects, NSError *error) {
+            if (error != nil) {
+                return callbackBlock(error);
+            }
+            if (foundObjects.count != 1) {
+                NSLog(@"didn't find an object when following pointer: %@", list);
+                [self fillData:objects fromIndex:(index + 1) withAccount:account intoArray:destination block:callbackBlock];
+                return;
+            }
+
+            NSMutableDictionary *fullList = (NSMutableDictionary*)foundObjects[0];
+            fullList[@"revPointer"] = list;
+            [destination addObject:fullList];
+            
+            // phew!
+            [self fillData:objects fromIndex:(index + 1) withAccount:account intoArray:destination block:callbackBlock];
+        }];
+    }
+}
 
 
 - (void) createTemporaryIdentity:(NSDictionary*)parameters block:(void (^)(NSString *token, NSError* error))callbackBlock {
@@ -296,8 +350,7 @@ static SlabClient *client;
 
     method = [method uppercaseString];
 
-    NSLog(@"method: %@", method);
-    NSLog(@"url: %@", url);
+    NSLog(@"%@ %@", method, url);
 
     // TODO: ensure method is only {GET,POST,PUT,DELETE}
 
@@ -313,7 +366,7 @@ static SlabClient *client;
 
     NSString *signature = [SLCrypto signMessage:message secretKey:[account getSecretKey]];
 
-    NSLog(@"message: %@\nsignature: %@", message, signature);
+//    NSLog(@"message: %@\nsignature: %@", message, signature);
 
 
     AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
