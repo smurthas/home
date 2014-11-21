@@ -22,115 +22,94 @@
 
 @implementation XYZListsListTableViewController
 
-- (void) fillData:(NSArray*)objects fromIndex:(unsigned long)index block:(void (^)(NSError* error))callbackBlock {
-    if (index == 0) {
-        self.lists = [[NSMutableArray alloc] init];
+
+- (void) acceptPendingList:(NSMutableDictionary *)pendingCollection withCallback:(void (^)(NSError *))callbackBlock {
+    NSDictionary *collectionInfo = pendingCollection[@"collection"];
+    NSMutableDictionary *grants = [[NSMutableDictionary alloc] init];
+    grants[[[SLAccount currentAccount] getPublicKey]] = @{
+                                                          @"readAttributes": @YES,
+                                                          @"modifyAttributes": @YES
+                                                          };
+    NSMutableDictionary *collectionAttributes = [NSMutableDictionary dictionaryWithDictionary:@{
+        @"type": @"list",
+        @"_grants": grants,
+        @"pointer": @{
+            @"base_url": collectionInfo[@"_host"],
+            @"account_id": collectionInfo[@"_accountID"],
+            @"collection_id": collectionInfo[@"_id"]
+        }
+    }];
+
+    NSLog(@"collectionAttributes %@", collectionAttributes);
+
+    [[SlabClient sharedClient] createCollectionWithAttributes:collectionAttributes
+                                                        block:^(NSDictionary *collection, NSError *error) {
+        if (error != nil) {
+            callbackBlock(error);
+            return;
+        }
+
+        [[SlabClient sharedClient] deleteInBackground:pendingCollection fromCollectionID:@"_pendingSharedLists"];
+        callbackBlock(nil);
+    }];
+}
+
+- (void) processPendingShares:(NSMutableArray *)pendingCollections withCallback:(void (^)(NSError *error))callbackBlock {
+    if (!(pendingCollections.count  > 0)) {
+        callbackBlock(nil);
+        return;
     }
-    if (index == [objects count]) {
-        return callbackBlock(nil);
-    }
 
-    NSDictionary *list = objects[index];
+    NSMutableDictionary *pendingList = pendingCollections[0];
 
-    if (list[@"pointer"] == nil) {
-        [self.lists addObject:list];
-        [self fillData:objects fromIndex:(index + 1) block:callbackBlock];
-    } else {
-        NSString *baseUrl = list[@"pointer"][@"base_url"];
-        NSString *accountID = list[@"pointer"][@"account_id"];
-        NSDictionary *keyPair = @{
-            @"publicKey": [[SLAccount currentAccount] getPublicKey],
-            @"secretKey": [[SLAccount currentAccount] getSecretKey]
-        };
-        SLAccount *account = [SLAccount accountWithBaseUrl:baseUrl appID:@"myTodos" accountID:accountID keyPair:keyPair];
-
-        SLQuery *query = [SLQuery collectionQuery];
-
-        [query whereKey:@"_id" equalTo:list[@"pointer"][@"collection_id"]];
-        [[SlabClient sharedClient] findInBackground:query account:account block:^(NSArray *foundObjects, NSError *error) {
-            if (error != nil) {
-                return callbackBlock(error);
-            }
-            if (foundObjects.count != 1) {
-                NSLog(@"didn't find an object when following pointer: %@", list);
-                [self fillData:objects fromIndex:(index + 1) block:callbackBlock];
-                return;
-            }
-
-            NSMutableDictionary *fullList = (NSMutableDictionary*)foundObjects[0];
-            [self.lists addObject:fullList];
-
-            // phew!
-            [self fillData:objects fromIndex:(index + 1) block:callbackBlock];
-        }];
-    }
+    // TODO: prompt for acceptance of these collections.
+    [self acceptPendingList:pendingList withCallback:^(NSError *error) {
+        if (error != nil) {
+            NSLog(@"error accepting list %@ %@", pendingList, error);
+        }
+        [pendingCollections removeObjectAtIndex:0];
+        [self processPendingShares:pendingCollections withCallback:callbackBlock];
+    }];
 }
 
 - (void) loadPendingShares:(void (^)(NSError* error))callbackBlock {
 
     SLQuery *pendingQuery = [SLQuery objectQueryWithCollectionName:@"_pendingSharedLists"];
 
-    [[SlabClient sharedClient] findInBackground:pendingQuery account:[SLAccount currentAccount] block:^(NSArray *pendingCollections, NSError *error) {
-        NSLog(@"pendingCollection %@", pendingCollections);
+    [[SlabClient sharedClient] findInBackground:pendingQuery account:[SLAccount currentAccount] block:^(NSMutableArray *pendingCollections, NSError *error) {
+//        NSLog(@"pendingCollection %@", pendingCollections);
 
-        // TODO: prompt for acceptance of these collections.
         if (error != nil) {
             NSLog(@"error retrieving pending collections %@", error);
+            callbackBlock(error);
             return;
         }
-
-        for (NSDictionary *pendingCollection in pendingCollections) {
-            if (pendingCollection[@"collection"] != nil) {
-                NSDictionary *collectionInfo = pendingCollection[@"collection"];
-                NSMutableDictionary *grants = [[NSMutableDictionary alloc] init];
-                grants[[[SLAccount currentAccount] getPublicKey]] = @{
-                                                                      @"readAttributes": @YES,
-                                                                      @"modifyAttributes": @YES
-                                                                      };
-                NSMutableDictionary *collectionAttributes = [NSMutableDictionary dictionaryWithDictionary:@{
-                    @"type": @"list",
-                    @"_grants": grants,
-                    @"pointer": @{
-                        @"base_url": collectionInfo[@"_host"],
-                        @"account_id": collectionInfo[@"_accountID"],
-                        @"collection_id": collectionInfo[@"_id"]
-                    }
-                }];
-
-                NSLog(@"collectionAttributes %@", collectionAttributes);
-                
-                [[SlabClient sharedClient] createCollectionWithAttributes:collectionAttributes
-                                                                    block:^(NSDictionary *collection, NSError *error) {
-                                                                        
-                    [[SlabClient sharedClient] deleteInBackground:pendingCollection fromCollectionID:@"_pendingSharedLists"];
-                    
-                    [self loadInitialData:^(NSError *error) {
-                        NSLog(@"reloaded the root view controller!");
-                        callbackBlock(error);
-                    }];
-                }];
-            }
-        }
+        [self processPendingShares:pendingCollections withCallback:callbackBlock];
     }];
 }
 
-- (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
+- (void) loadLists:(void (^)(NSError* error))callbackBlock {
     SLQuery *query = [SLQuery collectionQuery];
     [query whereKey:@"type" equalTo:@"list"];
     [query whereKey:@"archived" equalTo:@{@"$ne":@YES}];
 
-    [[SlabClient sharedClient] findInBackground:query account:[SLAccount currentAccount] block:^(NSArray *objects, NSError *error) {
+    [[SlabClient sharedClient] findInBackground:query account:[SLAccount currentAccount] block:^(NSMutableArray *objects, NSError *error) {
         if (error != nil) return callbackBlock(error);
 
-        NSLog(@"filling with objects: %@", objects);
+//        NSLog(@"filling with objects: %@", objects);
 
-        [self fillData:objects fromIndex:0 block:^(NSError *error) {
-            if (error == nil) [self.tableView reloadData];
-            [self loadPendingShares:callbackBlock];
-        }];
+        self.lists = objects;
+        [self.tableView reloadData];
+        callbackBlock(nil);
     }];
 
+}
 
+- (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
+    [self loadLists:^(NSError *error) {
+        NSLog(@"done loading lists");
+        [self loadPendingShares:callbackBlock];
+    }];
 }
 
 - (IBAction)login:(id)sender {
