@@ -195,28 +195,11 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ListPrototypeCell" forIndexPath:indexPath];
     NSMutableDictionary *toDoItem = [self.toDoItems objectAtIndex:indexPath.row];
-    NSLog(@"title %@", toDoItem[@"title"]);
-    if (toDoItem[@"image"] != nil) {
-        NSData *imageData = [SLCrypto dataFromStringWithHex:toDoItem[@"image"]];
-        [cell.imageView setImage:[UIImage imageWithData:imageData]];
-    } else {
-        [cell.imageView setImage:nil];
-    }
 
-    cell.textLabel.text = toDoItem[@"title"];
-
-    cell.layoutMargins = UIEdgeInsetsZero;
-    cell.preservesSuperviewLayoutMargins = NO;
-    
+    UITableViewCell *cell;
     if ([toDoItem[@"completed"] boolValue]) {
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-        [cell setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
-
-        // set the tint color so that the check mark will show up gray
-        [cell setTintColor:[UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1]];
-
+        cell = [tableView dequeueReusableCellWithIdentifier:@"ListCompletedPrototypeCell" forIndexPath:indexPath];
         // create the inset look gradient for the top
         CAGradientLayer *topGradient = [CAGradientLayer layer];
         topGradient.frame = cell.bounds;
@@ -230,16 +213,23 @@
         bottomGradient.frame = CGRectMake(0, 43, 320, 1);
         bottomGradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1] CGColor], (id)[[UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1] CGColor], nil];
         [cell.layer insertSublayer:bottomGradient atIndex:0];
-
-        // backrgound of the label must be transparent to be able to see the gradient underneath
-        cell.textLabel.backgroundColor = [UIColor clearColor];
-        cell.textLabel.textColor = [UIColor grayColor];
     } else {
-        [cell setBackgroundColor:[UIColor whiteColor]];
-         cell.textLabel.textColor = [UIColor blackColor];
-        cell.accessoryType = UITableViewCellAccessoryNone;
+        cell = [tableView dequeueReusableCellWithIdentifier:@"ListPrototypeCell" forIndexPath:indexPath];
     }
-    
+
+    NSLog(@"title %@", toDoItem[@"title"]);
+    if (toDoItem[@"image"] != nil) {
+        NSData *imageData = [SLCrypto dataFromStringWithHex:toDoItem[@"image"]];
+        [cell.imageView setImage:[UIImage imageWithData:imageData]];
+    } else {
+        [cell.imageView setImage:nil];
+    }
+
+    cell.textLabel.text = toDoItem[@"title"];
+
+    cell.layoutMargins = UIEdgeInsetsZero;
+    cell.preservesSuperviewLayoutMargins = NO;
+
     return cell;
 }
 
