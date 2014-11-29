@@ -12,7 +12,7 @@ var persistence = {
 };
 
 var APP = 'blargh';
-var PK = 'publicKey';
+var PK = 'myPublicKey';
 
 var account;
 
@@ -99,7 +99,8 @@ describe('backend', function() {
     });
   });
 
-  describe('create object', function() {
+  describe('objects', function() {
+
     it('should create an object with a random id', function(done) {
       createCollection(function(collection) {
         var options = {
@@ -137,5 +138,93 @@ describe('backend', function() {
         });
       });
     });
+
+    it('should update an object', function(done) {
+      createCollection(function(collection) {
+        var options = {
+          appID: APP,
+          accountID: account,
+          collectionID: collection._id,
+          grantIDs: [PK],
+          grantID: PK,
+        };
+        assert(collection);
+        var grants = {};
+        grants[PK] = {
+          read: true,
+          write: true
+        };
+
+        options.object = {
+          testName: 'blooop',
+          _grants: grants
+        };
+        backend.insert(options, function(err, object) {
+          assert.ifError(err);
+          assert(object);
+          assert(object._id);
+
+          options.filter = {
+            _id: object._id
+          };
+          backend.get(options, function(err, objects) {
+            assert.ifError(err);
+            assert.equal(objects.length, 1);
+            assert.equal(objects[0]._id, object._id);
+
+            options.object = {
+              update: 'wahoo'
+            };
+            options._id = object._id;
+            backend.update(options, function(err, updatedObject) {
+              assert.ifError(err);
+              assert(updatedObject);
+              assert.equal(updatedObject.update, 'wahoo');
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should create an object with a specified id', function(done) {
+      createCollection(function(collection) {
+        var options = {
+          appID: APP,
+          accountID: account,
+          collectionID: collection._id,
+          grantIDs: [PK],
+          grantID: PK
+        };
+        assert(collection);
+        var grants = {};
+        grants[PK] = {
+          read: true,
+          write: true
+        };
+        var _id = 'marshmallow';
+        options.object = {
+          _id: _id,
+          testName: 'blooop',
+          _grants: grants
+        };
+        backend.insert(options, function(err, object) {
+          assert.ifError(err);
+          assert(object);
+          assert(object._id);
+
+          options.filter = {
+            _id: object._id
+          };
+          backend.get(options, function(err, objects) {
+            assert.ifError(err);
+            assert.equal(objects.length, 1);
+            assert.equal(objects[0]._id, _id);
+            done();
+          });
+        });
+      });
+    });
+
   });
 });

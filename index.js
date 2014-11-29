@@ -478,10 +478,10 @@ app.put('/apps/:appID/:accountID/:collectionID/__batch', function(req, res) {
 });
 
 
-// update one
+// upsert one
 app.put('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
-  console.error('Update One:', req.body);
-  backend.update({
+  console.error('Upsert One:', req.body);
+  backend.insert({
     appID: req.params.appID,
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
