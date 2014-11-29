@@ -520,7 +520,7 @@ app.delete('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res)
 
 tokens.initSecrets();
 
-backend.init(function(err) {
+backend.init({}, function(err) {
   if (err) {
     console.error('Error initing backend:', err);
     process.exit(1);
