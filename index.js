@@ -366,7 +366,7 @@ app.post('/apps/:appID/:accountID', function(req, res) {
     grantIDs: req.grantIDs,
     attributes: req.body.attributes
   }, function(err, collectionAttributes) {
-    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    if (err) return handleError(err, res);
     res.status(201).json(collectionAttributes);
   });
 });
@@ -451,7 +451,7 @@ app.post('/apps/:appID/:accountID/:collectionID', function(req, res) {
     grantIDs: req.grantIDs,
     object: req.body
   }, function(err, response) {
-    if (err) return res.jsonError(500, 'didnt work', 'not sure why');
+    if (err) return handleError(err, res);
     res.status(201).json(response);
   });
 });
