@@ -285,6 +285,14 @@ app.post('/apps/:appID/:accountID/__temp_grants', verifyAuth, function(req, res)
   });
 });
 
+// Get list of apps
+app.get('/apps', verifyManagerAuth, function(req, res) {
+  backend.getApps({}, function(err, apps) {
+    if (err) return handleError(err, res);
+    res.status(200).json(apps);
+  });
+});
+
 // Get list of accounts for an app
 app.get('/apps/:appID', verifyManagerAuth, function(req, res) {
   backend.getAccounts({
@@ -433,8 +441,8 @@ app.get('/apps/:appID/:accountID/:collectionID', function(req, res) {
     grantIDs: req.grantIDs,
     filter: req.query.filter && JSON.parse(req.query.filter)
   }, function(err, data) {
-    if (err) return res.status(500).json({message: 'didnt work, not sure why'});
-    console.error('Read Many resp:', data);
+    if (err) return handleError(err, res);
+    console.error('Read Many resp:', data.length);
     if (!data) return res.status(200).json([]);
     res.json(data);
   });
