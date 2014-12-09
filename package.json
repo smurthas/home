@@ -6,6 +6,7 @@
   "directories": {
     "test": "test"
   },
+  "bin":"cli.js",
   "dependencies": {
     "bs58": "^1.2.1",
     "cors": "^2.4.1",
