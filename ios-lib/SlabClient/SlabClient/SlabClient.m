@@ -327,7 +327,7 @@ static SlabClient *client;
 }
 
 - (void) convertTemporaryIdentity:(NSString *)token remoteAccount:(SLAccount*)account withAppData:(NSDictionary *)appData block:(void (^)(NSError* error))callbackBlock {
-    NSString *url = [[[account getBaseUrl] stringByAppendingString:@"/identities/"] stringByAppendingString:[account getPublicKey]];
+    NSString *url = [[[account getBaseUrl] stringByAppendingString:@"/identities/"] stringByAppendingString:[[SLAccount currentAccount] getPublicKey]];
 
     NSDictionary *params = @{
         @"temporary_id": token,
@@ -338,7 +338,10 @@ static SlabClient *client;
         }
     };
 
+    NSLog(@"remove account conversion url %@, params %@", url, params);
+
     [self makeRequest:@"PUT" account:account url:url parameters:params callback:^(id response, NSError *error) {
+        NSLog(@"response from convert %@", response);
         if (error) {
             return callbackBlock(error);
         }
