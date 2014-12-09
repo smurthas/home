@@ -523,7 +523,26 @@
 				INFOPLIST_FILE = "ToDoList/ToDoList-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-ObjC",
+					"-l\"Pods-ToDoList-AFNetworking\"",
+					"-l\"Pods-ToDoList-APAddressBook\"",
+					"-l\"Pods-ToDoList-Lockbox\"",
+					"-l\"Pods-ToDoList-NWPusher\"",
+					"-l\"Pods-ToDoList-SBJson\"",
+					"-l\"Pods-ToDoList-SlabClient\"",
+					"-l\"Pods-ToDoList-libsodium-ios\"",
+					"-framework",
+					"\"AddressBook\"",
+					"-framework",
+					"\"CoreGraphics\"",
+					"-framework",
+					"\"MobileCoreServices\"",
+					"-framework",
+					"\"Security\"",
+					"-framework",
+					"\"SystemConfiguration\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
