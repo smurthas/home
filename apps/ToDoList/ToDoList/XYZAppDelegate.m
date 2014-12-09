@@ -93,43 +93,10 @@
         }];
         
     } else if([url.path isEqualToString: @"/accept_invite"]) {
-        NSDictionary *keyPair = @{@"secretKey": [[SLAccount currentAccount] getSecretKey], @"publicKey": [[SLAccount currentAccount] getPublicKey]};
-        SLAccount *tempAccount = [SLAccount accountWithBaseUrl:query[@"base_url"] appID:appID accountID:query[@"account_id"] keyPair:keyPair];
-        NSString *deviceTokenString =[SLCrypto stringWithHexFromData:self.deviceToken];
-        NSLog(@"sending along deviceToken: %@", deviceTokenString);
-
-        [[SlabClient sharedClient] convertTemporaryIdentity:query[@"token"]
-                                              remoteAccount:tempAccount
-                                                withAppData:@{@"deviceToken":deviceTokenString}
-                                                      block:^(NSError *error) {
-            // TODO: sort out how to manage multiple bases and multiple accounts
-            //[SLAccount become:tempAccount];
-
-            // TODO: check if we already have access to this collection
-            
-            NSMutableDictionary *grants = [[NSMutableDictionary alloc] init];
-            grants[keyPair[@"publicKey"]] = @{
-                @"readAttributes": @YES,
-                @"modifyAttributes": @YES
-            };
-            NSMutableDictionary *collectionAttributes = [NSMutableDictionary dictionaryWithDictionary:@{
-                @"type": @"list",
-                @"_grants": grants,
-                @"pointer": @{
-                    @"base_url": query[@"base_url"],
-                    @"account_id": query[@"account_id"],
-                    @"collection_id": query[@"collection_id"]
-                }
-            }];
-
-            [[SlabClient sharedClient] createCollectionWithAttributes:collectionAttributes
-                block:^(NSDictionary *collection, NSError *error) {
-
-                [((XYZListsListTableViewController*)((UINavigationController*)self.window.rootViewController).visibleViewController) loadInitialData:^(NSError *error) {
-                    NSLog(@"reloaded the root view controller!");
-                }];
-            }];
-        }];
+        [self acceptInviteWithToken:query[@"token"]
+                            baseUrl:query[@"base_url"]
+                          accountID:query[@"account_id"]
+                       collectionID:query[@"collection_id"]];
     } else {
         NSLog(@"An unknown action was passed.");
     }
@@ -151,11 +118,11 @@
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:
                                                 UIUserNotificationTypeAlert categories:nil];
         [UIApplication.sharedApplication registerUserNotificationSettings:settings];
-    } else {
-        NSLog(@"Registering device for push notifications..."); // iOS 7 and earlier
-        [UIApplication.sharedApplication registerForRemoteNotificationTypes:
-         UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge |
-         UIRemoteNotificationTypeSound];
+//    } else {
+//        NSLog(@"Registering device for push notifications..."); // iOS 7 and earlier
+//        [UIApplication.sharedApplication registerForRemoteNotificationTypes:
+//         UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeBadge |
+//         UIRemoteNotificationTypeSound];
     }
     // REHSUP
 
@@ -194,6 +161,51 @@
     }
 
     return YES;
+}
+
+- (void) acceptInviteWithToken:(NSString *)token baseUrl:(NSString *)baseUrl accountID:(NSString *)accountID collectionID:(NSString *)collectionID {
+
+    SLAccount *remoteAccount = [SLAccount accountWithBaseUrl:baseUrl appID:self.appID accountID:accountID keyPair:@{@"secretKey":[[SLAccount currentAccount] getSecretKey], @"publicKey": [[SLAccount currentAccount] getPublicKey]}];
+    NSString *deviceTokenString = [SLCrypto stringWithHexFromData:self.deviceToken];
+    NSLog(@"sending along deviceToken: %@", deviceTokenString);
+
+    NSMutableDictionary *appData = [[NSMutableDictionary alloc] init];
+
+    if (deviceTokenString != nil) {
+        appData[@"deviceToken"] = deviceTokenString;
+    }
+
+    [[SlabClient sharedClient] convertTemporaryIdentity:token
+                                          remoteAccount:remoteAccount
+                                            withAppData:appData
+                                                  block:^(NSError *error) {
+        // TODO: sort out how to manage multiple bases and multiple accounts
+        //[SLAccount become:tempAccount];
+
+        // TODO: check if we already have access to this collection
+
+        NSMutableDictionary *grants = [[NSMutableDictionary alloc] init];
+        grants[[[SLAccount currentAccount] getPublicKey]] = @{
+            @"readAttributes": @YES,
+            @"modifyAttributes": @YES
+        };
+        NSMutableDictionary *collectionAttributes = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"type": @"list",
+            @"_grants": grants,
+            @"pointer": @{
+                @"base_url": baseUrl,
+                @"account_id": accountID,
+                @"collection_id": collectionID
+            }
+        }];
+
+        [[SlabClient sharedClient] createCollectionWithAttributes:collectionAttributes
+                                                            block:^(NSDictionary *collection, NSError *error) {
+            [((XYZListsListTableViewController*)((UINavigationController*)self.window.rootViewController).visibleViewController) loadInitialData:^(NSError *error) {
+                NSLog(@"reloaded the root view controller!");
+            }];
+        }];
+    }];
 }
 
 - (void)became {

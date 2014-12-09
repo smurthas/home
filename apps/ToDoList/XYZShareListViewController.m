@@ -145,10 +145,11 @@
         for (NSMutableDictionary* todo in self.todoItems) {
             ((NSMutableDictionary*)todo[@"_grants"])[grantID] =
             [NSMutableDictionary dictionaryWithDictionary:@{@"read": @YES, @"write": @YES}];
+            NSLog(@"updated todo grants %@", todo[@"_grants"]);
         }
 
         [[SlabClient sharedClient] batchUpdate:self.todoItems toCollection:self.listItem block:^(NSDictionary *responseObject, NSError *error) {
-            NSLog(@"JSON: %@", responseObject);
+            NSLog(@"response from batch update granting permision to temp token JSON: %@", responseObject);
 
             [self loadDataAndLayout];
             // TODO: update the _updatedAt timestamps
@@ -236,21 +237,6 @@
                     }];
                 }];
             }
-            // send the other account a notification with my AccountID, List Name, CollectionID
-            // TODO: send it
-
-            //            [self.account createGrantWithPublicKey:toPublicKey block:^(NSDictionary *grant, NSError *error) {
-            //                NSString *resourceURL = [self.account URLStringForCollection:self.listItem[@"_id"]];
-            //                NSLog(@"sharing resourceURL: %@", resourceURL);
-            //
-            //                               NSDictionary *invitation = @{
-            //                 @"token": grant[@"token"],
-            //                 @"uri": resourceURL
-            //                 };
-            //
-            //                 NSLog(@"sharing: %@", invitation);
-            //            }];
-            
         }];
         
     }];
