@@ -208,7 +208,10 @@ commands.get.collections = function(args, options) {
   options.path = '/apps/'+options.app+'/'+options.account;
   options.method = 'get';
 
-  console.error('options', options);
+  options.qs = {};
+  if (options.filter) options.qs.filter = options.filter;
+
+  if (options.debug) console.error('options', options);
   makeRequest(options, function(err, resp, body) {
     if (err) console.error(err);
     if (options.debug) console.error('statusCode', resp && resp.statusCode);
@@ -238,11 +241,9 @@ commands.get.objects = function(args, options) {
   options.path = '/apps/'+options.app+'/'+options.account+'/'+collection;
   options.method = 'get';
 
-  if (options.filter) {
-    options.qs = {
-      filter: options.filter
-    };
-  }
+  options.qs = {};
+  if (options.filter) options.qs.filter = options.filter;
+  if (options.sort) options.qs.sort = options.sort;
 
   if (options.debug) console.error('options', options);
   makeRequest(options, function(err, resp, body) {
@@ -254,7 +255,7 @@ commands.get.objects = function(args, options) {
 
 function makeRequest(options, callback) {
   var url = options.host + options.path;
-  if (options.qs) {
+  if (options.qs && Object.keys(options.qs).length > 0) {
     url += '?' + querystring.stringify(options.qs);
   }
   if (options.debug) console.error('url', url);
@@ -284,7 +285,9 @@ cli.parse({
   account:  ['account', 'account id', 'string'],
   x: ['x', 'read from stdin'],
   filter: ['filter', 'filter a query to match criteria', 'string'],
+  sort: ['sort', 'sort the results of a query', 'string'],
   file: ['file', 'a file to read from', 'path'],
+  host: ['host', 'the host to make the request to', 'string']
 });
 
 cli.main(function(args, cliOptions) {
@@ -294,6 +297,12 @@ cli.main(function(args, cliOptions) {
     if (options.debug) console.error('defaults', defaults);
     _.assign(options, defaults);
   } catch(err) {
+  }
+
+  for (var i in cliOptions) {
+    if (cliOptions[i] === null) {
+      delete cliOptions[i];
+    }
   }
 
   _.assign(options, cliOptions);
