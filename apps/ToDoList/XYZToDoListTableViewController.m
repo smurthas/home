@@ -200,6 +200,9 @@
     UITableViewCell *cell;
     if ([toDoItem[@"completed"] boolValue]) {
         cell = [tableView dequeueReusableCellWithIdentifier:@"ListCompletedPrototypeCell" forIndexPath:indexPath];
+        NSLog(@"subviews %@", cell.contentView.subviews);
+        UIButton *button = (UIButton *)[cell.contentView.subviews objectAtIndex:1];
+        [button setTag:indexPath.row];
         // create the inset look gradient for the top
         CAGradientLayer *topGradient = [CAGradientLayer layer];
         topGradient.frame = cell.bounds;
@@ -213,17 +216,33 @@
         bottomGradient.frame = CGRectMake(0, 43, 320, 1);
         bottomGradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1] CGColor], (id)[[UIColor colorWithRed:0.84 green:0.84 blue:0.84 alpha:1] CGColor], nil];
         [cell.layer insertSublayer:bottomGradient atIndex:0];
+//        cell.imageView.image = [UIImage imageNamed:@"checked.PNG"];
     } else {
         cell = [tableView dequeueReusableCellWithIdentifier:@"ListPrototypeCell" forIndexPath:indexPath];
+                NSLog(@"subviews %@", cell.contentView.subviews);
+        UIButton *button = (UIButton *)[cell.contentView.subviews objectAtIndex:1];
+        [button setTag:indexPath.row];
+
+
+//        cell.imageView.image = [UIImage imageNamed:@"unchecked.PNG"];
     }
 
+//
+//
+//    CGSize itemSize = CGSizeMake(16, 16);
+//    UIGraphicsBeginImageContextWithOptions(itemSize, NO, UIScreen.mainScreen.scale);
+//    CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
+//    [cell.imageView.image drawInRect:imageRect];
+//    cell.imageView.image = UIGraphicsGetImageFromCurrentImageContext();
+//    UIGraphicsEndImageContext();
+
     NSLog(@"title %@", toDoItem[@"title"]);
-    if (toDoItem[@"image"] != nil) {
+/*    if (toDoItem[@"image"] != nil) {
         NSData *imageData = [SLCrypto dataFromStringWithHex:toDoItem[@"image"]];
         [cell.imageView setImage:[UIImage imageWithData:imageData]];
     } else {
         [cell.imageView setImage:nil];
-    }
+    }*/
 
     cell.textLabel.text = toDoItem[@"title"];
 
@@ -354,14 +373,10 @@
     [[SlabClient sharedClient] deleteInBackground:toDoItem fromCollection:self.listItem];
 }
 
-
-
-#pragma mark - Table view delegate
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    [tableView deselectRowAtIndexPath:indexPath animated:NO];
-    NSMutableDictionary *tappedItem = [self.toDoItems objectAtIndex:indexPath.row];
+- (IBAction)toggleCompleted:(id)sender {
+    UIButton *button = (UIButton*)sender;
+    NSInteger row = button.tag;
+    NSMutableDictionary *tappedItem = [self.toDoItems objectAtIndex:row];
     if ([tappedItem[@"completed"]  isEqual: @YES]) {
         tappedItem[@"completed"] = @NO;
     } else {
@@ -369,8 +384,18 @@
     }
 
     [[SlabClient sharedClient] saveInBackground:tappedItem toCollection:self.listItem];
-    
-    [tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+
+    [self.tableView reloadData];
+
+}
+
+
+
+#pragma mark - Table view delegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
 @end

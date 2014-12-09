@@ -32,6 +32,8 @@
 		F43311B11A071F5F0067F737 /* XYZShareListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F43311B01A071F5F0067F737 /* XYZShareListViewController.m */; };
 		F44F408C19CDF85A0061E4AB /* XYZListsListTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */; };
 		F44F408F19CE5BB90061E4AB /* XYZAddListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */; };
+		F49209A71A31208300891969 /* unchecked.PNG in Resources */ = {isa = PBXBuildFile; fileRef = F49209A51A31208300891969 /* unchecked.PNG */; };
+		F49209A81A31208300891969 /* checked.PNG in Resources */ = {isa = PBXBuildFile; fileRef = F49209A61A31208300891969 /* checked.PNG */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +83,8 @@
 		F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XYZListsListTableViewController.m; sourceTree = "<group>"; };
 		F44F408D19CE5BB90061E4AB /* XYZAddListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XYZAddListViewController.h; path = ToDoList/XYZAddListViewController.h; sourceTree = "<group>"; };
 		F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XYZAddListViewController.m; path = ToDoList/XYZAddListViewController.m; sourceTree = "<group>"; };
+		F49209A51A31208300891969 /* unchecked.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = unchecked.PNG; path = ToDoList/unchecked.PNG; sourceTree = "<group>"; };
+		F49209A61A31208300891969 /* checked.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = checked.PNG; path = ToDoList/checked.PNG; sourceTree = "<group>"; };
 		F68ED5621BD34740BE91411B /* libPods-ToDoList.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ToDoList.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -201,6 +205,8 @@
 		F44A3C7F1A1D273200374DA1 /* Todos */ = {
 			isa = PBXGroup;
 			children = (
+				F49209A51A31208300891969 /* unchecked.PNG */,
+				F49209A61A31208300891969 /* checked.PNG */,
 				F4177B0A19C7D3E90009667A /* XYZToDoListTableViewController.h */,
 				F4177B0B19C7D3E90009667A /* XYZToDoListTableViewController.m */,
 				F4177B0419C7D2F50009667A /* XYZAddToDoItemViewController.h */,
@@ -309,6 +315,8 @@
 			files = (
 				F4177B0319C7C42A0009667A /* Main.storyboard in Resources */,
 				F4177ADE19C7C1CB0009667A /* InfoPlist.strings in Resources */,
+				F49209A71A31208300891969 /* unchecked.PNG in Resources */,
+				F49209A81A31208300891969 /* checked.PNG in Resources */,
 				F40218CD1A1EAA67000B28ED /* pusher.p12 in Resources */,
 				F4177AE619C7C1CB0009667A /* Images.xcassets in Resources */,
 			);
@@ -489,10 +497,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ToDoList/ToDoList-Prefix.pch";
 				INFOPLIST_FILE = "ToDoList/ToDoList-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -506,10 +516,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ToDoList/ToDoList-Prefix.pch";
 				INFOPLIST_FILE = "ToDoList/ToDoList-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

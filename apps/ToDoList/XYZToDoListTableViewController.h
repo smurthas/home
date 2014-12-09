@@ -19,4 +19,6 @@
 
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock;
 
+- (IBAction)toggleCompleted:(id)sender;
+
 @end
