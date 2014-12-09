@@ -59,7 +59,7 @@ commands.create.account = function(args, options) {
   };
   makeRequest(options, function(err, resp, body) {
     if (err) console.error(err);
-    console.error('statusCode', resp && resp.statusCode);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
     console.log(JSON.stringify(body, 2, 2));
   });
 };
@@ -84,7 +84,7 @@ commands.create.collection = function(args, options) {
     options.json = {attributes: attributes};
     makeRequest(options, function(err, resp, body) {
       if (err) console.error(err);
-      console.error('statusCode', resp && resp.statusCode);
+      if (options.debug) console.error('statusCode', resp && resp.statusCode);
       console.log(JSON.stringify(body, 2, 2));
     });
   });
@@ -111,7 +111,7 @@ function createObject(args, callback) {
     if (err || !resp && callback) return callback(err);
     if (resp.statusCode !== 200 && resp.statusCode !== 201) return callback(resp.statusCode);
 
-    console.error('statusCode', resp && resp.statusCode);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
     console.log(JSON.stringify(body, 2, 2));
 
     if (callback) callback();
@@ -150,7 +150,7 @@ commands.get.collection = function(args, options) {
 
   makeRequest(options, function(err, resp, body) {
     if (err) console.error(err);
-    console.error('statusCode', resp && resp.statusCode);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
     console.log(JSON.stringify(body, 2, 2));
   });
 };
@@ -162,7 +162,7 @@ commands.get.collections = function(args, options) {
   console.error('options', options);
   makeRequest(options, function(err, resp, body) {
     if (err) console.error(err);
-    console.error('statusCode', resp && resp.statusCode);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
     console.log(JSON.stringify(body, 2, 2));
   });
 
@@ -177,7 +177,7 @@ commands.get.object = function(args, options) {
 
   makeRequest(options, function(err, resp, body) {
     if (err) console.error(err);
-    console.error('statusCode', resp && resp.statusCode);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
     console.log(JSON.stringify(body, 2, 2));
   });
 
@@ -195,9 +195,10 @@ commands.get.objects = function(args, options) {
     };
   }
 
+  if (options.debug) console.error('options', options);
   makeRequest(options, function(err, resp, body) {
     if (err) console.error(err);
-    console.error('statusCode', resp && resp.statusCode);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
     console.log(JSON.stringify(body, 2, 2));
   });
 };
@@ -240,11 +241,14 @@ cli.main(function(args, cliOptions) {
   var defaults = {};
   try {
     defaults = JSON.parse(fs.readFileSync(path.join(process.env.HOME, '.slab')).toString());
+    if (options.debug) console.error('defaults', defaults);
     _.assign(options, defaults);
   } catch(err) {
   }
 
   _.assign(options, cliOptions);
+
+  if (options.debug) console.error('options', options);
   var command = commands[args[0]];
   args.shift();
   if (args.length) command = command[args[0]];
