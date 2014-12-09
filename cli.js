@@ -153,6 +153,44 @@ commands.create.objects = function(args, options) {
 
 commands.get = {};
 
+commands.get.apps = function(args, options) {
+  options.path = '/apps';
+  options.method = 'get';
+
+  options.json = {
+    public_key: options.publicKey
+  };
+
+  options.qs = {
+    manager_token: options.managerToken
+  };
+  if (options.debug) console.error('options', options);
+  makeRequest(options, function(err, resp, body) {
+    if (err) console.error(err);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
+    console.log(JSON.stringify(body, 2, 2));
+  });
+};
+
+commands.get.accounts = function(args, options) {
+  options.path = '/apps/'+options.app;
+  options.method = 'get';
+
+  options.json = {
+    public_key: options.publicKey
+  };
+
+  options.qs = {
+    manager_token: options.managerToken
+  };
+  if (options.debug) console.error('options', options);
+  makeRequest(options, function(err, resp, body) {
+    if (err) console.error(err);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
+    console.log(JSON.stringify(body, 2, 2));
+  });
+};
+
 commands.get.collection = function(args, options) {
   var id = args[0];
 
