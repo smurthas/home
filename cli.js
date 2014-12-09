@@ -37,6 +37,17 @@ function getInput(string, options, callback) {
         callback(null, json);
       }
     });
+  } else if (options.file) {
+    var fileObjects;
+    try {
+      fileObjects = JSON.parse(fs.readFileSync(options.file).toString('utf8'));
+      if (options.debug) console.error('read', fileObjects.length);
+    } catch (err) {
+      if (options.debug) console.error('err', err);
+      return callback(err);
+    }
+
+    callback(null, fileObjects);
   } else {
     return callback();
   }
@@ -234,7 +245,8 @@ cli.parse({
   app: ['app', 'app id', 'string'],
   account:  ['account', 'account id', 'string'],
   x: ['x', 'read from stdin'],
-  filter: ['filter', 'filter a query to match criteria', 'string']
+  filter: ['filter', 'filter a query to match criteria', 'string'],
+  file: ['file', 'a file to read from', 'path'],
 });
 
 cli.main(function(args, cliOptions) {
