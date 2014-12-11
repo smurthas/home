@@ -244,6 +244,7 @@ commands.get.objects = function(args, options) {
   options.qs = {};
   if (options.filter) options.qs.filter = options.filter;
   if (options.sort) options.qs.sort = options.sort;
+  if (options.limit) options.qs.limit = options.limit;
 
   if (options.debug) console.error('options', options);
   makeRequest(options, function(err, resp, body) {
@@ -287,6 +288,7 @@ cli.parse({
   x: ['x', 'read from stdin'],
   filter: ['filter', 'filter a query to match criteria', 'string'],
   sort: ['sort', 'sort the results of a query', 'string'],
+  limit: ['limit', 'limit the number of result', 'number'],
   file: ['file', 'a file to read from', 'path'],
   host: ['host', 'the host to make the request to', 'string']
 });
