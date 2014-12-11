@@ -254,6 +254,36 @@ commands.get.objects = function(args, options) {
   });
 };
 
+
+commands.config = {};
+
+commands.config.get = function(args, options) {
+  var length = 0;
+  for (var k in options) {
+    length = Math.max(k.length, length);
+  }
+  length++;
+  for (var key in options) {
+    console.log(key + (new Array(length-key.length).join(' ')), ': ', options[key]);
+  }
+};
+
+commands.config.set = function(args) {
+  var filename = path.join(process.cwd(), '.slab');
+  var localOptions = loadAndAssign(filename, {});
+  console.error('localOptions', localOptions);
+  console.error('args', args);
+  args.forEach(function(arg) {
+    arg = arg.split('=');
+    var key = arg.shift();
+    var value = arg.join('');
+    localOptions[key] = value;
+  });
+
+  console.log('would write: \n', JSON.stringify(localOptions, 2, 2));
+  fs.writeFileSync(filename, JSON.stringify(localOptions, 2, 2));
+};
+
 function makeRequest(options, callback) {
   var url = options.host + options.path;
   if (options.qs && Object.keys(options.qs).length > 0) {
@@ -293,14 +323,19 @@ cli.parse({
   host: ['host', 'the host to make the request to', 'string']
 });
 
-cli.main(function(args, cliOptions) {
-  var defaults = {};
+function loadAndAssign(filepath, prevValues) {
+  var read = {};
   try {
-    defaults = JSON.parse(fs.readFileSync(path.join(process.env.HOME, '.slab')).toString());
-    if (options.debug) console.error('defaults', defaults);
-    _.assign(options, defaults);
+    read = JSON.parse(fs.readFileSync(filepath).toString());
+    _.assign(prevValues, read);
   } catch(err) {
   }
+  return prevValues;
+}
+
+cli.main(function(args, cliOptions) {
+  loadAndAssign(path.join(process.env.HOME, '.slab'), options);
+  loadAndAssign(path.join(process.cwd(), '.slab'), options);
 
   for (var i in cliOptions) {
     if (cliOptions[i] === null) {
