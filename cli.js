@@ -130,17 +130,17 @@ function createObject(args, callback) {
 }
 
 commands.create.object = function(args, options) {
-  options.collection = args[0];
-  getInput(args[1], options, function(err, object) {
+  options.collection = options.collection || args.shift();
+  getInput(args.shift(), options, function(err, object) {
     options.json = object;
     createObject(options);
   });
 };
 
 commands.create.objects = function(args, options) {
-  options.collection = args[0];
+  options.collection = options.collection || args.shift();
 
-  getInput(args[1], options, function(err, objects) {
+  getInput(args.shift(), options, function(err, objects) {
     async.forEachLimit(objects, options.parallel || 3, function(object, cbEach) {
       var theseOptions = _.clone(options);
       theseOptions.json = object;
@@ -192,7 +192,7 @@ commands.get.accounts = function(args, options) {
 };
 
 commands.get.collection = function(args, options) {
-  var id = args[0];
+  var id = options.collection || args.shift();
 
   options.path = '/apps/'+options.app+'/'+options.account+'/'+id+'/__attributes';
   options.method = 'get';
@@ -221,8 +221,8 @@ commands.get.collections = function(args, options) {
 };
 
 commands.get.object = function(args, options) {
-  var collection = args[0];
-  var object = args[1];
+  var collection = options.collection || args.shift();
+  var object = args.shift();
 
   options.path = '/apps/'+options.app+'/'+options.account+'/'+collection+'/'+object;
   options.method = 'get';
@@ -236,7 +236,7 @@ commands.get.object = function(args, options) {
 };
 
 commands.get.objects = function(args, options) {
-  var collection = args[0];
+  var collection = options.collection || args[0];
 
   options.path = '/apps/'+options.app+'/'+options.account+'/'+collection;
   options.method = 'get';
@@ -283,6 +283,7 @@ function makeRequest(options, callback) {
 cli.parse({
   app: ['app', 'app id', 'string'],
   account:  ['account', 'account id', 'string'],
+  collection:  ['collection', 'collection id', 'string'],
   x: ['x', 'read from stdin'],
   filter: ['filter', 'filter a query to match criteria', 'string'],
   sort: ['sort', 'sort the results of a query', 'string'],
