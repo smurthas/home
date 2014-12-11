@@ -439,7 +439,8 @@ app.get('/apps/:appID/:accountID/:collectionID', function(req, res) {
     accountID: req.params.accountID,
     collectionID: req.params.collectionID,
     grantIDs: req.grantIDs,
-    filter: req.query.filter && JSON.parse(req.query.filter)
+    filter: req.query.filter && JSON.parse(req.query.filter),
+    limit: req.query.limit && parseInt(req.query.limit, 10)
   }, function(err, data) {
     if (err) return handleError(err, res);
     console.error('Read Many resp:', data.length);
