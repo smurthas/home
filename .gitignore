@@ -3,3 +3,4 @@ home*.json
 node_modules
 .env*
 coverage
+.slab
