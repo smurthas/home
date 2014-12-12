@@ -254,6 +254,43 @@ commands.get.objects = function(args, options) {
   });
 };
 
+commands.update = {};
+
+commands.update.collection = function(args, options) {
+  var id = options.collection || args.shift();
+
+  options.path = '/apps/'+options.app+'/'+options.account+'/'+id;
+  options.method = 'put';
+  getInput(args[0], options, function(err, attributes) {
+    if (!attributes) {
+      console.error('no attributes, either stdin with -x, as first arg for from file with -f');
+      return;
+    }
+
+    options.json = attributes;
+
+    makeRequest(options, function(err, resp, body) {
+      if (err) console.error(err);
+      if (options.debug) console.error('statusCode', resp && resp.statusCode);
+      console.log(JSON.stringify(body, 2, 2));
+    });
+  });
+};
+
+commands.delete = {};
+
+commands.delete.collection = function(args, options) {
+  var id = options.collection || args.shift();
+
+  options.path = '/apps/'+options.app+'/'+options.account+'/'+id;
+  options.method = 'delete';
+
+  makeRequest(options, function(err, resp, body) {
+    if (err) console.error(err);
+    if (options.debug) console.error('statusCode', resp && resp.statusCode);
+    console.log(JSON.stringify(body, 2, 2));
+  });
+};
 
 commands.config = {};
 
