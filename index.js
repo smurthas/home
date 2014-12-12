@@ -444,7 +444,7 @@ app.get('/apps/:appID/:accountID/:collectionID', function(req, res) {
     limit: req.query.limit && parseInt(req.query.limit, 10)
   }, function(err, data) {
     if (err) return handleError(err, res);
-    console.error('Read Many resp:', data.length);
+    console.error('Read Many resp:', data && data.length);
     if (!data) return res.status(200).json([]);
     res.json(data);
   });
