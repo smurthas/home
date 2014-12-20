@@ -129,25 +129,7 @@ function verifyAuth(req, res, next) {
     return next();
   }
 
-  var token = req.query.token;
-  if (!token && req.headers.Authorization) {
-    try {
-      token = req.headers.Authorization.trim().substring(5).trim().split('=')[1];
-    } catch(e) {
-      return res.status(400).end();
-    }
-  }
-
-  if (!token || !token.length) {
-    return res.status(400).end();
-  }
-
-  token = tokens.verifyToken(token);
-  if (!token || !token._id)  return res.send(400);
-
-  req.grantID = token._id;
-
-  next();
+  res.status(400).end();
 }
 
 //
