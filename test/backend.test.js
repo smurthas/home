@@ -3,6 +3,9 @@ var assert = require('assert');
 var backend = require('../lib/backend.js');
 var data = {};
 var persistence = {
+  init: function(options, callback) {
+    callback();
+  },
   save: function(_data) {
     data = _data;
   },
