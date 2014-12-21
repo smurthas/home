@@ -472,7 +472,7 @@ app.put('/apps/:appID/:accountID/:collectionID/__batch', function(req, res) {
 
 // upsert one
 app.put('/apps/:appID/:accountID/:collectionID/:objectID', function(req, res) {
-  console.error('Upsert One:', req.body);
+  console.error('Upsert One:'/*, req.body*/);
   backend.insert({
     appID: req.params.appID,
     accountID: req.params.accountID,
