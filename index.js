@@ -44,6 +44,11 @@ function handleError(err, res) {
   return res.status(500).json({});
 }
 
+app.use(function(req, res, next) {
+  console.log('hitting router...');
+  next();
+});
+
 app.post('/auth/manager_requests', function(req, res) {
   var secondFactorToken = 12345;
   var token = tokens.generateToken(secondFactorToken);
@@ -112,6 +117,7 @@ function verifyManagerAuth(req, res, next) {
 }
 
 function verifyAuth(req, res, next) {
+  console.error('req', req);
   if (validManager(req)) {
     req.isManager = true;
     return next();
@@ -119,7 +125,7 @@ function verifyAuth(req, res, next) {
 
   var signature = req.header('X-Slab-Signature');
   var publicKey = req.header('X-Slab-PublicKey');
-  var reqURL = 'http://' + req.headers.host + req.originalUrl;
+  var reqURL = 'https://' + req.headers.host + req.originalUrl;
   var message = req.method.toUpperCase() + '\n' +  reqURL + '\n' + req.rawBody;
   var verified = tokens.verifySignature(message, signature, publicKey);
 
