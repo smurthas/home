@@ -117,7 +117,6 @@ function verifyManagerAuth(req, res, next) {
 }
 
 function verifyAuth(req, res, next) {
-  console.error('req', req);
   if (validManager(req)) {
     req.isManager = true;
     return next();
@@ -125,7 +124,8 @@ function verifyAuth(req, res, next) {
 
   var signature = req.header('X-Slab-Signature');
   var publicKey = req.header('X-Slab-PublicKey');
-  var reqURL = 'https://' + req.headers.host + req.originalUrl;
+  var reqURL = req.headers['x-forwarded-proto'] + '://' +
+                 req.headers.host + req.originalUrl;
   var message = req.method.toUpperCase() + '\n' +  reqURL + '\n' + req.rawBody;
   var verified = tokens.verifySignature(message, signature, publicKey);
 
