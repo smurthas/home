@@ -295,7 +295,7 @@
 				ORGANIZATIONNAME = "Simon Murtha Smith";
 				TargetAttributes = {
 					F4177ACF19C7C1CB0009667A = {
-						DevelopmentTeam = A8WQY23L38;
+						DevelopmentTeam = 4SB5DG3EX9;
 					};
 					F4177AEA19C7C1CB0009667A = {
 						TestTargetID = F4177ACF19C7C1CB0009667A;
@@ -571,7 +571,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = A8WQY23L38;
+				DEVELOPMENT_TEAM = 4SB5DG3EX9;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ToDoList/ToDoList-Prefix.pch";
 				INFOPLIST_FILE = "ToDoList/ToDoList-Info.plist";
@@ -592,7 +592,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = A8WQY23L38;
+				DEVELOPMENT_TEAM = 4SB5DG3EX9;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ToDoList/ToDoList-Prefix.pch";
 				INFOPLIST_FILE = "ToDoList/ToDoList-Info.plist";

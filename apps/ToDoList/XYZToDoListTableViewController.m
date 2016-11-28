@@ -227,20 +227,37 @@
                                      message:nil
                                      preferredStyle:UIAlertControllerStyleActionSheet];
         
-        UIAlertAction* hour = [UIAlertAction
-                             actionWithTitle:@"1 hour"
-                             style:UIAlertActionStyleDefault
-                             handler:^(UIAlertAction * action)
-                             {
-                                 toDoItem[@"snoozed"] = [NSNumber numberWithLongLong:(now + 3600000LL)];
-                                 
-                                 [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
-                                 
-                                 [view dismissViewControllerAnimated:YES completion:nil];
-                                 [self.toDoItems removeObjectAtIndex:indexPath.row];
-                                 [self.tableView reloadData];
-                                 
-                             }];
+        
+        UIAlertAction* thirydays = [UIAlertAction
+                                    actionWithTitle:@"30 days"
+                                    style:UIAlertActionStyleDefault
+                                    handler:^(UIAlertAction * action)
+                                    {
+                                        toDoItem[@"snoozed"] = [NSNumber numberWithLongLong:(now + 2592000000LL)];
+                                        
+                                        [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
+                                        
+                                        [view dismissViewControllerAnimated:YES completion:nil];
+                                        [self.toDoItems removeObjectAtIndex:indexPath.row];
+                                        [self.tableView reloadData];
+                                        
+                                    }];
+        
+        UIAlertAction* week = [UIAlertAction
+                               actionWithTitle:@"1 week"
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action)
+                               {
+                                   toDoItem[@"snoozed"] = [NSNumber numberWithLongLong:(now + 604800000LL)];
+                                   
+                                   [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
+                                   
+                                   [view dismissViewControllerAnimated:YES completion:nil];
+                                   [self.toDoItems removeObjectAtIndex:indexPath.row];
+                                   [self.tableView reloadData];
+                                   
+                               }];
+
         UIAlertAction* day = [UIAlertAction
                              actionWithTitle:@"1 day"
                              style:UIAlertActionStyleDefault
@@ -255,21 +272,22 @@
                                  [self.tableView reloadData];
                                  
                              }];
-        UIAlertAction* week = [UIAlertAction
-                              actionWithTitle:@"1 week"
-                              style:UIAlertActionStyleDefault
-                              handler:^(UIAlertAction * action)
-                              {
-                                  toDoItem[@"snoozed"] = [NSNumber numberWithLongLong:(now + 604800000LL)];
-                                  
-                                  [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
-                                  
-                                  [view dismissViewControllerAnimated:YES completion:nil];
-                                  [self.toDoItems removeObjectAtIndex:indexPath.row];
-                                  [self.tableView reloadData];
-                                  
-                              }];
-                         
+        
+        UIAlertAction* hour = [UIAlertAction
+                               actionWithTitle:@"1 hour"
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action)
+                               {
+                                   toDoItem[@"snoozed"] = [NSNumber numberWithLongLong:(now + 3600000LL)];
+                                   
+                                   [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
+                                   
+                                   [view dismissViewControllerAnimated:YES completion:nil];
+                                   [self.toDoItems removeObjectAtIndex:indexPath.row];
+                                   [self.tableView reloadData];
+                                   
+                               }];
+        
          UIAlertAction* cancel = [UIAlertAction
                                actionWithTitle:@"Cancel"
                                style:UIAlertActionStyleCancel
@@ -281,9 +299,10 @@
                                }];
         
         
-        [view addAction:hour];
-        [view addAction:day];
+        [view addAction:thirydays];
         [view addAction:week];
+        [view addAction:day];
+        [view addAction:hour];
         [view addAction:cancel];
         [self presentViewController:view animated:YES completion:nil];
         
