@@ -13,7 +13,7 @@
 
 @property IBOutlet UITableView *tableView;
 
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *dynamicTVHeight;
+//@property (strong, nonatomic) IBOutlet NSLayoutConstraint *dynamicTVHeight;
 
 
 @property NSMutableArray* alreadyShared;

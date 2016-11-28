@@ -107,7 +107,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.defaultBase = [SLBase baseWithBaseURL: @"http://slab-base.herokuapp.com"
+    self.defaultBase = [SLBase baseWithBaseURL: @"https://slab-base.herokuapp.com"
                                andManagerToken: @"kfLFL5zLR62S42keuCaSUakZ2n1z2PZTt3Urorp7CfspxuLsVZp9HeuMWC7MEP8Py3cQiM7EhoURqZQSb98sq19"];
     self.appID = @"myTodos";
 

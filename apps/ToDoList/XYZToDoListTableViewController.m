@@ -33,6 +33,13 @@
 - (void) loadInitialData:(void (^)(NSError* error))callbackBlock {
     SLQuery *query = [SLQuery objectQueryWithCollectionName:self.listItem[@"_id"]];
     [query whereKey:@"logged" equalTo:@NO];
+    long long now = ((long long)([[NSDate date] timeIntervalSince1970] * 1000.0));
+    [query whereKey:@"snoozed" equalTo: @{
+                                          @"$not": @{
+                                                  @"$gt": [NSNumber numberWithLongLong:now]
+                                                  }
+                                          }];
+    NSLog(@"loading initial data from self.listItem %@", self.listItem);
 
     [[SlabClient sharedClient] findInBackground:query account:[SLAccount accountFromObject:self.listItem] block:^(NSArray *objects, NSError *error) {
         NSLog(@"got back objects for collection: %@", objects);
@@ -192,6 +199,102 @@
     return [self.toDoItems count];
 }
 
+-(NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewRowAction *delete = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"Delete" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath)
+    {
+        // Delete something here
+        NSLog(@"sub delete");
+        NSMutableDictionary *toDoItem = [self.toDoItems objectAtIndex:indexPath.row];
+        [self.toDoItems removeObjectAtIndex:indexPath.row];
+        [self.tableView reloadData];
+        
+        
+        [[SlabClient sharedClient] deleteInBackground:toDoItem fromCollection:self.listItem];
+    }];
+    
+    UITableViewRowAction *snooze = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"Snooze" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath)
+    {
+        //Do whatever here : just as an example :
+        //[self presentUIAlertControllerActionSheet];here
+        NSMutableDictionary *toDoItem = [self.toDoItems objectAtIndex:indexPath.row];
+        //[self.toDoItems removeObjectAtIndex:indexPath.row];
+        //[self.tableView reloadData];
+        //NSInteger row = button.tag;
+        //NSMutableDictionary *tappedItem = [self.toDoItems objectAtIndex:row];
+        long long now = ((long long)([[NSDate date] timeIntervalSince1970] * 1000.0));
+        UIAlertController * view=   [UIAlertController
+                                     alertControllerWithTitle:@"How long?"
+                                     message:nil
+                                     preferredStyle:UIAlertControllerStyleActionSheet];
+        
+        UIAlertAction* hour = [UIAlertAction
+                             actionWithTitle:@"1 hour"
+                             style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action)
+                             {
+                                 toDoItem[@"snoozed"] = [NSNumber numberWithLongLong:(now + 3600000LL)];
+                                 
+                                 [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
+                                 
+                                 [view dismissViewControllerAnimated:YES completion:nil];
+                                 [self.toDoItems removeObjectAtIndex:indexPath.row];
+                                 [self.tableView reloadData];
+                                 
+                             }];
+        UIAlertAction* day = [UIAlertAction
+                             actionWithTitle:@"1 day"
+                             style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action)
+                             {
+                                 toDoItem[@"snoozed"] = [NSNumber numberWithLongLong:(now + 86400000LL)];
+                                 
+                                 [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
+                                 
+                                 [view dismissViewControllerAnimated:YES completion:nil];
+                                 [self.toDoItems removeObjectAtIndex:indexPath.row];
+                                 [self.tableView reloadData];
+                                 
+                             }];
+        UIAlertAction* week = [UIAlertAction
+                              actionWithTitle:@"1 week"
+                              style:UIAlertActionStyleDefault
+                              handler:^(UIAlertAction * action)
+                              {
+                                  toDoItem[@"snoozed"] = [NSNumber numberWithLongLong:(now + 604800000LL)];
+                                  
+                                  [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
+                                  
+                                  [view dismissViewControllerAnimated:YES completion:nil];
+                                  [self.toDoItems removeObjectAtIndex:indexPath.row];
+                                  [self.tableView reloadData];
+                                  
+                              }];
+                         
+         UIAlertAction* cancel = [UIAlertAction
+                               actionWithTitle:@"Cancel"
+                               style:UIAlertActionStyleCancel
+                               handler:^(UIAlertAction * action)
+                               {
+                                   [view dismissViewControllerAnimated:YES completion:nil];
+                                   [self.tableView reloadData];
+                                   
+                               }];
+        
+        
+        [view addAction:hour];
+        [view addAction:day];
+        [view addAction:week];
+        [view addAction:cancel];
+        [self presentViewController:view animated:YES completion:nil];
+        
+        NSLog(@"sub snooze");
+    }];
+
+    delete.backgroundColor = [UIColor redColor];
+    snooze.backgroundColor = [UIColor colorWithRed:0.188 green:0.514 blue:0.984 alpha:1]; //arbitrary color
+    
+    return @[delete, snooze]; //array with all the buttons you want. 1,2,3, etc...
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -365,6 +468,7 @@
     // Perform the real delete action here. Note: you may need to check editing style
     //   if you do not perform delete only.
     
+    NSLog(@"ok delete");
     NSMutableDictionary *toDoItem = [self.toDoItems objectAtIndex:indexPath.row];
     [self.toDoItems removeObjectAtIndex:indexPath.row];
     [self.tableView reloadData];

@@ -44,13 +44,14 @@
     [self.tableView reloadData];
 }
 
+/*
 -(void)viewDidLayoutSubviews {
     CGFloat height = MAX(0, self.tableView.contentSize.height - 1);
     NSLog(@"height: %f", height);
     self.dynamicTVHeight.constant = height;
 
     [self.view layoutIfNeeded];
-}
+}*/
 
 
 - (void) loadDataAndLayout {
@@ -73,11 +74,11 @@
 
             NSLog(@"alreadyShared %@", self.alreadyShared);
             [self.tableView reloadData];
-
+/*
             CGFloat height = MAX(0, self.tableView.contentSize.height - 1);
             NSLog(@"height: %f", height);
             self.dynamicTVHeight.constant = height;
-
+*/
             [self.view layoutIfNeeded];
         }];
     }];
