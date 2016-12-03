@@ -11,5 +11,8 @@
 @interface XYZAddListViewController : UIViewController
 
 @property NSMutableDictionary *listItem;
+@property NSMutableDictionary *templateListItem;
+
+- (IBAction)unwindToAddList:(UIStoryboardSegue *)segue;
 
 @end

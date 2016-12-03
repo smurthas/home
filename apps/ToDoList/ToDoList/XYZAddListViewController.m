@@ -13,6 +13,7 @@
 
 @interface XYZAddListViewController ()
 @property (weak, nonatomic) IBOutlet UITextField *textField;
+@property (weak, nonatomic) IBOutlet UILabel *templateNameLabel;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *cancelButton;
 
@@ -52,6 +53,7 @@
     // Pass the selected object to the new view controller.
     
     if (sender == self.cancelButton) return;
+    if (sender != self.doneButton) return;
     
     if (self.textField.text.length > 0) {
         self.listItem = [NSMutableDictionary dictionaryWithDictionary:@{
@@ -76,11 +78,43 @@
         for (NSString *key in [collection allKeys]) {
             self.listItem[key] = collection[key];
         }
-
+        
+        if (self.templateListItem != nil) {
+            [self loadTodosFromList:^(NSArray *objects, NSError *error) {
+                for (NSDictionary* immutableTodoItem in objects) {
+                    NSMutableDictionary *todoItem = [immutableTodoItem mutableCopy];
+                    todoItem[@"completed"] = @NO;
+                    todoItem[@"logged"] = @NO;
+                    todoItem[@"snoozed"] = @NO;
+                    [[SlabClient sharedClient] saveInBackground:todoItem toCollection:self.listItem];
+                }
+            }];
+        }
+        
         NSLog(@"collection: %@", collection);
     }];
 }
 
+
+- (IBAction)unwindToAddList:(UIStoryboardSegue *)segue
+{
+    NSLog(@"did unwind to add list view, %@", self.templateListItem);
+    self.templateNameLabel.text = self.templateListItem[@"name"];
+//    XYZAddListViewController *source = [segue sourceViewController];
+//    NSLog(@"listItem: %@", source.listItem);
+//    if (source.listItem != nil) {
+//        [self.lists insertObject:source.listItem atIndex:0];
+//        [self.tableView reloadData];
+//    }
+}
+
+
+- (void) loadTodosFromList:(void (^)(NSArray *objects,NSError* error))callbackBlock {
+    SLQuery *query = [SLQuery objectQueryWithCollectionName:self.templateListItem[@"_id"]];
+    NSLog(@"loading initial data from templateListItem %@", self.templateListItem);
+    
+    [[SlabClient sharedClient] findInBackground:query account:[SLAccount accountFromObject:self.listItem] block:callbackBlock];
+}
 
 
 -(BOOL)textFieldShouldReturn:(UITextField*)textField;

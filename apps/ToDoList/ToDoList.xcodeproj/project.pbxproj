@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		144777AC2B99C8D99C23E185 /* libPods-ToDoListTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF9A52179560966A6A29C8E /* libPods-ToDoListTests.a */; };
 		84AAF8C3F39D35B1306755AA /* libPods-ToDoList.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BC0FA12B8621E507C872EA0 /* libPods-ToDoList.a */; };
+		E41EE3281DF34D740090E6C8 /* XYZChooseTemplateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E41EE3271DF34D740090E6C8 /* XYZChooseTemplateViewController.m */; };
 		F40218CD1A1EAA67000B28ED /* pusher.p12 in Resources */ = {isa = PBXBuildFile; fileRef = F40218CC1A1EAA67000B28ED /* pusher.p12 */; };
 		F40218CE1A1EAA67000B28ED /* pusher.p12 in Resources */ = {isa = PBXBuildFile; fileRef = F40218CC1A1EAA67000B28ED /* pusher.p12 */; };
 		F4177AD419C7C1CB0009667A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4177AD319C7C1CB0009667A /* Foundation.framework */; };
@@ -54,6 +55,8 @@
 		627B113C78740E64FB45FE0F /* Pods-ToDoList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoList/Pods-ToDoList.debug.xcconfig"; sourceTree = "<group>"; };
 		A4A8BA0664C15FDC30DC3F79 /* Pods-ToDoList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoList.release.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoList/Pods-ToDoList.release.xcconfig"; sourceTree = "<group>"; };
 		D5756B9E62371D850C218CF7 /* Pods-ToDoListTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoListTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoListTests/Pods-ToDoListTests.release.xcconfig"; sourceTree = "<group>"; };
+		E41EE3261DF34D740090E6C8 /* XYZChooseTemplateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XYZChooseTemplateViewController.h; sourceTree = "<group>"; };
+		E41EE3271DF34D740090E6C8 /* XYZChooseTemplateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XYZChooseTemplateViewController.m; sourceTree = "<group>"; };
 		F40218CC1A1EAA67000B28ED /* pusher.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = pusher.p12; sourceTree = "<group>"; };
 		F4177AD019C7C1CB0009667A /* ToDoList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4177AD319C7C1CB0009667A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -236,6 +239,8 @@
 				F44F408B19CDF85A0061E4AB /* XYZListsListTableViewController.m */,
 				F44F408D19CE5BB90061E4AB /* XYZAddListViewController.h */,
 				F44F408E19CE5BB90061E4AB /* XYZAddListViewController.m */,
+				E41EE3261DF34D740090E6C8 /* XYZChooseTemplateViewController.h */,
+				E41EE3271DF34D740090E6C8 /* XYZChooseTemplateViewController.m */,
 			);
 			name = Lists;
 			sourceTree = "<group>";
@@ -452,6 +457,7 @@
 				F43311B11A071F5F0067F737 /* XYZShareListViewController.m in Sources */,
 				F4177B0C19C7D3E90009667A /* XYZToDoListTableViewController.m in Sources */,
 				F4177B0619C7D2F50009667A /* XYZAddToDoItemViewController.m in Sources */,
+				E41EE3281DF34D740090E6C8 /* XYZChooseTemplateViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
