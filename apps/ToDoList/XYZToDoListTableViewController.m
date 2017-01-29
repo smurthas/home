@@ -200,16 +200,29 @@
 }
 
 -(NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     UITableViewRowAction *delete = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"Delete" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath)
+      {
+          // Done
+          NSLog(@"sub delete");
+          NSMutableDictionary *toDoItem = [self.toDoItems objectAtIndex:indexPath.row];
+          [self.toDoItems removeObjectAtIndex:indexPath.row];
+          [self.tableView reloadData];
+          [[SlabClient sharedClient] deleteInBackground:toDoItem fromCollection:self.listItem];
+      }];
+    
+    
+    UITableViewRowAction *done = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"Done" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath)
     {
-        // Delete something here
-        NSLog(@"sub delete");
+        // Done
+        NSLog(@"sub done");
+        
         NSMutableDictionary *toDoItem = [self.toDoItems objectAtIndex:indexPath.row];
+        toDoItem[@"completed"] = @YES;
+        toDoItem[@"logged"] = @YES;
+        [[SlabClient sharedClient] saveInBackground:toDoItem toCollection:self.listItem];
         [self.toDoItems removeObjectAtIndex:indexPath.row];
         [self.tableView reloadData];
-        
-        
-        [[SlabClient sharedClient] deleteInBackground:toDoItem fromCollection:self.listItem];
     }];
     
     UITableViewRowAction *snooze = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"Snooze" handler:^(UITableViewRowAction *action, NSIndexPath *indexPath)
@@ -310,9 +323,10 @@
     }];
 
     delete.backgroundColor = [UIColor redColor];
+    done.backgroundColor = [UIColor colorWithRed:0.12 green:0.66 blue:0.39 alpha:1];
     snooze.backgroundColor = [UIColor colorWithRed:0.188 green:0.514 blue:0.984 alpha:1]; //arbitrary color
     
-    return @[delete, snooze]; //array with all the buttons you want. 1,2,3, etc...
+    return @[done, snooze, delete]; //array with all the buttons you want. 1,2,3, etc...
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -470,6 +484,9 @@
             XYZShareListViewController *sltvc = (XYZShareListViewController*)vc;
             sltvc.listItem = self.listItem;
             sltvc.todoItems = self.toDoItems;
+        } else if ([vc isKindOfClass:[XYZAddToDoItemViewController class]]) {
+            XYZAddToDoItemViewController *sltvc = (XYZAddToDoItemViewController*)vc;
+            sltvc.listItem = self.listItem;
         }
 
     }

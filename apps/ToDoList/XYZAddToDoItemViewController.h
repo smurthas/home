@@ -11,7 +11,9 @@
 @interface XYZAddToDoItemViewController : UIViewController <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
 @property NSMutableDictionary *toDoItem;
+@property NSMutableDictionary *listItem;
 @property (strong, nonatomic) IBOutlet UIImageView *imageView;
 - (IBAction)addPhoto:(id)sender;
+- (IBAction)quickAddButton:(id)sender;
 
 @end

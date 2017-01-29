@@ -156,11 +156,11 @@
                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="a1W-At-e3O" id="p13-z3-Cab">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Title" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="FC2-Wy-uOq">
-                                            <rect key="frame" x="15" y="0.0" width="345" height="43"/>
+                                            <rect key="frame" x="16" y="0.0" width="344" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -334,16 +334,80 @@
                                     <outlet property="delegate" destination="omn-gf-eh8" id="0i5-K7-ArT"/>
                                 </connections>
                             </textField>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="MLg-3g-ynm">
-                                <rect key="frame" x="40" y="227" width="240" height="240"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
-                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="kGV-3u-EDs">
                                 <rect key="frame" x="297" y="151" width="58" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
                                 <state key="normal" title="+ Photo"/>
                                 <connections>
                                     <action selector="addPhoto:" destination="omn-gf-eh8" eventType="touchUpInside" id="YxX-HJ-s8t"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="NOQ-yz-opF">
+                                <rect key="frame" x="17" y="189" width="176" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <state key="normal" title="                                            "/>
+                                <connections>
+                                    <action selector="quickAddButton:" destination="omn-gf-eh8" eventType="touchUpInside" id="29M-O9-YpV"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" id="MLg-3g-ynm">
+                                <rect key="frame" x="34" y="357" width="240" height="240"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="VIG-2m-mJu">
+                                <rect key="frame" x="186" y="189" width="176" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <state key="normal" title="                                            "/>
+                                <connections>
+                                    <action selector="quickAddButton:" destination="omn-gf-eh8" eventType="touchUpInside" id="fcZ-2c-a0o"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="kqo-fA-UsE">
+                                <rect key="frame" x="17" y="227" width="176" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <state key="normal" title="                                            "/>
+                                <connections>
+                                    <action selector="quickAddButton:" destination="omn-gf-eh8" eventType="touchUpInside" id="3A0-XG-DeX"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ThA-AZ-A60">
+                                <rect key="frame" x="186" y="227" width="176" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <state key="normal" title="                                            "/>
+                                <connections>
+                                    <action selector="quickAddButton:" destination="omn-gf-eh8" eventType="touchUpInside" id="Jzn-nI-j5n"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="kHg-Gk-cAq">
+                                <rect key="frame" x="17" y="265" width="176" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <state key="normal" title="                                            "/>
+                                <connections>
+                                    <action selector="quickAddButton:" destination="omn-gf-eh8" eventType="touchUpInside" id="REf-mn-ccc"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="WWt-pU-bZB">
+                                <rect key="frame" x="186" y="265" width="176" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <state key="normal" title="                                            "/>
+                                <connections>
+                                    <action selector="quickAddButton:" destination="omn-gf-eh8" eventType="touchUpInside" id="I93-CS-Lbw"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="qQe-cX-xn2">
+                                <rect key="frame" x="17" y="303" width="176" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <state key="normal" title="                                            "/>
+                                <connections>
+                                    <action selector="quickAddButton:" destination="omn-gf-eh8" eventType="touchUpInside" id="Dsk-YY-rmH"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="A6B-3X-7fv">
+                                <rect key="frame" x="186" y="303" width="176" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
+                                <state key="normal" title="                                            "/>
+                                <connections>
+                                    <action selector="quickAddButton:" destination="omn-gf-eh8" eventType="touchUpInside" id="x6m-aa-ho0"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -364,6 +428,14 @@
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="button1" destination="A6B-3X-7fv" id="p64-r3-lOv"/>
+                        <outlet property="button2" destination="WWt-pU-bZB" id="Qi2-ig-YgX"/>
+                        <outlet property="button3" destination="qQe-cX-xn2" id="ZHX-Lg-3SX"/>
+                        <outlet property="button4" destination="ThA-AZ-A60" id="TBb-i0-S9s"/>
+                        <outlet property="button5" destination="kHg-Gk-cAq" id="au8-6k-rDF"/>
+                        <outlet property="button6" destination="VIG-2m-mJu" id="hLH-YS-xu5"/>
+                        <outlet property="button7" destination="kqo-fA-UsE" id="gU8-KG-BhK"/>
+                        <outlet property="button8" destination="NOQ-yz-opF" id="885-pf-A8h"/>
                         <outlet property="cancelButton" destination="exa-0g-KAB" id="mFP-Lq-5y4"/>
                         <outlet property="doneButton" destination="Luy-VL-lKT" id="nac-Ci-Q1U"/>
                         <outlet property="imageView" destination="MLg-3g-ynm" id="Uct-CN-DDI"/>
@@ -374,7 +446,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bir-rR-eld" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="YV2-jZ-hfU" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="1249" y="-101"/>
+            <point key="canvasLocation" x="1248.5" y="-101.5"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="wzD-yO-1J5">
