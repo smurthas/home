@@ -161,6 +161,34 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector( willEnterForeground: )
+                                                 name: UIApplicationWillEnterForegroundNotification
+                                               object: nil];
+
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self ];
+}
+
+
+- (void)willEnterForeground:(NSNotification *)note
+{
+    [self loadInitialData:^(NSError *error) {
+        NSLog(@"refreshed on app reappear");
+    }];
+}
+
+
 -(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
 
