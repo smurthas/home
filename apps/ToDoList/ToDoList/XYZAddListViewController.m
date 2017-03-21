@@ -53,7 +53,10 @@
     // Pass the selected object to the new view controller.
     
     if (sender == self.cancelButton) return;
-    if (sender != self.doneButton) return;
+    if (sender != self.doneButton && sender != self.textField) {
+        NSLog(@"sender: %@", sender);
+        return;
+    }
     
     if (self.textField.text.length > 0) {
         self.listItem = [NSMutableDictionary dictionaryWithDictionary:@{
@@ -121,7 +124,7 @@
 {
     [textField resignFirstResponder];
 
-    [self performSegueWithIdentifier:@"UnwindToList" sender:self];
+    [self performSegueWithIdentifier:@"UnwindToList" sender:textField];
 
     return YES;
 }
