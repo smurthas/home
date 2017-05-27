@@ -97,7 +97,118 @@ describe('backend', function() {
     it('should create a collection', function(done) {
       createCollection(function(coll) {
         assert(coll);
-        done();
+        var grants = {};
+        grants[PK] = {
+          readAttributes: true,
+          createObjects: true,
+          modifyAttributes: true
+        };
+
+        backend.getCollections({
+          appID: APP,
+          accountID: coll._accountID,
+          grantIDs: [PK],
+        }, function(err, colls) {
+          assert.ifError(err);
+          assert(colls);
+          assert.equal(colls.length, 1);
+          assert.equal(colls[0].testName, 'blargh');
+          done();
+        });
+      });
+    });
+  });
+
+  describe('delete collection', function() {
+    it('should delete a collection', function(done) {
+      createCollection(function(coll) {
+        assert(coll);
+        let options = {
+          appID: APP,
+          accountID: account,
+          collectionID: coll._id,
+          grantIDs: [PK],
+        };
+        backend.deleteCollection(options, (err) => {
+          assert.ifError(err);
+          backend.getCollection(options, function(err, collection) {
+            assert(err.notFound);
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('upsert collection', function() {
+    it('should upsert a collection that already exists', function(done) {
+      createCollection(function(coll) {
+        assert(coll);
+        let grants = {};
+        grants[PK] = {
+          readAttributes: true,
+          createObjects: true,
+          modifyAttributes: true
+        };
+        let options = {
+          appID: APP,
+          accountID: account,
+          collectionID: coll._id,
+          grantIDs: [PK],
+          attributes: {
+            testName: 'blargh',
+            _grants: grants
+          }
+        };
+        backend.upsertCollection(options, (err) => {
+          assert.ifError(err);
+          backend.getCollection(options, function(err, collection) {
+            assert.ifError(err);
+            assert(collection);
+            assert(collection._id);
+            assert.equal(collection._id, coll._id);
+            assert.equal(collection.testName, 'blargh');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should upsert a collection that does not exist', function(done) {
+      createAccount(function(resp) {
+        account = resp._id;
+        const _id = 'blargh456';
+        let grants = {};
+        grants[PK] = {
+          readAttributes: true,
+          createObjects: true,
+          modifyAttributes: true
+        };
+        let options = {
+          appID: APP,
+          accountID: account,
+          collectionID: _id,
+          grantIDs: [PK],
+          attributes: {
+            testName: 'blargh',
+            _grants: grants
+          }
+        };
+        backend.upsertCollection(options, (err, upsertedColl) => {
+          assert.ifError(err);
+          assert(upsertedColl);
+          assert(upsertedColl._id);
+          assert.equal(upsertedColl._id, _id);
+          assert.equal(upsertedColl.testName, 'blargh');
+          backend.getCollection(options, function(err, collection) {
+            assert.ifError(err);
+            assert(collection);
+            assert(collection._id);
+            assert.equal(collection._id, _id);
+            assert.equal(collection.testName, 'blargh');
+            done();
+          });
+        });
       });
     });
   });
@@ -224,6 +335,54 @@ describe('backend', function() {
             assert.equal(objects.length, 1);
             assert.equal(objects[0]._id, _id);
             done();
+          });
+        });
+      });
+    });
+
+    it('should delete an object', function(done) {
+      createCollection(function(collection) {
+        var options = {
+          appID: APP,
+          accountID: account,
+          collectionID: collection._id,
+          grantIDs: [PK],
+          grantID: PK
+        };
+        assert(collection);
+        var grants = {};
+        grants[PK] = {
+          read: true,
+          write: true
+        };
+        var _id = 'marshmallow';
+        options.object = {
+          _id: _id,
+          testName: 'blooop',
+          _grants: grants
+        };
+        backend.insert(options, function(err, object) {
+          assert.ifError(err);
+          assert(object);
+          assert(object._id);
+
+          options.filter = {
+            _id: object._id
+          };
+          backend.get(options, function(err, objects) {
+            assert.ifError(err);
+            assert.equal(objects.length, 1);
+            assert.equal(objects[0]._id, _id);
+            options._id = _id;
+            delete options.object;
+            backend.delete(options, function(err) {
+              assert.ifError(err);
+              backend.get(options, function(err, objects) {
+                assert.ifError(err);
+                assert.equal(objects.length, 0);
+                done();
+              });
+            });
           });
         });
       });
