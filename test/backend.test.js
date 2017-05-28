@@ -76,6 +76,38 @@ function createCollection (callback) {
   });
 }
 
+function createObject(callback) {
+  createCollection(function(collection) {
+    assert(collection);
+
+    const options = {
+      appID: APP,
+      accountID: account,
+      collectionID: collection._id,
+      grantIDs: [PK],
+      grantID: PK
+    };
+    const grants = {};
+    grants[PK] = {
+      read: true,
+      write: true
+    };
+    const _id = 'marshmallow';
+    options.object = {
+      _id: _id,
+      testName: 'blooop',
+      _grants: grants
+    };
+    backend.insert(options, function(err, object) {
+      assert.ifError(err);
+      assert(object);
+      assert(object._id);
+      assert.equal(object._id, _id);
+      callback(object, collection, options);
+    });
+  });
+}
+
 describe('backend', function() {
   beforeEach(function(done) {
     data = {};
@@ -389,4 +421,52 @@ describe('backend', function() {
     });
 
   });
+
+  describe('grants', function() {
+    it('should be able to grant a temporary ID access to an object', function(done) {
+      createObject(function(object, collection, options) {
+        backend.createTemporaryIdentity({
+          attributes: {
+            email: 'blargh@blargh.com'
+          }
+        }, function(err, id) {
+          assert.ifError(err);
+          object._grants[id] = { read: true, write: true };
+
+          backend.update(options, function(err, updatedObject) {
+            assert.ifError(err);
+            assert(updatedObject);
+            const convertOptions = {
+              temporaryIdentity: id,
+              publicKey: 'blargh',
+            };
+
+            backend.createIdentityFromTemporary(convertOptions, function(err) {
+              assert.ifError(err);
+              const grantIDs = backend.getGrantsForIdentity('blargh');
+              console.error('grantIDs', grantIDs);
+              const getOptions = {
+                appID: APP,
+                accountID: account,
+                collectionID: collection._id,
+                filter: {
+                  _id: object._id,
+                },
+                grantIDs: backend.getGrantsForIdentity('blargh'),
+              };
+
+              backend.get(getOptions, function(err, gotObjects) {
+                assert.ifError(err);
+                assert.equal(gotObjects.length, 1);
+                assert.equal(gotObjects[0]._id, object._id);
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
 });
+
