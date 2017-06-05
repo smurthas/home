@@ -103,7 +103,7 @@ function createObject(callback) {
       assert(object);
       assert(object._id);
       assert.equal(object._id, _id);
-      callback(object, collection, options);
+      callback(Object.assign({}, object), collection, options);
     });
   });
 }
@@ -433,6 +433,7 @@ describe('backend', function() {
           assert.ifError(err);
           object._grants[id] = { read: true, write: true };
 
+          options.object = Object.assign({}, object);
           backend.update(options, function(err, updatedObject) {
             assert.ifError(err);
             assert(updatedObject);
@@ -444,7 +445,6 @@ describe('backend', function() {
             backend.createIdentityFromTemporary(convertOptions, function(err) {
               assert.ifError(err);
               const grantIDs = backend.getGrantsForIdentity('blargh');
-              console.error('grantIDs', grantIDs);
               const getOptions = {
                 appID: APP,
                 accountID: account,
